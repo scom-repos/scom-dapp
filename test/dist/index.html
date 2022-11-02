@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="/libs/@ijstech/components/index.js"></script>
+</head>
+<html>
+
+<body>
+  <script>
+    async function init() {
+      application.LibHost = "";
+      let module = await application.newModule("@scom/dapp", {
+    "env": "testnet",
+    "main": "@scom/dapp",
+    "assets": "@dapp/assets",
+    "logo": "logo",
+    "moduleDir": "modules",
+    "modules": {
+        "@dapp/assets": {
+            "path": "assets",
+            "dependencies": []
+        },
+        "@dapp/module1": {
+            "path": "module1",
+            "dependencies": [
+                "@dapp/assets"
+            ]
+        },
+        "@dapp/module2": {
+            "path": "module2",
+            "dependencies": []
+        }
+    },
+    "dependencies": {
+        "@ijstech/eth-wallet": "*",
+        "@scom/dapp": "*"
+    },
+    "menus": [
+        {
+            "caption": "Module 1",
+            "url": "/module1",
+            "module": "@dapp/module1",
+            "params": {},
+            "menus": []
+        },
+        {
+            "caption": "Module 2",
+            "url": "/module2",
+            "module": "@dapp/module2",
+            "params": {},
+            "menus": []
+        }
+    ],
+    "networks": [
+        {
+            "name": "Ethereum",
+            "chainId": 1,
+            "img": "eth",
+            "rpc": "https://mainnet.infura.io/v3/{InfuraId}",
+            "env": "mainnet",
+            "explorerName": "Etherscan",
+            "explorerTxUrl": "https://etherscan.io/tx/",
+            "explorerAddressUrl": "https://etherscan.io/address/"
+        },
+        {
+            "name": "Binance Smart Chain",
+            "chainId": 56,
+            "img": "bsc",
+            "rpc": "https://bsc-dataseed.binance.org/",
+            "env": "mainnet",
+            "explorerName": "BSCScan",
+            "explorerTxUrl": "https://bscscan.com/tx/",
+            "explorerAddressUrl": "https://bscscan.com/address/"
+        },
+        {
+            "name": "BSC Testnet",
+            "chainId": 97,
+            "img": "bsc",
+            "rpc": "https://data-seed-prebsc-1-s1.binance.org:8545/",
+            "env": "testnet",
+            "explorerName": "BSCScan",
+            "explorerTxUrl": "https://testnet.bscscan.com/tx/",
+            "explorerAddressUrl": "https://testnet.bscscan.com/address/"
+        }
+    ],
+    "copyright": "&#169; 2022 IJS Technologies. All rights reserved."
+});
+      document.body.append(module);
+    };
+    init();
+  </script>
+</body>
+
+</html>

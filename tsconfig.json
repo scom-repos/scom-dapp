@@ -1,0 +1,18 @@
+{    
+    "compilerOptions": {
+        "target": "ES2017",        
+        "moduleResolution": "Node",
+        "module": "AMD",
+        "experimentalDecorators": true,        
+        "jsx": "react",      
+        "jsxFactory": "global.$render",
+        "jsxFragmentFactory": "global.$render",
+        "esModuleInterop": true,        
+        "forceConsistentCasingInFileNames": true,        
+        "declaration": false,        
+        "baseUrl": ".",
+        "outFile": "dist/index.js"
+    },
+    "include": ["src/*.tsx", "src/*.ts"],
+    "exclude": ["node_modules"]
+}

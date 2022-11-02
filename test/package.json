@@ -1,0 +1,19 @@
+{
+    "name": "demo2",
+    "version": "0.1.0",
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "devDependencies": {
+        "@ijstech/cli": "^0.1.13",
+        "@ijstech/compiler": "^0.1.11",
+        "@ijstech/components": "^0.1.20",
+        "@ijstech/eth-wallet": "^0.1.20",
+        "@scom/dapp": "file:../"
+    },
+    "scripts": {
+        "build": "rm -rf dist && npx @ijstech/compiler",
+        "serve": "npx @ijstech/cli serve 8080",
+        "test": "npm run build && npm run serve"
+    }
+}
