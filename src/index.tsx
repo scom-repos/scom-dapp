@@ -13,15 +13,24 @@ interface IMenu{
 	menus?: IMenu[];
 	regex?: MatchFunction;
 };
+interface ILogo {
+	header?: {
+		desktop?: string;
+		mobile?: string;
+	};
+	footer?: string;
+};
 interface ISCConfig{
 	env: string;
-	logo?: string;
+	logo?: ILogo;
 	moduleDir?: string;
 	modules: {[name: string]: {path: string, dependencies: string[]}};
 	dependencies?: {[name: string]: string};
 	menus: IMenu[];
 	networks?: INetwork[];
 	copyrightInfo: string;
+	poweredBy?: string;
+	version?: string;
 };
 interface INetwork {
 	name: string,
@@ -67,14 +76,13 @@ export default class MainLauncher extends Module {
 			}
 			else { 
 				if (!item.regex)
-					item.regex = match(item.url)
-				else{
-					let match = item.regex(path);
-					if (match !== false){
-						menu = item;
-						params = match.params;
-						break;
-					};
+					item.regex = match(item.url, { decode: decodeURIComponent })
+					
+				let _match = item.regex(path);
+				if (_match !== false){
+					menu = item;
+					params = Object.assign({ ...menu.params }, _match.params);
+					break;
 				};
 			};
 		};
@@ -82,6 +90,7 @@ export default class MainLauncher extends Module {
 			let menuObj: any = menu;
 			if (!menuObj.moduleObject)
 				menuObj.moduleObject = await application.loadModule(menu.module, this._options)
+			if (menuObj.moduleObject) menuObj.moduleObject.onLoad(params);
 			return menuObj.moduleObject;
 		};
 	};
@@ -102,18 +111,18 @@ export default class MainLauncher extends Module {
 	};
 	async render() {
 		return <i-vstack height="inherit">
-			<main-header logo={this.options.logo} id="headerElm" menuItems={this.menuItems} height="auto" width="100%"></main-header>
+			<main-header logo={this.options.logo?.header} id="headerElm" menuItems={this.menuItems} height="auto" width="100%"></main-header>
 			<i-panel id="pnlMain" stack={{ grow: "1", shrink: "0" }} ></i-panel>
 			<main-footer
 				id="footerElm"
-				background={{ color: Styles.Theme.ThemeVars.background.main }}
-				padding={{ top: '2rem', bottom: '2rem', right: '2rem', left: '2rem' }}
 				stack={{ shrink: '0' }}
 				class='footer'
 				height="auto"
 				width="100%"
-				logo={this.options.logo}
+				logo={this.options.logo?.footer}
 				copyrightInfo={this._options.copyrightInfo}
+				version={this._options.version}
+				poweredBy={this._options.poweredBy}
 			></main-footer>
 		</i-vstack>
 	};

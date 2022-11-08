@@ -4,7 +4,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define("assets", ["require", "exports", "@ijstech/components"], function (require, exports, components_1) {
+define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const moduleDir = components_1.application.currentModuleDir;
@@ -27,6 +27,10 @@ define("assets", ["require", "exports", "@ijstech/components"], function (requir
             network: {
                 bsc: fullPath('img/network/bsc.svg'),
                 eth: fullPath('img/network/eth.svg'),
+                amio: fullPath('img/network/amio.svg'),
+                avax: fullPath('img/network/avax.svg'),
+                ftm: fullPath('img/network/ftm.svg'),
+                polygon: fullPath('img/network/polygon.svg'),
             },
             wallet: {
                 metamask: fullPath('img/wallet/metamask.png'),
@@ -37,7 +41,7 @@ define("assets", ["require", "exports", "@ijstech/components"], function (requir
         fullPath
     };
 });
-define("index.css", ["require", "exports", "@ijstech/components", "assets"], function (require, exports, components_2, assets_1) {
+define("@scom/dapp/index.css.ts", ["require", "exports", "@ijstech/components", "@scom/dapp/assets.ts"], function (require, exports, components_2, assets_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     components_2.Styles.Theme.darkTheme.background.default = '#192F51';
@@ -111,7 +115,7 @@ define("index.css", ["require", "exports", "@ijstech/components", "assets"], fun
         fontStyle: 'normal'
     });
 });
-define("helper", ["require", "exports", "@ijstech/eth-wallet"], function (require, exports, eth_wallet_1) {
+define("@scom/dapp/helper.ts", ["require", "exports", "@ijstech/eth-wallet"], function (require, exports, eth_wallet_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getParamsFromUrl = exports.abbreviateNum = exports.toWeiInv = exports.getAPI = exports.limitDecimals = exports.formatNumberWithSeparators = exports.formatNumber = exports.compareDate = exports.formatDate = void 0;
@@ -242,7 +246,7 @@ define("helper", ["require", "exports", "@ijstech/eth-wallet"], function (requir
     };
     exports.getParamsFromUrl = getParamsFromUrl;
 });
-define("walletList", ["require", "exports", "@ijstech/eth-wallet"], function (require, exports, eth_wallet_2) {
+define("@scom/dapp/walletList.ts", ["require", "exports", "@ijstech/eth-wallet"], function (require, exports, eth_wallet_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.walletList = void 0;
@@ -280,7 +284,7 @@ define("walletList", ["require", "exports", "@ijstech/eth-wallet"], function (re
 //     }
 // }
 // }
-define("wallet", ["require", "exports", "@ijstech/components", "walletList", "@ijstech/eth-wallet"], function (require, exports, components_3, walletList_1, eth_wallet_3) {
+define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@scom/dapp/walletList.ts", "@ijstech/eth-wallet"], function (require, exports, components_3, walletList_1, eth_wallet_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.truncateAddress = exports.hasMetaMask = exports.hasWallet = exports.logoutWallet = exports.switchNetwork = exports.connectWallet = exports.isWalletConnected = void 0;
@@ -363,7 +367,7 @@ define("wallet", ["require", "exports", "@ijstech/components", "walletList", "@i
     };
     exports.truncateAddress = truncateAddress;
 });
-define("network", ["require", "exports", "@ijstech/eth-wallet", "helper", "wallet", "walletList"], function (require, exports, eth_wallet_4, helper_1, wallet_1, walletList_2) {
+define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@scom/dapp/helper.ts", "@scom/dapp/wallet.ts", "@scom/dapp/walletList.ts"], function (require, exports, eth_wallet_4, helper_1, wallet_1, walletList_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getInfuraId = exports.getSiteSupportedNetworks = exports.getDefaultChainId = exports.getNetworkType = exports.viewOnExplorerByAddress = exports.viewOnExplorerByTxHash = exports.getSupportedNetworkIds = exports.getNetworkList = exports.getNetworkInfo = exports.getErc20 = exports.getWalletProvider = exports.getWallet = exports.getChainId = exports.registerSendTxEvents = exports.updateNetworks = exports.NativeTokenByChainId = exports.formatNumber = exports.formatDate = exports.walletList = exports.logoutWallet = exports.connectWallet = exports.switchNetwork = exports.truncateAddress = exports.hasMetaMask = exports.hasWallet = exports.isWalletConnected = void 0;
@@ -503,7 +507,7 @@ define("network", ["require", "exports", "@ijstech/eth-wallet", "helper", "walle
     };
     exports.getInfuraId = getInfuraId;
 });
-define("header.css", ["require", "exports", "@ijstech/components"], function (require, exports, components_4) {
+define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = components_4.Styles.Theme.ThemeVars;
@@ -589,405 +593,13 @@ define("header.css", ["require", "exports", "@ijstech/components"], function (re
         }
     });
 });
-define("header", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "network", "header.css", "assets", "network"], function (require, exports, components_5, eth_wallet_5, network_1, header_css_1, assets_2, network_2) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.Header = void 0;
-    const Theme = components_5.Styles.Theme.ThemeVars;
-    ;
-    let Header = class Header extends components_5.Module {
-        constructor(parent, options) {
-            super(parent, options);
-            this.walletInfo = {
-                address: '',
-                balance: '',
-                networkId: 0
-            };
-            this.onChainChanged = async (chainId) => {
-                this.walletInfo.networkId = chainId;
-                this.selectedNetwork = network_2.getNetworkInfo(chainId);
-                let wallet = eth_wallet_5.Wallet.getInstance();
-                const isConnected = wallet.isConnected;
-                this.walletInfo.balance = isConnected ? network_1.formatNumber((await wallet.balance).toFixed(), 2) : '0';
-                this.updateConnectedStatus(isConnected);
-                this.updateList(isConnected);
-            };
-            this.updateConnectedStatus = (isConnected) => {
-                if (isConnected) {
-                    this.lblBalance.caption = `${this.walletInfo.balance} ${this.symbol}`;
-                    this.btnWalletDetail.caption = this.shortlyAddress;
-                    this.lblWalletAddress.caption = this.shortlyAddress;
-                    const networkType = network_2.getNetworkType(eth_wallet_5.Wallet.getInstance().chainId);
-                    this.lblViewAccount.caption = `View on ${networkType}`;
-                    this.hsViewAccount.visible = networkType !== 'Unknown';
-                }
-                else {
-                    this.hsViewAccount.visible = false;
-                }
-                if (this.selectedNetwork) {
-                    this.btnNetwork.icon = this.$render("i-icon", { width: 26, height: 26, image: { url: assets_2.default.img.network[this.selectedNetwork.img] || components_5.application.assets(this.selectedNetwork.img) } });
-                    this.btnNetwork.caption = this.selectedNetwork.name;
-                }
-                else {
-                    this.btnNetwork.icon = undefined;
-                    this.btnNetwork.caption = "Unsupported Network";
-                }
-                this.btnConnectWallet.visible = !isConnected;
-                this.hsBalance.visible = isConnected;
-                this.pnlWalletDetail.visible = isConnected;
-            };
-            this.openConnectModal = () => {
-                this.mdConnect.title = "Connect wallet";
-                this.mdConnect.visible = true;
-            };
-            this.openNetworkModal = () => {
-                this.mdNetwork.visible = true;
-            };
-            this.openWalletDetailModal = () => {
-                this.mdWalletDetail.visible = true;
-            };
-            this.openAccountModal = (target, event) => {
-                event.stopPropagation();
-                this.mdWalletDetail.visible = false;
-                this.mdAccount.visible = true;
-            };
-            this.openSwitchModal = (target, event) => {
-                event.stopPropagation();
-                this.mdWalletDetail.visible = false;
-                this.mdConnect.title = "Switch wallet";
-                this.mdConnect.visible = true;
-            };
-            this.logout = async (target, event) => {
-                event.stopPropagation();
-                this.mdWalletDetail.visible = false;
-                await network_2.logoutWallet();
-                this.updateConnectedStatus(false);
-                this.updateList(false);
-                this.mdAccount.visible = false;
-            };
-            this.connectToProviderFunc = async (walletPlugin) => {
-                if (eth_wallet_5.Wallet.isInstalled(walletPlugin)) {
-                    await network_2.connectWallet(walletPlugin);
-                }
-                else {
-                    let config = eth_wallet_5.WalletPluginConfig[walletPlugin];
-                    let homepage = config && config.homepage ? config.homepage() : '';
-                    window.open(homepage, '_blank');
-                }
-                this.mdConnect.visible = false;
-            };
-            this.copyWalletAddress = () => {
-                components_5.application.copyToClipboard(this.walletInfo.address || "");
-            };
-            this.renderWalletList = () => {
-                this.gridWalletList.clearInnerHTML();
-                this.walletMapper = new Map();
-                network_2.walletList.forEach((wallet) => {
-                    const isActive = this.isWalletActive(wallet.name);
-                    if (isActive)
-                        this.currActiveWallet = wallet.name;
-                    const hsWallet = (this.$render("i-hstack", { class: isActive ? 'is-actived list-item' : 'list-item', verticalAlignment: 'center', gap: 12, background: { color: Theme.colors.secondary.light }, border: { radius: 10 }, position: "relative", padding: { top: '0.5rem', bottom: '0.5rem', left: '0.5rem', right: '0.5rem' }, horizontalAlignment: "space-between", onClick: () => this.connectToProviderFunc(wallet.name) },
-                        this.$render("i-label", { caption: wallet.displayName, margin: { left: '1rem' }, wordBreak: "break-word", font: { size: '.875rem', bold: true, color: Theme.colors.primary.dark } }),
-                        this.$render("i-image", { width: 34, height: "auto", url: assets_2.default.img.wallet[wallet.img] || components_5.application.assets(wallet.img) })));
-                    this.walletMapper.set(wallet.name, hsWallet);
-                    this.gridWalletList.append(hsWallet);
-                });
-            };
-            this.$eventBus = components_5.application.EventBus;
-            this.registerEvent();
-        }
-        ;
-        get symbol() {
-            var _a, _b, _c, _d;
-            let symbol = '';
-            if (((_a = this.selectedNetwork) === null || _a === void 0 ? void 0 : _a.chainId) && network_2.NativeTokenByChainId[(_b = this.selectedNetwork) === null || _b === void 0 ? void 0 : _b.chainId]) {
-                symbol = (_d = network_2.NativeTokenByChainId[(_c = this.selectedNetwork) === null || _c === void 0 ? void 0 : _c.chainId]) === null || _d === void 0 ? void 0 : _d.symbol;
-            }
-            return symbol;
-        }
-        get shortlyAddress() {
-            const address = this.walletInfo.address;
-            if (!address)
-                return 'No address selected';
-            return network_1.truncateAddress(address);
-        }
-        registerEvent() {
-            let wallet = eth_wallet_5.Wallet.getInstance();
-            this.$eventBus.register(this, "connectWallet" /* ConnectWallet */, this.openConnectModal);
-            this.$eventBus.register(this, "isWalletConnected" /* IsWalletConnected */, async (connected) => {
-                if (connected) {
-                    this.walletInfo.address = wallet.address;
-                    this.walletInfo.balance = network_1.formatNumber((await wallet.balance).toFixed(), 2);
-                    this.walletInfo.networkId = wallet.chainId;
-                }
-                this.selectedNetwork = network_2.getNetworkInfo(wallet.chainId);
-                this.updateConnectedStatus(connected);
-                this.updateList(connected);
-            });
-            this.$eventBus.register(this, "IsWalletDisconnected" /* IsWalletDisconnected */, async (connected) => {
-                this.selectedNetwork = network_2.getNetworkInfo(wallet.chainId);
-                this.updateConnectedStatus(connected);
-                this.updateList(connected);
-            });
-            this.$eventBus.register(this, "chainChanged" /* chainChanged */, async (chainId) => {
-                this.onChainChanged(chainId);
-            });
-        }
-        init() {
-            this.classList.add(header_css_1.default);
-            this.selectedNetwork = network_2.getNetworkInfo(network_2.getDefaultChainId());
-            this.logo = this.getAttribute("logo", true, "");
-            super.init();
-            this._menuItems = this.getAttribute("menuItems", true, []);
-            this.renderMobileMenu();
-            this.renderDesktopMenu();
-            this.controlMenuDisplay();
-            this.renderWalletList();
-            this.renderNetworks();
-            this.updateConnectedStatus(network_1.isWalletConnected());
-            this.initData();
-            if (this.logo) {
-                let logo = components_5.application.assets(this.logo);
-                this.imgDesktopLogo.url = logo;
-                this.imgMobileLogo.url = logo;
-            }
-        }
-        connectedCallback() {
-            super.connectedCallback();
-            window.addEventListener('resize', this.controlMenuDisplay.bind(this));
-        }
-        disconnectCallback() {
-            super.disconnectCallback();
-            window.removeEventListener('resize', this.controlMenuDisplay.bind(this));
-        }
-        controlMenuDisplay() {
-            if (window.innerWidth < 760) {
-                this.hsMobileMenu.visible = true;
-                this.hsDesktopMenu.visible = false;
-            }
-            else {
-                this.hsMobileMenu.visible = false;
-                this.hsDesktopMenu.visible = true;
-            }
-        }
-        updateDot(connected, type) {
-            var _a, _b, _c;
-            const wallet = eth_wallet_5.Wallet.getInstance();
-            if (type === 'network') {
-                if (this.currActiveNetworkId !== undefined && this.currActiveNetworkId !== null && this.networkMapper.has(this.currActiveNetworkId)) {
-                    this.networkMapper.get(this.currActiveNetworkId).classList.remove('is-actived');
-                }
-                if (connected && this.networkMapper.has(wallet.chainId)) {
-                    this.networkMapper.get(wallet.chainId).classList.add('is-actived');
-                }
-                this.currActiveNetworkId = wallet.chainId;
-            }
-            else {
-                if (this.currActiveWallet && this.walletMapper.has(this.currActiveWallet)) {
-                    this.walletMapper.get(this.currActiveWallet).classList.remove('is-actived');
-                }
-                if (connected && this.walletMapper.has((_a = wallet.clientSideProvider) === null || _a === void 0 ? void 0 : _a.walletPlugin)) {
-                    this.walletMapper.get((_b = wallet.clientSideProvider) === null || _b === void 0 ? void 0 : _b.walletPlugin).classList.add('is-actived');
-                }
-                this.currActiveWallet = (_c = wallet.clientSideProvider) === null || _c === void 0 ? void 0 : _c.walletPlugin;
-            }
-        }
-        updateList(isConnected) {
-            if (isConnected && network_2.getWalletProvider() !== eth_wallet_5.WalletPlugin.MetaMask) {
-                this.lblNetworkDesc.caption = "We support the following networks, please switch network in the connected wallet.";
-            }
-            else {
-                this.lblNetworkDesc.caption = "We support the following networks, please click to connect.";
-            }
-            this.updateDot(isConnected, 'wallet');
-            this.updateDot(isConnected, 'network');
-        }
-        viewOnExplorerByAddress() {
-            network_2.viewOnExplorerByAddress(eth_wallet_5.Wallet.getInstance().chainId, this.walletInfo.address);
-        }
-        async switchNetwork(chainId) {
-            if (!chainId)
-                return;
-            await network_2.switchNetwork(chainId);
-            this.mdNetwork.visible = false;
-        }
-        isWalletActive(walletPlugin) {
-            var _a;
-            const provider = walletPlugin.toLowerCase();
-            return eth_wallet_5.Wallet.isInstalled(walletPlugin) && ((_a = eth_wallet_5.Wallet.getInstance().clientSideProvider) === null || _a === void 0 ? void 0 : _a.walletPlugin) === provider;
-        }
-        isNetworkActive(chainId) {
-            return eth_wallet_5.Wallet.getInstance().chainId === chainId;
-        }
-        renderNetworks() {
-            this.gridNetworkGroup.clearInnerHTML();
-            this.networkMapper = new Map();
-            const networksList = network_2.getNetworkList();
-            this.gridNetworkGroup.append(...networksList.map((network) => {
-                const img = network.img ? this.$render("i-image", { url: assets_2.default.img.network[network.img] || components_5.application.assets(network.img), width: 34, height: 34 }) : [];
-                const isActive = this.isNetworkActive(network.chainId);
-                if (isActive)
-                    this.currActiveNetworkId = network.chainId;
-                const hsNetwork = (this.$render("i-hstack", { onClick: () => this.switchNetwork(network.chainId), background: { color: Theme.colors.secondary.light }, border: { radius: 10 }, position: "relative", class: isActive ? 'is-actived list-item' : 'list-item', padding: { top: '0.65rem', bottom: '0.65rem', left: '0.5rem', right: '0.5rem' } },
-                    this.$render("i-hstack", { margin: { left: '1rem' }, verticalAlignment: "center", gap: 12 },
-                        img,
-                        this.$render("i-label", { caption: network.name, wordBreak: "break-word", font: { size: '.875rem', bold: true, color: Theme.colors.primary.dark } }))));
-                this.networkMapper.set(network.chainId, hsNetwork);
-                return hsNetwork;
-            }));
-        }
-        async initData() {
-            let accountsChangedEventHandler = async (account) => {
-            };
-            let chainChangedEventHandler = async (hexChainId) => {
-                this.updateConnectedStatus(true);
-            };
-            const selectedProvider = localStorage.getItem('walletProvider');
-            const isValidProvider = Object.values(eth_wallet_5.WalletPlugin).includes(selectedProvider);
-            if (network_2.hasWallet() && isValidProvider) {
-                await network_2.connectWallet(selectedProvider, {
-                    'accountsChanged': accountsChangedEventHandler,
-                    'chainChanged': chainChangedEventHandler
-                });
-            }
-        }
-        _getMenuData(list, mode, validMenuItemsFn) {
-            const menuItems = [];
-            list.filter(validMenuItemsFn).forEach((item, key) => {
-                const linkTarget = item.isToExternal ? '_blank' : '_self';
-                const _menuItem = {
-                    title: item.caption,
-                    link: { href: '/#' + item.url, target: linkTarget },
-                };
-                if (mode === 'mobile') {
-                    _menuItem.font = { color: Theme.colors.primary.main };
-                    if (item.img)
-                        _menuItem.icon = { width: 24, height: 24, image: { width: 24, height: 24, url: components_5.application.assets(item.img) } };
-                }
-                if (item.subItems && item.subItems.length) {
-                    _menuItem.items = this._getMenuData(item.subItems, mode, validMenuItemsFn);
-                }
-                menuItems.push(_menuItem);
-            });
-            return menuItems;
-        }
-        getMenuData(list, mode) {
-            var _a;
-            let chainId = ((_a = this.selectedNetwork) === null || _a === void 0 ? void 0 : _a.chainId) || eth_wallet_5.Wallet.getInstance().chainId;
-            let validMenuItemsFn;
-            if (chainId) {
-                validMenuItemsFn = (item) => !item.isDisabled && (!item.supportedChainIds || item.supportedChainIds.includes(chainId));
-            }
-            else {
-                validMenuItemsFn = (item) => !item.isDisabled;
-            }
-            return this._getMenuData(list, mode, validMenuItemsFn);
-        }
-        renderMobileMenu() {
-            const data = this.getMenuData(this._menuItems, 'mobile');
-            this.menuMobile.data = data;
-        }
-        renderDesktopMenu() {
-            const data = this.getMenuData(this._menuItems, 'desktop');
-            this.menuDesktop.data = data;
-        }
-        toggleMenu() {
-            this.mdMobileMenu.visible = !this.mdMobileMenu.visible;
-        }
-        render() {
-            return (this.$render("i-panel", { padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' } },
-                this.$render("i-hstack", { width: "100%", position: "relative", horizontalAlignment: 'space-between', wrap: 'wrap' },
-                    this.$render("i-hstack", { id: "hsMobileMenu", verticalAlignment: "center", width: 100, visible: false },
-                        this.$render("i-icon", { id: "hamburger", class: 'pointer', name: "bars", width: "20px", height: "20px", display: "inline-block", margin: { right: 5 }, fill: Theme.text.secondary, onClick: this.toggleMenu }),
-                        this.$render("i-modal", { id: "mdMobileMenu", height: "auto", minWidth: "250px", showBackdrop: false, popupPlacement: "bottomLeft", background: { color: Theme.background.modal } },
-                            this.$render("i-menu", { id: "menuMobile", mode: "inline" })),
-                        this.$render("i-image", { height: "100%", url: "", id: "imgMobileLogo", margin: { left: '0.5rem', right: '1.25rem' } })),
-                    this.$render("i-hstack", { id: "hsDesktopMenu", wrap: "nowrap", verticalAlignment: "center", maxWidth: "calc(100% - 640px)", width: "100%" },
-                        this.$render("i-image", { stack: { shrink: '0' }, height: "100%", url: "", id: "imgDesktopLogo", margin: { left: '0.5rem', right: '1.25rem' } }),
-                        this.$render("i-menu", { id: "menuDesktop", width: "100%", border: { left: { color: '#192046', width: '1px', style: 'solid' } } })),
-                    this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'end' },
-                        this.$render("i-panel", null,
-                            this.$render("i-button", { id: "btnNetwork", class: "btn-network", margin: { right: '1rem' }, padding: { top: '0.375rem', bottom: '0.375rem', left: '0.75rem', right: '0.75rem' }, background: { color: '#101026' }, border: { width: '1px', style: 'solid', color: '#101026', radius: 5 }, font: { color: Theme.text.secondary }, onClick: this.openNetworkModal, caption: "Unsupported Network" })),
-                        this.$render("i-hstack", { id: "hsBalance", visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: "#192046" }, lineHeight: "25px", border: { radius: 6 }, padding: { top: 6, bottom: 6, left: 10, right: 10 } },
-                            this.$render("i-label", { id: "lblBalance", font: { color: Theme.text.secondary } })),
-                        this.$render("i-panel", { id: "pnlWalletDetail", visible: false },
-                            this.$render("i-button", { id: "btnWalletDetail", padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, margin: { left: '0.5rem' }, border: { radius: 5 }, font: { color: Theme.text.secondary }, background: { color: Theme.colors.error.light }, onClick: this.openWalletDetailModal }),
-                            this.$render("i-modal", { id: "mdWalletDetail", height: "auto", maxWidth: 200, minWidth: 200, showBackdrop: false, popupPlacement: "bottomRight", background: { color: "#252a48" } },
-                                this.$render("i-vstack", { gap: 15, padding: { top: 10, left: 10, right: 10, bottom: 10 } },
-                                    this.$render("i-button", { caption: "Account", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.text.secondary }, background: { color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openAccountModal }),
-                                    this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.text.secondary }, background: { color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openConnectModal }),
-                                    this.$render("i-button", { caption: "Logout", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.text.secondary }, background: { color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.logout })))),
-                        this.$render("i-button", { id: "btnConnectWallet", caption: "Connect Wallet", border: { radius: 5 }, font: { color: Theme.text.secondary }, padding: { top: '0.375rem', bottom: '0.375rem', left: '0.5rem', right: '0.5rem' }, margin: { left: '0.5rem' }, onClick: this.openConnectModal }))),
-                this.$render("i-modal", { id: 'mdNetwork', title: 'Supported Network', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
-                    this.$render("i-vstack", { height: '100%', lineHeight: 1.5, padding: { left: '1rem', right: '1rem', bottom: '2rem' } },
-                        this.$render("i-label", { id: 'lblNetworkDesc', margin: { top: '1rem' }, font: { size: '.875rem' }, wordBreak: "break-word", caption: 'We support the following networks, please click to connect.' }),
-                        this.$render("i-hstack", { margin: { left: '-1.25rem', right: '-1.25rem' }, height: '100%' },
-                            this.$render("i-grid-layout", { id: 'gridNetworkGroup', font: { color: '#f05e61' }, height: "calc(100% - 160px)", width: "100%", overflow: { y: 'auto' }, margin: { top: '1.5rem' }, padding: { left: '1.25rem', right: '1.25rem' }, columnsPerRow: 1, templateRows: ['max-content'], class: 'list-view', gap: { row: '0.5rem' } })))),
-                this.$render("i-modal", { id: 'mdConnect', title: 'Connect Wallet', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
-                    this.$render("i-vstack", { padding: { left: '1rem', right: '1rem', bottom: '2rem' }, lineHeight: 1.5 },
-                        this.$render("i-label", { font: { size: '.875rem' }, caption: 'Recommended wallet for Chrome', margin: { top: '1rem' }, wordBreak: "break-word" }),
-                        this.$render("i-panel", null,
-                            this.$render("i-grid-layout", { id: 'gridWalletList', class: 'list-view', margin: { top: '0.5rem' }, columnsPerRow: 1, templateRows: ['max-content'], gap: { row: 8 } })))),
-                this.$render("i-modal", { id: 'mdAccount', title: 'Account', class: 'os-modal', width: 440, height: 200, closeIcon: { name: 'times' }, border: { radius: 10 } },
-                    this.$render("i-vstack", { width: "100%", padding: { top: "1.75rem", bottom: "1rem", left: "2.75rem", right: "2.75rem" }, gap: 5 },
-                        this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: 'center' },
-                            this.$render("i-label", { font: { size: '0.875rem' }, caption: 'Connected with' }),
-                            this.$render("i-button", { caption: 'Logout', font: { color: Theme.text.secondary }, background: { color: Theme.colors.error.light }, padding: { top: 6, bottom: 6, left: 10, right: 10 }, border: { radius: 5 }, onClick: this.logout })),
-                        this.$render("i-label", { id: "lblWalletAddress", font: { size: '1.25rem', bold: true, color: Theme.colors.primary.main }, lineHeight: 1.5 }),
-                        this.$render("i-hstack", { verticalAlignment: "center", gap: "2.5rem" },
-                            this.$render("i-hstack", { class: "pointer", verticalAlignment: "center", tooltip: { content: `The address has been copied`, trigger: 'click' }, gap: "0.5rem", onClick: this.copyWalletAddress },
-                                this.$render("i-icon", { name: "copy", width: "16px", height: "16px", fill: Theme.text.primary }),
-                                this.$render("i-label", { caption: "Copy Address", font: { size: "0.875rem", bold: true } })),
-                            this.$render("i-hstack", { id: "hsViewAccount", class: "pointer", verticalAlignment: "center", onClick: this.viewOnExplorerByAddress.bind(this) },
-                                this.$render("i-icon", { name: "external-link-alt", width: "16", height: "16", fill: Theme.text.primary, display: "inline-block" }),
-                                this.$render("i-label", { id: "lblViewAccount", caption: "View on Etherscan", margin: { left: "0.5rem" }, font: { size: "0.875rem", bold: true } })))))));
-        }
-    };
-    __decorate([
-        components_5.observable()
-    ], Header.prototype, "walletInfo", void 0);
-    Header = __decorate([
-        components_5.customElements('main-header')
-    ], Header);
-    exports.Header = Header;
-});
-define("footer", ["require", "exports", "@ijstech/components"], function (require, exports, components_6) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.Footer = void 0;
-    const Theme = components_6.Styles.Theme.ThemeVars;
-    ;
-    let Footer = class Footer extends components_6.Module {
-        init() {
-            super.init();
-            const logo = this.getAttribute('logo', true, "");
-            if (logo) {
-                this.imgLogo.url = components_6.application.assets(logo);
-            }
-            ;
-            const copyright = this.getAttribute('copyrightInfo', true, "");
-            this.lblCopyright.caption = copyright;
-            this.lblCopyright.visible = !!copyright;
-        }
-        render() {
-            return (this.$render("i-panel", { padding: { top: '1.75rem', bottom: '1.75rem', left: '1rem', right: '1rem' } },
-                this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: "center", width: "100%", height: 60 },
-                    this.$render("i-vstack", { gap: "1rem", height: "100%" },
-                        this.$render("i-image", { stack: { shrink: '0' }, height: "100%", url: "", id: "imgLogo", margin: { left: '0.5rem', right: '1.25rem' } }),
-                        this.$render("i-label", { id: "lblCopyright", font: { color: Theme.text.primary, size: '0.875em' } })))));
-        }
-    };
-    Footer = __decorate([
-        components_6.customElements('main-footer')
-    ], Footer);
-    exports.Footer = Footer;
-});
+///<amd-module name='@scom/dapp/pathToRegexp.ts'/> 
 /*---------------------------------------------------------------------------------------------
   *  Copyright (c) 2014 Blake Embrey (hello@blakeembrey.com)
   *  Licensed under the MIT License.
   *  https://github.com/pillarjs/path-to-regexp/blob/1cbb9f3d9c3bff97298ec45b1bb2b0beb879babf/LICENSE
   *--------------------------------------------------------------------------------------------*/
-define("pathToRegexp", ["require", "exports"], function (require, exports) {
+define("@scom/dapp/pathToRegexp.ts", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.pathToRegexp = exports.tokensToRegexp = exports.regexpToFunction = exports.match = exports.tokensToFunction = exports.compile = exports.parse = void 0;
@@ -1390,13 +1002,430 @@ define("pathToRegexp", ["require", "exports"], function (require, exports) {
     }
     exports.pathToRegexp = pathToRegexp;
 });
-define("@scom/dapp", ["require", "exports", "@ijstech/components", "index.css", "network", "header", "footer", "pathToRegexp"], function (require, exports, components_7, index_css_1, network_3, header_1, footer_1, pathToRegexp_1) {
+define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/dapp/network.ts", "@scom/dapp/header.css.ts", "@scom/dapp/assets.ts", "@scom/dapp/network.ts", "@scom/dapp/pathToRegexp.ts"], function (require, exports, components_5, eth_wallet_5, network_1, header_css_1, assets_2, network_2, pathToRegexp_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Header = void 0;
+    const Theme = components_5.Styles.Theme.ThemeVars;
+    ;
+    ;
+    let Header = class Header extends components_5.Module {
+        constructor(parent, options) {
+            super(parent, options);
+            this.walletInfo = {
+                address: '',
+                balance: '',
+                networkId: 0
+            };
+            this.onChainChanged = async (chainId) => {
+                this.walletInfo.networkId = chainId;
+                this.selectedNetwork = network_2.getNetworkInfo(chainId);
+                let wallet = eth_wallet_5.Wallet.getInstance();
+                const isConnected = wallet.isConnected;
+                this.walletInfo.balance = isConnected ? network_1.formatNumber((await wallet.balance).toFixed(), 2) : '0';
+                this.updateConnectedStatus(isConnected);
+                this.updateList(isConnected);
+            };
+            this.updateConnectedStatus = (isConnected) => {
+                if (isConnected) {
+                    this.lblBalance.caption = `${this.walletInfo.balance} ${this.symbol}`;
+                    this.btnWalletDetail.caption = this.shortlyAddress;
+                    this.lblWalletAddress.caption = this.shortlyAddress;
+                    const networkType = network_2.getNetworkType(eth_wallet_5.Wallet.getInstance().chainId);
+                    this.lblViewAccount.caption = `View on ${networkType}`;
+                    this.hsViewAccount.visible = networkType !== 'Unknown';
+                }
+                else {
+                    this.hsViewAccount.visible = false;
+                }
+                if (this.selectedNetwork && !this.selectedNetwork.isDisabled) {
+                    this.btnNetwork.icon = this.$render("i-icon", { width: 26, height: 26, image: { url: assets_2.default.img.network[this.selectedNetwork.img] || components_5.application.assets(this.selectedNetwork.img) } });
+                    this.btnNetwork.caption = this.selectedNetwork.name;
+                }
+                else {
+                    this.btnNetwork.icon = undefined;
+                    this.btnNetwork.caption = "Unsupported Network";
+                }
+                this.btnConnectWallet.visible = !isConnected;
+                this.hsBalance.visible = isConnected;
+                this.pnlWalletDetail.visible = isConnected;
+            };
+            this.openConnectModal = () => {
+                this.mdConnect.title = "Connect wallet";
+                this.mdConnect.visible = true;
+            };
+            this.openNetworkModal = () => {
+                this.mdNetwork.visible = true;
+            };
+            this.openWalletDetailModal = () => {
+                this.mdWalletDetail.visible = true;
+            };
+            this.openAccountModal = (target, event) => {
+                event.stopPropagation();
+                this.mdWalletDetail.visible = false;
+                this.mdAccount.visible = true;
+            };
+            this.openSwitchModal = (target, event) => {
+                event.stopPropagation();
+                this.mdWalletDetail.visible = false;
+                this.mdConnect.title = "Switch wallet";
+                this.mdConnect.visible = true;
+            };
+            this.logout = async (target, event) => {
+                event.stopPropagation();
+                this.mdWalletDetail.visible = false;
+                await network_2.logoutWallet();
+                this.updateConnectedStatus(false);
+                this.updateList(false);
+                this.mdAccount.visible = false;
+            };
+            this.connectToProviderFunc = async (walletPlugin) => {
+                if (eth_wallet_5.Wallet.isInstalled(walletPlugin)) {
+                    await network_2.connectWallet(walletPlugin);
+                }
+                else {
+                    let config = eth_wallet_5.WalletPluginConfig[walletPlugin];
+                    let homepage = config && config.homepage ? config.homepage() : '';
+                    window.open(homepage, '_blank');
+                }
+                this.mdConnect.visible = false;
+            };
+            this.copyWalletAddress = () => {
+                components_5.application.copyToClipboard(this.walletInfo.address || "");
+            };
+            this.renderWalletList = () => {
+                this.gridWalletList.clearInnerHTML();
+                this.walletMapper = new Map();
+                network_2.walletList.forEach((wallet) => {
+                    const isActive = this.isWalletActive(wallet.name);
+                    if (isActive)
+                        this.currActiveWallet = wallet.name;
+                    const hsWallet = (this.$render("i-hstack", { class: isActive ? 'is-actived list-item' : 'list-item', verticalAlignment: 'center', gap: 12, background: { color: Theme.colors.secondary.light }, border: { radius: 10 }, position: "relative", padding: { top: '0.5rem', bottom: '0.5rem', left: '0.5rem', right: '0.5rem' }, horizontalAlignment: "space-between", onClick: () => this.connectToProviderFunc(wallet.name) },
+                        this.$render("i-label", { caption: wallet.displayName, margin: { left: '1rem' }, wordBreak: "break-word", font: { size: '.875rem', bold: true, color: Theme.colors.primary.dark } }),
+                        this.$render("i-image", { width: 34, height: "auto", url: assets_2.default.img.wallet[wallet.img] || components_5.application.assets(wallet.img) })));
+                    this.walletMapper.set(wallet.name, hsWallet);
+                    this.gridWalletList.append(hsWallet);
+                });
+            };
+            this.$eventBus = components_5.application.EventBus;
+            this.registerEvent();
+        }
+        ;
+        get symbol() {
+            var _a, _b, _c, _d;
+            let symbol = '';
+            if (((_a = this.selectedNetwork) === null || _a === void 0 ? void 0 : _a.chainId) && network_2.NativeTokenByChainId[(_b = this.selectedNetwork) === null || _b === void 0 ? void 0 : _b.chainId]) {
+                symbol = (_d = network_2.NativeTokenByChainId[(_c = this.selectedNetwork) === null || _c === void 0 ? void 0 : _c.chainId]) === null || _d === void 0 ? void 0 : _d.symbol;
+            }
+            return symbol;
+        }
+        get shortlyAddress() {
+            const address = this.walletInfo.address;
+            if (!address)
+                return 'No address selected';
+            return network_1.truncateAddress(address);
+        }
+        registerEvent() {
+            let wallet = eth_wallet_5.Wallet.getInstance();
+            this.$eventBus.register(this, "connectWallet" /* ConnectWallet */, this.openConnectModal);
+            this.$eventBus.register(this, "isWalletConnected" /* IsWalletConnected */, async (connected) => {
+                if (connected) {
+                    this.walletInfo.address = wallet.address;
+                    this.walletInfo.balance = network_1.formatNumber((await wallet.balance).toFixed(), 2);
+                    this.walletInfo.networkId = wallet.chainId;
+                }
+                this.selectedNetwork = network_2.getNetworkInfo(wallet.chainId);
+                this.updateConnectedStatus(connected);
+                this.updateList(connected);
+            });
+            this.$eventBus.register(this, "IsWalletDisconnected" /* IsWalletDisconnected */, async (connected) => {
+                this.selectedNetwork = network_2.getNetworkInfo(wallet.chainId);
+                this.updateConnectedStatus(connected);
+                this.updateList(connected);
+            });
+            this.$eventBus.register(this, "chainChanged" /* chainChanged */, async (chainId) => {
+                this.onChainChanged(chainId);
+            });
+        }
+        init() {
+            this.classList.add(header_css_1.default);
+            this.selectedNetwork = network_2.getNetworkInfo(network_2.getDefaultChainId());
+            this.logo = this.getAttribute("logo", true, {});
+            super.init();
+            this._menuItems = this.getAttribute("menuItems", true, []);
+            this.renderMobileMenu();
+            this.renderDesktopMenu();
+            this.controlMenuDisplay();
+            this.renderWalletList();
+            this.renderNetworks();
+            this.updateConnectedStatus(network_1.isWalletConnected());
+            this.initData();
+            if (this.logo.desktop) {
+                let logo = components_5.application.assets(this.logo.desktop);
+                this.imgDesktopLogo.url = logo;
+            }
+            if (this.logo.mobile) {
+                let logo = components_5.application.assets(this.logo.mobile);
+                this.imgMobileLogo.url = logo;
+            }
+        }
+        connectedCallback() {
+            super.connectedCallback();
+            window.addEventListener('resize', this.controlMenuDisplay.bind(this));
+        }
+        disconnectCallback() {
+            super.disconnectCallback();
+            window.removeEventListener('resize', this.controlMenuDisplay.bind(this));
+        }
+        controlMenuDisplay() {
+            if (window.innerWidth < 760) {
+                this.hsMobileMenu.visible = true;
+                this.hsDesktopMenu.visible = false;
+            }
+            else {
+                this.hsMobileMenu.visible = false;
+                this.hsDesktopMenu.visible = true;
+            }
+        }
+        updateDot(connected, type) {
+            var _a, _b, _c;
+            const wallet = eth_wallet_5.Wallet.getInstance();
+            if (type === 'network') {
+                if (this.currActiveNetworkId !== undefined && this.currActiveNetworkId !== null && this.networkMapper.has(this.currActiveNetworkId)) {
+                    this.networkMapper.get(this.currActiveNetworkId).classList.remove('is-actived');
+                }
+                if (connected && this.networkMapper.has(wallet.chainId)) {
+                    this.networkMapper.get(wallet.chainId).classList.add('is-actived');
+                }
+                this.currActiveNetworkId = wallet.chainId;
+            }
+            else {
+                if (this.currActiveWallet && this.walletMapper.has(this.currActiveWallet)) {
+                    this.walletMapper.get(this.currActiveWallet).classList.remove('is-actived');
+                }
+                if (connected && this.walletMapper.has((_a = wallet.clientSideProvider) === null || _a === void 0 ? void 0 : _a.walletPlugin)) {
+                    this.walletMapper.get((_b = wallet.clientSideProvider) === null || _b === void 0 ? void 0 : _b.walletPlugin).classList.add('is-actived');
+                }
+                this.currActiveWallet = (_c = wallet.clientSideProvider) === null || _c === void 0 ? void 0 : _c.walletPlugin;
+            }
+        }
+        updateList(isConnected) {
+            if (isConnected && network_2.getWalletProvider() !== eth_wallet_5.WalletPlugin.MetaMask) {
+                this.lblNetworkDesc.caption = "We support the following networks, please switch network in the connected wallet.";
+            }
+            else {
+                this.lblNetworkDesc.caption = "We support the following networks, please click to connect.";
+            }
+            this.updateDot(isConnected, 'wallet');
+            this.updateDot(isConnected, 'network');
+        }
+        viewOnExplorerByAddress() {
+            network_2.viewOnExplorerByAddress(eth_wallet_5.Wallet.getInstance().chainId, this.walletInfo.address);
+        }
+        async switchNetwork(chainId) {
+            if (!chainId)
+                return;
+            await network_2.switchNetwork(chainId);
+            this.mdNetwork.visible = false;
+        }
+        isWalletActive(walletPlugin) {
+            var _a;
+            const provider = walletPlugin.toLowerCase();
+            return eth_wallet_5.Wallet.isInstalled(walletPlugin) && ((_a = eth_wallet_5.Wallet.getInstance().clientSideProvider) === null || _a === void 0 ? void 0 : _a.walletPlugin) === provider;
+        }
+        isNetworkActive(chainId) {
+            return eth_wallet_5.Wallet.getInstance().chainId === chainId;
+        }
+        renderNetworks() {
+            this.gridNetworkGroup.clearInnerHTML();
+            this.networkMapper = new Map();
+            const networksList = network_2.getSiteSupportedNetworks();
+            this.gridNetworkGroup.append(...networksList.map((network) => {
+                const img = network.img ? this.$render("i-image", { url: assets_2.default.img.network[network.img] || components_5.application.assets(network.img), width: 34, height: 34 }) : [];
+                const isActive = this.isNetworkActive(network.chainId);
+                if (isActive)
+                    this.currActiveNetworkId = network.chainId;
+                const hsNetwork = (this.$render("i-hstack", { onClick: () => this.switchNetwork(network.chainId), background: { color: Theme.colors.secondary.light }, border: { radius: 10 }, position: "relative", class: isActive ? 'is-actived list-item' : 'list-item', padding: { top: '0.65rem', bottom: '0.65rem', left: '0.5rem', right: '0.5rem' } },
+                    this.$render("i-hstack", { margin: { left: '1rem' }, verticalAlignment: "center", gap: 12 },
+                        img,
+                        this.$render("i-label", { caption: network.name, wordBreak: "break-word", font: { size: '.875rem', bold: true, color: Theme.colors.primary.dark } }))));
+                this.networkMapper.set(network.chainId, hsNetwork);
+                return hsNetwork;
+            }));
+        }
+        async initData() {
+            let accountsChangedEventHandler = async (account) => {
+            };
+            let chainChangedEventHandler = async (hexChainId) => {
+                this.updateConnectedStatus(true);
+            };
+            const selectedProvider = localStorage.getItem('walletProvider');
+            const isValidProvider = Object.values(eth_wallet_5.WalletPlugin).includes(selectedProvider);
+            if (network_2.hasWallet() && isValidProvider) {
+                await network_2.connectWallet(selectedProvider, {
+                    'accountsChanged': accountsChangedEventHandler,
+                    'chainChanged': chainChangedEventHandler
+                });
+            }
+        }
+        getMenuPath(url, params) {
+            try {
+                const toPath = pathToRegexp_1.compile(url, { encode: encodeURIComponent });
+                return toPath(params);
+            }
+            catch (err) { }
+            return "";
+        }
+        _getMenuData(list, mode, validMenuItemsFn) {
+            const menuItems = [];
+            list.filter(validMenuItemsFn).forEach((item, key) => {
+                const linkTarget = item.isToExternal ? '_blank' : '_self';
+                const path = this.getMenuPath(item.url, item.params);
+                const _menuItem = {
+                    title: item.caption,
+                    link: { href: '/#' + path, target: linkTarget },
+                };
+                if (mode === 'mobile') {
+                    _menuItem.font = { color: Theme.colors.primary.main };
+                    if (item.img)
+                        _menuItem.icon = { width: 24, height: 24, image: { width: 24, height: 24, url: components_5.application.assets(item.img) } };
+                }
+                if (item.subItems && item.subItems.length) {
+                    _menuItem.items = this._getMenuData(item.subItems, mode, validMenuItemsFn);
+                }
+                menuItems.push(_menuItem);
+            });
+            return menuItems;
+        }
+        getMenuData(list, mode) {
+            var _a;
+            let chainId = ((_a = this.selectedNetwork) === null || _a === void 0 ? void 0 : _a.chainId) || eth_wallet_5.Wallet.getInstance().chainId;
+            let validMenuItemsFn;
+            if (chainId) {
+                validMenuItemsFn = (item) => !item.isDisabled && (!item.supportedChainIds || item.supportedChainIds.includes(chainId));
+            }
+            else {
+                validMenuItemsFn = (item) => !item.isDisabled;
+            }
+            return this._getMenuData(list, mode, validMenuItemsFn);
+        }
+        renderMobileMenu() {
+            const data = this.getMenuData(this._menuItems, 'mobile');
+            this.menuMobile.data = data;
+        }
+        renderDesktopMenu() {
+            const data = this.getMenuData(this._menuItems, 'desktop');
+            this.menuDesktop.data = data;
+        }
+        toggleMenu() {
+            this.mdMobileMenu.visible = !this.mdMobileMenu.visible;
+        }
+        render() {
+            return (this.$render("i-panel", { padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' } },
+                this.$render("i-hstack", { width: "100%", position: "relative", horizontalAlignment: 'space-between', wrap: 'wrap' },
+                    this.$render("i-hstack", { id: "hsMobileMenu", verticalAlignment: "center", width: 100, visible: false },
+                        this.$render("i-icon", { id: "hamburger", class: 'pointer', name: "bars", width: "20px", height: "20px", display: "inline-block", margin: { right: 5 }, fill: Theme.text.secondary, onClick: this.toggleMenu }),
+                        this.$render("i-modal", { id: "mdMobileMenu", height: "auto", minWidth: "250px", showBackdrop: false, popupPlacement: "bottomLeft", background: { color: Theme.background.modal } },
+                            this.$render("i-menu", { id: "menuMobile", mode: "inline" })),
+                        this.$render("i-image", { height: "100%", url: "", id: "imgMobileLogo", margin: { left: '0.5rem', right: '1.25rem' } })),
+                    this.$render("i-hstack", { id: "hsDesktopMenu", wrap: "nowrap", verticalAlignment: "center", maxWidth: "calc(100% - 640px)", width: "100%" },
+                        this.$render("i-image", { stack: { shrink: '0' }, height: "100%", url: "", id: "imgDesktopLogo", margin: { left: '0.5rem', right: '1.25rem' } }),
+                        this.$render("i-menu", { id: "menuDesktop", width: "100%", border: { left: { color: '#192046', width: '1px', style: 'solid' } } })),
+                    this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'end' },
+                        this.$render("i-panel", null,
+                            this.$render("i-button", { id: "btnNetwork", class: "btn-network", margin: { right: '1rem' }, padding: { top: '0.375rem', bottom: '0.375rem', left: '0.75rem', right: '0.75rem' }, background: { color: '#101026' }, border: { width: '1px', style: 'solid', color: '#101026', radius: 5 }, font: { color: Theme.text.secondary }, onClick: this.openNetworkModal, caption: "Unsupported Network" })),
+                        this.$render("i-hstack", { id: "hsBalance", visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: "#192046" }, lineHeight: "25px", border: { radius: 6 }, padding: { top: 6, bottom: 6, left: 10, right: 10 } },
+                            this.$render("i-label", { id: "lblBalance", font: { color: Theme.text.secondary } })),
+                        this.$render("i-panel", { id: "pnlWalletDetail", visible: false },
+                            this.$render("i-button", { id: "btnWalletDetail", padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, margin: { left: '0.5rem' }, border: { radius: 5 }, font: { color: Theme.text.secondary }, background: { color: Theme.colors.error.light }, onClick: this.openWalletDetailModal }),
+                            this.$render("i-modal", { id: "mdWalletDetail", height: "auto", maxWidth: 200, minWidth: 200, showBackdrop: false, popupPlacement: "bottomRight", background: { color: "#252a48" } },
+                                this.$render("i-vstack", { gap: 15, padding: { top: 10, left: 10, right: 10, bottom: 10 } },
+                                    this.$render("i-button", { caption: "Account", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.text.secondary }, background: { color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openAccountModal }),
+                                    this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.text.secondary }, background: { color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openConnectModal }),
+                                    this.$render("i-button", { caption: "Logout", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.text.secondary }, background: { color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.logout })))),
+                        this.$render("i-button", { id: "btnConnectWallet", caption: "Connect Wallet", border: { radius: 5 }, font: { color: Theme.text.secondary }, padding: { top: '0.375rem', bottom: '0.375rem', left: '0.5rem', right: '0.5rem' }, margin: { left: '0.5rem' }, onClick: this.openConnectModal }))),
+                this.$render("i-modal", { id: 'mdNetwork', title: 'Supported Network', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
+                    this.$render("i-vstack", { height: '100%', lineHeight: 1.5, padding: { left: '1rem', right: '1rem', bottom: '2rem' } },
+                        this.$render("i-label", { id: 'lblNetworkDesc', margin: { top: '1rem' }, font: { size: '.875rem' }, wordBreak: "break-word", caption: 'We support the following networks, please click to connect.' }),
+                        this.$render("i-hstack", { margin: { left: '-1.25rem', right: '-1.25rem' }, height: '100%' },
+                            this.$render("i-grid-layout", { id: 'gridNetworkGroup', font: { color: '#f05e61' }, height: "calc(100% - 160px)", width: "100%", overflow: { y: 'auto' }, margin: { top: '1.5rem' }, padding: { left: '1.25rem', right: '1.25rem' }, columnsPerRow: 1, templateRows: ['max-content'], class: 'list-view', gap: { row: '0.5rem' } })))),
+                this.$render("i-modal", { id: 'mdConnect', title: 'Connect Wallet', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
+                    this.$render("i-vstack", { padding: { left: '1rem', right: '1rem', bottom: '2rem' }, lineHeight: 1.5 },
+                        this.$render("i-label", { font: { size: '.875rem' }, caption: 'Recommended wallet for Chrome', margin: { top: '1rem' }, wordBreak: "break-word" }),
+                        this.$render("i-panel", null,
+                            this.$render("i-grid-layout", { id: 'gridWalletList', class: 'list-view', margin: { top: '0.5rem' }, columnsPerRow: 1, templateRows: ['max-content'], gap: { row: 8 } })))),
+                this.$render("i-modal", { id: 'mdAccount', title: 'Account', class: 'os-modal', width: 440, height: 200, closeIcon: { name: 'times' }, border: { radius: 10 } },
+                    this.$render("i-vstack", { width: "100%", padding: { top: "1.75rem", bottom: "1rem", left: "2.75rem", right: "2.75rem" }, gap: 5 },
+                        this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: 'center' },
+                            this.$render("i-label", { font: { size: '0.875rem' }, caption: 'Connected with' }),
+                            this.$render("i-button", { caption: 'Logout', font: { color: Theme.text.secondary }, background: { color: Theme.colors.error.light }, padding: { top: 6, bottom: 6, left: 10, right: 10 }, border: { radius: 5 }, onClick: this.logout })),
+                        this.$render("i-label", { id: "lblWalletAddress", font: { size: '1.25rem', bold: true, color: Theme.colors.primary.main }, lineHeight: 1.5 }),
+                        this.$render("i-hstack", { verticalAlignment: "center", gap: "2.5rem" },
+                            this.$render("i-hstack", { class: "pointer", verticalAlignment: "center", tooltip: { content: `The address has been copied`, trigger: 'click' }, gap: "0.5rem", onClick: this.copyWalletAddress },
+                                this.$render("i-icon", { name: "copy", width: "16px", height: "16px", fill: Theme.text.primary }),
+                                this.$render("i-label", { caption: "Copy Address", font: { size: "0.875rem", bold: true } })),
+                            this.$render("i-hstack", { id: "hsViewAccount", class: "pointer", verticalAlignment: "center", onClick: this.viewOnExplorerByAddress.bind(this) },
+                                this.$render("i-icon", { name: "external-link-alt", width: "16", height: "16", fill: Theme.text.primary, display: "inline-block" }),
+                                this.$render("i-label", { id: "lblViewAccount", caption: "View on Etherscan", margin: { left: "0.5rem" }, font: { size: "0.875rem", bold: true } })))))));
+        }
+    };
+    __decorate([
+        components_5.observable()
+    ], Header.prototype, "walletInfo", void 0);
+    Header = __decorate([
+        components_5.customElements('main-header')
+    ], Header);
+    exports.Header = Header;
+});
+define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components"], function (require, exports, components_6) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Footer = void 0;
+    const Theme = components_6.Styles.Theme.ThemeVars;
+    ;
+    let Footer = class Footer extends components_6.Module {
+        init() {
+            super.init();
+            const logo = this.getAttribute('logo', true, "");
+            if (logo) {
+                this.imgLogo.url = components_6.application.assets(logo);
+            }
+            ;
+            const version = this.getAttribute("version", true, "");
+            this.lblVersion.caption = version ? "Version: " + version : version;
+            this.lblVersion.visible = !!version;
+            const copyright = this.getAttribute('copyrightInfo', true, "");
+            this.lblCopyright.caption = version ? copyright + " |" : copyright;
+            ;
+            this.lblCopyright.visible = !!copyright;
+            const poweredBy = this.getAttribute("poweredBy", true, "");
+            this.lblPoweredBy.caption = poweredBy ? "Powered by " + poweredBy : poweredBy;
+        }
+        render() {
+            return (this.$render("i-panel", { padding: { top: '1rem', bottom: '1rem', right: '2rem', left: '2rem' }, background: { color: components_6.Styles.Theme.ThemeVars.background.main } },
+                this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: "center", width: "100%" },
+                    this.$render("i-vstack", { gap: "0.5rem", width: "100%" },
+                        this.$render("i-hstack", { padding: { bottom: '0.5rem' }, border: { bottom: { width: 1, style: 'solid', color: Theme.text.primary } }, verticalAlignment: "center", gap: 8 },
+                            this.$render("i-image", { stack: { shrink: '0' }, height: "50px", url: "", id: "imgLogo" }),
+                            this.$render("i-label", { id: "lblPoweredBy", font: { color: Theme.text.primary, bold: true } })),
+                        this.$render("i-hstack", { gap: 4, verticalAlignment: "center", wrap: "wrap" },
+                            this.$render("i-label", { id: "lblCopyright", font: { color: Theme.text.primary, size: '0.875em' } }),
+                            this.$render("i-label", { id: "lblVersion", font: { color: Theme.text.primary, size: '0.875em' } }))))));
+        }
+    };
+    Footer = __decorate([
+        components_6.customElements('main-footer')
+    ], Footer);
+    exports.Footer = Footer;
+});
+define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/index.css.ts", "@scom/dapp/network.ts", "@scom/dapp/header.tsx", "@scom/dapp/footer.tsx", "@scom/dapp/pathToRegexp.ts"], function (require, exports, components_7, index_css_1, network_3, header_1, footer_1, pathToRegexp_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Footer = exports.Header = void 0;
     Object.defineProperty(exports, "Header", { enumerable: true, get: function () { return header_1.Header; } });
     Object.defineProperty(exports, "Footer", { enumerable: true, get: function () { return footer_1.Footer; } });
     components_7.Styles.Theme.applyTheme(components_7.Styles.Theme.darkTheme);
+    ;
     ;
     ;
     ;
@@ -1431,15 +1460,12 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "index.css", 
                 }
                 else {
                     if (!item.regex)
-                        item.regex = pathToRegexp_1.match(item.url);
-                    else {
-                        let match = item.regex(path);
-                        if (match !== false) {
-                            menu = item;
-                            params = match.params;
-                            break;
-                        }
-                        ;
+                        item.regex = pathToRegexp_2.match(item.url, { decode: decodeURIComponent });
+                    let _match = item.regex(path);
+                    if (_match !== false) {
+                        menu = item;
+                        params = Object.assign(Object.assign({}, menu.params), _match.params);
+                        break;
                     }
                     ;
                 }
@@ -1450,6 +1476,8 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "index.css", 
                 let menuObj = menu;
                 if (!menuObj.moduleObject)
                     menuObj.moduleObject = await components_7.application.loadModule(menu.module, this._options);
+                if (menuObj.moduleObject)
+                    menuObj.moduleObject.onLoad(params);
                 return menuObj.moduleObject;
             }
             ;
@@ -1473,10 +1501,11 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "index.css", 
         }
         ;
         async render() {
+            var _a, _b;
             return this.$render("i-vstack", { height: "inherit" },
-                this.$render("main-header", { logo: this.options.logo, id: "headerElm", menuItems: this.menuItems, height: "auto", width: "100%" }),
+                this.$render("main-header", { logo: (_a = this.options.logo) === null || _a === void 0 ? void 0 : _a.header, id: "headerElm", menuItems: this.menuItems, height: "auto", width: "100%" }),
                 this.$render("i-panel", { id: "pnlMain", stack: { grow: "1", shrink: "0" } }),
-                this.$render("main-footer", { id: "footerElm", background: { color: components_7.Styles.Theme.ThemeVars.background.main }, padding: { top: '2rem', bottom: '2rem', right: '2rem', left: '2rem' }, stack: { shrink: '0' }, class: 'footer', height: "auto", width: "100%", logo: this.options.logo, copyrightInfo: this._options.copyrightInfo }));
+                this.$render("main-footer", { id: "footerElm", stack: { shrink: '0' }, class: 'footer', height: "auto", width: "100%", logo: (_b = this.options.logo) === null || _b === void 0 ? void 0 : _b.footer, copyrightInfo: this._options.copyrightInfo, version: this._options.version, poweredBy: this._options.poweredBy }));
         }
         ;
     };

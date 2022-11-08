@@ -30,13 +30,14 @@ import {
   switchNetwork,
   hasWallet,
   getNetworkInfo,
-  getNetworkList,
+  getSiteSupportedNetworks,
   getWalletProvider,
   getDefaultChainId,
   NativeTokenByChainId,
   viewOnExplorerByAddress,
   getNetworkType
 } from './network';
+import { compile } from './pathToRegexp'
 
 const Theme = Styles.Theme.ThemeVars;
 
@@ -44,10 +45,15 @@ interface IModuleMenu extends IModuleMenuItem {
   caption?: string;
   module?: string;
   url?: string;
+  params?: any;
 }
+interface ILogo {
+  desktop?: string;
+  mobile?: string;
+};
 
 export interface HeaderElement extends ControlElement {
-  logo?: string;
+  logo?: ILogo;
   menuItems?: IModuleMenu[];
 }
 declare global {
@@ -91,7 +97,7 @@ export class Header extends Module {
   private currActiveWallet: WalletPlugin;
   private imgDesktopLogo: Image;
   private imgMobileLogo: Image;
-  private logo: string;
+  private logo: ILogo;
   @observable()
   private walletInfo = {
     address: '',
@@ -145,7 +151,7 @@ export class Header extends Module {
   init() {
     this.classList.add(styleClass);
     this.selectedNetwork = getNetworkInfo(getDefaultChainId());
-    this.logo = this.getAttribute("logo", true, "");
+    this.logo = this.getAttribute("logo", true, {});
     super.init();
     this._menuItems = this.getAttribute("menuItems", true, []);
     this.renderMobileMenu();
@@ -155,9 +161,12 @@ export class Header extends Module {
     this.renderNetworks();
     this.updateConnectedStatus(isWalletConnected());
     this.initData();
-    if (this.logo){
-      let logo = application.assets(this.logo);
+    if (this.logo.desktop){
+      let logo = application.assets(this.logo.desktop);
       this.imgDesktopLogo.url = logo;
+    }
+    if (this.logo.mobile){
+      let logo = application.assets(this.logo.mobile);
       this.imgMobileLogo.url = logo;
     }
   }
@@ -204,7 +213,7 @@ export class Header extends Module {
     } else {
       this.hsViewAccount.visible = false;
     }
-    if (this.selectedNetwork) {
+    if (this.selectedNetwork && !this.selectedNetwork.isDisabled) {
       this.btnNetwork.icon = <i-icon width={26} height={26} image={{ url: Assets.img.network[this.selectedNetwork.img] || application.assets(this.selectedNetwork.img)}} ></i-icon>
       this.btnNetwork.caption = this.selectedNetwork.name;
     } else {
@@ -351,7 +360,7 @@ export class Header extends Module {
   renderNetworks() {
     this.gridNetworkGroup.clearInnerHTML();
     this.networkMapper = new Map();
-    const networksList = getNetworkList();
+    const networksList = getSiteSupportedNetworks();
     this.gridNetworkGroup.append(...networksList.map((network) => {
       const img = network.img ? <i-image url={Assets.img.network[network.img] || application.assets(network.img)} width={34} height={34} /> : [];
       const isActive = this.isNetworkActive(network.chainId);
@@ -391,14 +400,23 @@ export class Header extends Module {
       });
     }
   }
+  
+  getMenuPath(url: string, params: any) {
+    try {
+      const toPath = compile(url, { encode: encodeURIComponent });
+      return toPath(params);
+    } catch (err) {}
+    return "";
+  }
 
   _getMenuData(list: IModuleMenu[], mode: string, validMenuItemsFn: (item: IModuleMenu) => boolean): IMenuItem[] {
     const menuItems: IMenuItem[] = [];
     list.filter(validMenuItemsFn).forEach((item: IModuleMenu, key: number) => {
       const linkTarget = item.isToExternal ? '_blank' : '_self';
+      const path = this.getMenuPath(item.url, item.params);
       const _menuItem: IMenuItem = {
         title: item.caption,
-        link: { href: '/#' + item.url, target: linkTarget },
+        link: { href: '/#' + path, target: linkTarget },
       };
       if (mode === 'mobile') {
         _menuItem.font = { color: Theme.colors.primary.main };

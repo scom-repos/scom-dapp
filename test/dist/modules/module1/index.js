@@ -4,7 +4,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define("@dapp/module1", ["require", "exports", "@ijstech/components", "@dapp/assets"], function (require, exports, components_1, assets_1) {
+define("@modules/module1", ["require", "exports", "@ijstech/components", "@modules/assets"], function (require, exports, components_1, assets_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     let Module1 = class Module1 extends components_1.Module {

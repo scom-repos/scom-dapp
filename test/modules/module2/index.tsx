@@ -1,9 +1,16 @@
-import { Module, Styles, Container, customModule, application } from '@ijstech/components';
+import { Module, Styles, Container, customModule, application, Label } from '@ijstech/components';
 @customModule
 export default class Module1 extends Module {
-    render(){
+    private lblParams: Label;
+    onLoad(options?: any) {
+        this.lblParams.caption = options ? JSON.stringify(options) : "";
+    }
+    render() {
         return <i-panel>
-            <i-label caption='Module 2!'></i-label>
+            <i-vstack>
+                <i-label caption='Module 2!'></i-label>
+                <i-label id="lblParams"></i-label>
+            </i-vstack>
         </i-panel>
     }
 }
