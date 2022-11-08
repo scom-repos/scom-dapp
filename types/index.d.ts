@@ -361,6 +361,10 @@ declare module "@scom/dapp/header.tsx" {
         render(): any;
     }
 }
+/// <amd-module name="@scom/dapp/footer.css.ts" />
+declare module "@scom/dapp/footer.css.ts" {
+    export const logoStyle: string;
+}
 /// <amd-module name="@scom/dapp/footer.tsx" />
 declare module "@scom/dapp/footer.tsx" {
     import { Module, ControlElement } from '@ijstech/components';

@@ -8,6 +8,7 @@ import {
   Image,
   Label
 } from '@ijstech/components';
+import { logoStyle } from './footer.css';
 
 const Theme = Styles.Theme.ThemeVars;
 
@@ -55,12 +56,7 @@ export class Footer extends Module {
         <i-hstack horizontalAlignment="space-between" verticalAlignment="center" width="100%">
           <i-vstack gap="0.5rem" width="100%">
             <i-hstack padding={{ bottom: '0.5rem' }} border={{ bottom: { width: 1, style: 'solid', color: Theme.text.primary } }} verticalAlignment="center" gap={8}>
-              <i-image
-                stack={{ shrink: '0' }}
-                height="50px"
-                url=""
-                id="imgLogo"
-              />
+              <i-image id="imgLogo" class={logoStyle} />
               <i-label id="lblPoweredBy" font={{ color: Theme.text.primary, bold: true }}></i-label>
             </i-hstack>
             <i-hstack gap={4} verticalAlignment="center" wrap="wrap">

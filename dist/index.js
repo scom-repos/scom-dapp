@@ -1377,18 +1377,31 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
     ], Header);
     exports.Header = Header;
 });
-define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components"], function (require, exports, components_6) {
+define("@scom/dapp/footer.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_6) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.logoStyle = void 0;
+    exports.logoStyle = components_6.Styles.style({
+        $nest: {
+            '> img': {
+                width: '100%',
+                maxHeight: 50
+            }
+        }
+    });
+});
+define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@scom/dapp/footer.css.ts"], function (require, exports, components_7, footer_css_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Footer = void 0;
-    const Theme = components_6.Styles.Theme.ThemeVars;
+    const Theme = components_7.Styles.Theme.ThemeVars;
     ;
-    let Footer = class Footer extends components_6.Module {
+    let Footer = class Footer extends components_7.Module {
         init() {
             super.init();
             const logo = this.getAttribute('logo', true, "");
             if (logo) {
-                this.imgLogo.url = components_6.application.assets(logo);
+                this.imgLogo.url = components_7.application.assets(logo);
             }
             ;
             const version = this.getAttribute("version", true, "");
@@ -1402,11 +1415,11 @@ define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components"], f
             this.lblPoweredBy.caption = poweredBy ? "Powered by " + poweredBy : poweredBy;
         }
         render() {
-            return (this.$render("i-panel", { padding: { top: '1rem', bottom: '1rem', right: '2rem', left: '2rem' }, background: { color: components_6.Styles.Theme.ThemeVars.background.main } },
+            return (this.$render("i-panel", { padding: { top: '1rem', bottom: '1rem', right: '2rem', left: '2rem' }, background: { color: components_7.Styles.Theme.ThemeVars.background.main } },
                 this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: "center", width: "100%" },
                     this.$render("i-vstack", { gap: "0.5rem", width: "100%" },
                         this.$render("i-hstack", { padding: { bottom: '0.5rem' }, border: { bottom: { width: 1, style: 'solid', color: Theme.text.primary } }, verticalAlignment: "center", gap: 8 },
-                            this.$render("i-image", { stack: { shrink: '0' }, height: "50px", url: "", id: "imgLogo" }),
+                            this.$render("i-image", { id: "imgLogo", class: footer_css_1.logoStyle }),
                             this.$render("i-label", { id: "lblPoweredBy", font: { color: Theme.text.primary, bold: true } })),
                         this.$render("i-hstack", { gap: 4, verticalAlignment: "center", wrap: "wrap" },
                             this.$render("i-label", { id: "lblCopyright", font: { color: Theme.text.primary, size: '0.875em' } }),
@@ -1414,22 +1427,22 @@ define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components"], f
         }
     };
     Footer = __decorate([
-        components_6.customElements('main-footer')
+        components_7.customElements('main-footer')
     ], Footer);
     exports.Footer = Footer;
 });
-define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/index.css.ts", "@scom/dapp/network.ts", "@scom/dapp/header.tsx", "@scom/dapp/footer.tsx", "@scom/dapp/pathToRegexp.ts"], function (require, exports, components_7, index_css_1, network_3, header_1, footer_1, pathToRegexp_2) {
+define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/index.css.ts", "@scom/dapp/network.ts", "@scom/dapp/header.tsx", "@scom/dapp/footer.tsx", "@scom/dapp/pathToRegexp.ts"], function (require, exports, components_8, index_css_1, network_3, header_1, footer_1, pathToRegexp_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Footer = exports.Header = void 0;
     Object.defineProperty(exports, "Header", { enumerable: true, get: function () { return header_1.Header; } });
     Object.defineProperty(exports, "Footer", { enumerable: true, get: function () { return footer_1.Footer; } });
-    components_7.Styles.Theme.applyTheme(components_7.Styles.Theme.darkTheme);
+    components_8.Styles.Theme.applyTheme(components_8.Styles.Theme.darkTheme);
     ;
     ;
     ;
     ;
-    let MainLauncher = class MainLauncher extends components_7.Module {
+    let MainLauncher = class MainLauncher extends components_8.Module {
         constructor(parent, options) {
             super(parent, options);
             this.classList.add(index_css_1.default);
@@ -1475,7 +1488,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             if (menu) {
                 let menuObj = menu;
                 if (!menuObj.moduleObject)
-                    menuObj.moduleObject = await components_7.application.loadModule(menu.module, this._options);
+                    menuObj.moduleObject = await components_8.application.loadModule(menu.module, this._options);
                 if (menuObj.moduleObject)
                     menuObj.moduleObject.onLoad(params);
                 return menuObj.moduleObject;
@@ -1510,7 +1523,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
         ;
     };
     MainLauncher = __decorate([
-        components_7.customModule
+        components_8.customModule
     ], MainLauncher);
     exports.default = MainLauncher;
     ;
