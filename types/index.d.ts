@@ -328,7 +328,6 @@ declare module "@scom/dapp/header.tsx" {
         private lblNetworkDesc;
         private lblWalletAddress;
         private hsViewAccount;
-        private lblViewAccount;
         private gridWalletList;
         private gridNetworkGroup;
         private $eventBus;

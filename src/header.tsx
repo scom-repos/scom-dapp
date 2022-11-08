@@ -88,7 +88,6 @@ export class Header extends Module {
   private lblNetworkDesc: Label;
   private lblWalletAddress: Label;
   private hsViewAccount: HStack;
-  private lblViewAccount: Label;
   private gridWalletList: GridLayout;
   private gridNetworkGroup: GridLayout;
 
@@ -217,7 +216,6 @@ export class Header extends Module {
       this.btnWalletDetail.caption = this.shortlyAddress;
       this.lblWalletAddress.caption = this.shortlyAddress;
       const networkType = getNetworkType(Wallet.getInstance().chainId);
-      this.lblViewAccount.caption = `View on ${networkType}`;
       this.hsViewAccount.visible = networkType !== 'Unknown';
     } else {
       this.hsViewAccount.visible = false;
@@ -470,7 +468,7 @@ export class Header extends Module {
 
   render() {
     return (
-      <i-panel padding={{ top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }} >
+      <i-panel padding={{ top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }} background={{ color: Theme.background.paper }}>
         {/* <i-hstack width="100%" position="relative" horizontalAlignment='space-between' wrap='wrap'> */}
           <i-grid-layout width='100%' position="relative" verticalAlignment='center' templateColumns={["1fr", "auto"]}>
             <i-hstack
@@ -713,7 +711,7 @@ export class Header extends Module {
               </i-hstack>
               <i-hstack id="hsViewAccount" class="pointer" verticalAlignment="center" onClick={this.viewOnExplorerByAddress.bind(this)}>
                 <i-icon name="external-link-alt" width="16" height="16" fill={Theme.text.secondary} display="inline-block" />
-                <i-label id="lblViewAccount" caption="View on Etherscan" margin={{ left: "0.5rem" }} font={{ size: "0.875rem", bold: true }} />
+                <i-label caption="View on Explorer" margin={{ left: "0.5rem" }} font={{ size: "0.875rem", bold: true }} />
               </i-hstack>
             </i-hstack>
           </i-vstack>

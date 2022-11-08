@@ -657,7 +657,6 @@ define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"]
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = components_4.Styles.Theme.ThemeVars;
     exports.default = components_4.Styles.style({
-        backgroundColor: Theme.background.default,
         $nest: {
             '::-webkit-scrollbar-track': {
                 borderRadius: '12px',
@@ -1184,7 +1183,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                     this.btnWalletDetail.caption = this.shortlyAddress;
                     this.lblWalletAddress.caption = this.shortlyAddress;
                     const networkType = network_2.getNetworkType(eth_wallet_5.Wallet.getInstance().chainId);
-                    this.lblViewAccount.caption = `View on ${networkType}`;
                     this.hsViewAccount.visible = networkType !== 'Unknown';
                 }
                 else {
@@ -1477,7 +1475,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.mdMobileMenu.visible = !this.mdMobileMenu.visible;
         }
         render() {
-            return (this.$render("i-panel", { padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' } },
+            return (this.$render("i-panel", { padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, background: { color: Theme.background.paper } },
                 this.$render("i-grid-layout", { width: '100%', position: "relative", verticalAlignment: 'center', templateColumns: ["1fr", "auto"] },
                     this.$render("i-hstack", { id: "hsMobileMenu", verticalAlignment: "center", width: 100, visible: false },
                         this.$render("i-icon", { id: "hamburger", class: 'pointer', name: "bars", width: "20px", height: "20px", display: "inline-block", margin: { right: 5 }, fill: Theme.text.primary, onClick: this.toggleMenu }),
@@ -1522,7 +1520,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                                 this.$render("i-label", { caption: "Copy Address", font: { size: "0.875rem", bold: true } })),
                             this.$render("i-hstack", { id: "hsViewAccount", class: "pointer", verticalAlignment: "center", onClick: this.viewOnExplorerByAddress.bind(this) },
                                 this.$render("i-icon", { name: "external-link-alt", width: "16", height: "16", fill: Theme.text.secondary, display: "inline-block" }),
-                                this.$render("i-label", { id: "lblViewAccount", caption: "View on Etherscan", margin: { left: "0.5rem" }, font: { size: "0.875rem", bold: true } })))))));
+                                this.$render("i-label", { caption: "View on Explorer", margin: { left: "0.5rem" }, font: { size: "0.875rem", bold: true } })))))));
         }
     };
     __decorate([
