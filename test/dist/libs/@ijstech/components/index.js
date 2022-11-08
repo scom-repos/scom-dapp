@@ -14244,7 +14244,6 @@ var Application = class {
 };
 window["application"] = Application.Instance;
 var application = Application.Instance;
-var src_default = application;
 
 // packages/image/src/style/image.css.ts
 var Theme4 = theme_exports.ThemeVars;
@@ -19562,120 +19561,11 @@ var Module = class extends Container {
     this.$renderElms = [];
     let proxy = ProxyObject(this, true);
     this.$render = this._render.bind(proxy);
-    this.modules = {};
-    this.moduleDependenciesMapper = new Map();
-    this.modulesMapper = new Map();
-    this.modulesUrlRegex = [];
-    let defaultRoute;
-    if (options) {
-      this.initCustomData(options);
-      if (Array.isArray(options.routes)) {
-        for (let i = 0; i < options.routes.length; i++) {
-          let route = options.routes[i];
-          if (route.default)
-            defaultRoute = route;
-          this.modulesMapper.set(route.url, route.module);
-          this.moduleDependenciesMapper.set(route.module, route);
-          if (/(\/:[^\/]*)/g.test(route.url))
-            this.modulesUrlRegex.push(route.url);
-        }
-      }
-    }
-    this.bindOnHashChange();
-    if (defaultRoute && !location.hash)
-      location.hash = defaultRoute.url;
-    else {
-      setTimeout(() => {
-        this.locationHashChanged();
-      }, 1);
-    }
   }
   static async create(options, parent, defaults) {
     let self = new this(parent, options, defaults);
     await self.ready();
     return self;
-  }
-  bindOnHashChange() {
-  }
-  set currentModuleUrl(value) {
-    this._currentModuleUrl = value;
-  }
-  get currentModuleUrl() {
-    return this._currentModuleUrl;
-  }
-  get pathRegex() {
-    return this.modulesUrlRegex.reduce((result, url, key2) => {
-      const regex = /(\:[^\/]*)/g;
-      const matches = url.match(regex);
-      if (matches) {
-        const newUrl = matches.reduce((result2, item) => result2.replace(item, "((\\w|\\.|\\-|\\_)+)"), url);
-        const data = {
-          regex: new RegExp(`${newUrl}$`, "gi"),
-          module: this.modulesMapper.get(url),
-          url
-        };
-        result.push(data);
-      }
-      return result;
-    }, []);
-  }
-  initCustomData(options) {
-  }
-  getModulePath(path) {
-    if (this.modulesMapper.has(path)) {
-      this._currentModuleUrl = path;
-      return this.modulesMapper.get(path) || "";
-    } else {
-      const moduleData = this.pathRegex.find((item) => item == null ? void 0 : item.regex.exec(path));
-      if (moduleData) {
-        this._currentModuleUrl = moduleData.url;
-        return moduleData.module;
-      } else {
-        const index = path.lastIndexOf("/");
-        if (index > 1) {
-          path = path.substring(0, index);
-          return this.getModulePath(path);
-        }
-      }
-    }
-    return "";
-  }
-  async locationHashChanged() {
-    const path = location.hash.split("?")[0];
-    const modulePath = this.getModulePath(path);
-    await this.hideModule(this.currentPath);
-    this.currentPath = modulePath;
-    if (!modulePath)
-      return;
-    await this.handleLoadModule(modulePath);
-    window.scrollTo(0, 0);
-    await this.afterLocationHashChanged();
-  }
-  async afterLocationHashChanged() {
-  }
-  async handleLoadModule(modulePath) {
-    let module2 = await this.loadModule(modulePath);
-    if (module2) {
-      await this.handleLoadModuleCustom(module2);
-      module2.onLoad();
-    }
-  }
-  async handleLoadModuleCustom(module2) {
-  }
-  async loadModule(modulePath) {
-    if (this.modules[modulePath])
-      return this.modules[modulePath];
-    let module2 = await src_default.newModule(modulePath, this.moduleDependenciesMapper.get(modulePath));
-    if (module2)
-      this.modules[modulePath] = module2;
-    return module2;
-  }
-  async hideModule(modulePath) {
-    if (!modulePath)
-      return;
-    let module2 = this.modules[modulePath];
-    if (module2)
-      module2.style.display = "none";
   }
   init() {
     super.init();
@@ -19750,6 +19640,10 @@ var Module = class extends Container {
   render() {
   }
   onLoad() {
+  }
+  onShow(options) {
+  }
+  onHide() {
   }
 };
 Module = __decorateClass([

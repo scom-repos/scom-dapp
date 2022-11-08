@@ -66,7 +66,7 @@
             "menus": []
         }
     ],
-    "routing": [
+    "routes": [
         {
             "url": "/module1",
             "module": "@modules/module1",
@@ -74,127 +74,18 @@
         },
         {
             "url": "/module3/:id?",
-            "module": "@modules/module3",
-            "env": "testnet",
-            "networks": [
-                43113
-            ]
+            "module": "@modules/module3"
         }
     ],
     "networks": [
         {
-            "name": "Avalanche FUJI C-Chain",
-            "chainId": 43113,
-            "img": "avax",
-            "rpc": "https://api.avax-test.network/ext/bc/C/rpc",
-            "env": "testnet",
-            "explorerName": "SnowTrace",
-            "explorerTxUrl": "https://testnet.snowtrace.io/tx/",
-            "explorerAddressUrl": "https://testnet.snowtrace.io/address/"
+            "chainId": 1
         },
         {
-            "name": "Ethereum",
-            "chainId": 1,
-            "img": "eth",
-            "rpc": "https://mainnet.infura.io/v3/{InfuraId}",
-            "env": "mainnet",
-            "explorerName": "Etherscan",
-            "explorerTxUrl": "https://etherscan.io/tx/",
-            "explorerAddressUrl": "https://etherscan.io/address/",
-            "isDisabled": true
+            "chainId": 43113
         },
         {
-            "name": "Kovan Test Network",
-            "chainId": 42,
-            "img": "eth",
-            "rpc": "https://kovan.infura.io/v3/{InfuraId}",
-            "env": "testnet",
-            "explorerName": "Etherscan",
-            "explorerTxUrl": "https://kovan.etherscan.io/tx/",
-            "explorerAddressUrl": "https://kovan.etherscan.io/address/",
-            "isDisabled": true
-        },
-        {
-            "name": "Binance Smart Chain",
-            "chainId": 56,
-            "img": "bsc",
-            "rpc": "https://bsc-dataseed.binance.org/",
-            "env": "mainnet",
-            "explorerName": "BSCScan",
-            "explorerTxUrl": "https://bscscan.com/tx/",
-            "explorerAddressUrl": "https://bscscan.com/address/",
-            "isDisabled": true
-        },
-        {
-            "name": "Polygon",
-            "chainId": 137,
-            "img": "polygon",
-            "env": "mainnet",
-            "explorerName": "PolygonScan",
-            "explorerTxUrl": "https://polygonscan.com/tx/",
-            "explorerAddressUrl": "https://polygonscan.com/address/",
-            "isDisabled": true
-        },
-        {
-            "name": "Fantom Opera",
-            "chainId": 250,
-            "img": "ftm",
-            "rpc": "https://rpc.ftm.tools/",
-            "env": "mainnet",
-            "explorerName": "FTMScan",
-            "explorerTxUrl": "https://ftmscan.com/tx/",
-            "explorerAddressUrl": "https://ftmscan.com/address/",
-            "isDisabled": true
-        },
-        {
-            "name": "BSC Testnet",
-            "chainId": 97,
-            "img": "bsc",
-            "rpc": "https://data-seed-prebsc-1-s1.binance.org:8545/",
-            "env": "testnet",
-            "explorerName": "BSCScan",
-            "explorerTxUrl": "https://testnet.bscscan.com/tx/",
-            "explorerAddressUrl": "https://testnet.bscscan.com/address/",
-            "isDisabled": true
-        },
-        {
-            "name": "Amino Testnet",
-            "chainId": 31337,
-            "img": "amio",
-            "env": "testnet",
-            "isDisabled": true
-        },
-        {
-            "name": "Mumbai",
-            "chainId": 80001,
-            "img": "polygon",
-            "rpc": "https://matic-mumbai.chainstacklabs.com",
-            "env": "testnet",
-            "explorerName": "PolygonScan",
-            "explorerTxUrl": "https://mumbai.polygonscan.com/tx/",
-            "explorerAddressUrl": "https://mumbai.polygonscan.com/address/",
-            "isDisabled": true
-        },
-        {
-            "name": "Fantom Testnet",
-            "chainId": 4002,
-            "img": "ftm",
-            "rpc": "https://rpc.testnet.fantom.network/",
-            "env": "testnet",
-            "explorerName": "FTMScan",
-            "explorerTxUrl": "https://testnet.ftmscan.com/tx/",
-            "explorerAddressUrl": "https://testnet.ftmscan.com/address/",
-            "isDisabled": true
-        },
-        {
-            "name": "AminoX Testnet",
-            "chainId": 13370,
-            "img": "amio",
-            "env": "testnet",
-            "explorerName": "AminoX Explorer",
-            "explorerTxUrl": "https://aminoxtestnet.blockscout.alphacarbon.network/tx/",
-            "explorerAddressUrl": "https://aminoxtestnet.blockscout.alphacarbon.network/address/",
-            "isDisabled": true
+            "chainId": 97
         }
     ],
     "wallets": [
@@ -202,7 +93,18 @@
     ],
     "themes": {
         "default": "dark",
-        "dark": {},
+        "dark": {
+            "background": {
+                "default": "#212128",
+                "paper": "#000000",
+                "main": "linear-gradient(270deg, #FF9900 0%, #FC7428 100%)",
+                "modal": "#1A1A1A"
+            },
+            "text": {
+                "secondary": "hsla(0, 0%, 100%, 0.6)"
+            },
+            "divider": "#FFFFFF"
+        },
         "light": {}
     },
     "copyright": "&#169; 2022 IJS Technologies. All rights reserved.",

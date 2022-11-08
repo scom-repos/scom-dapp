@@ -8,8 +8,11 @@ define("@modules/module2", ["require", "exports", "@ijstech/components"], functi
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     let Module1 = class Module1 extends components_1.Module {
-        onLoad(options) {
+        onShow(options) {
             this.lblParams.caption = options ? JSON.stringify(options) : "";
+        }
+        onHide() {
+            console.log("module 2 hide");
         }
         render() {
             return this.$render("i-panel", null,

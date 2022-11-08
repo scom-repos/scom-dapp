@@ -28,6 +28,7 @@ export default {
             metamask: fullPath('img/wallet/metamask.png'),
             trustwallet: fullPath('img/wallet/trustwallet.svg'),
             binanceChainWallet: fullPath('img/wallet/binance-chain-wallet.svg'),
+            walletconnect: fullPath('img/wallet/walletconnect.svg')
         }
     },    
     fullPath

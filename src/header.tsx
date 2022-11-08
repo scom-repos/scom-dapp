@@ -16,15 +16,13 @@ import {
   GridLayout,
   Container,
   IMenuItem,
-  Image,
-  IModuleMenuItem
+  Image
 } from '@ijstech/components';
 import { Wallet, WalletPlugin, WalletPluginConfig } from "@ijstech/eth-wallet";
-import { INetwork, EventId, formatNumber, truncateAddress, isWalletConnected } from './network';
+import { INetwork, EventId, formatNumber, truncateAddress, isWalletConnected, isValidEnv } from './network';
 import styleClass from './header.css';
 import Assets from './assets';
 import {
-  walletList,
   connectWallet,
   logoutWallet,
   switchNetwork,
@@ -33,19 +31,25 @@ import {
   getSiteSupportedNetworks,
   getWalletProvider,
   getDefaultChainId,
-  NativeTokenByChainId,
   viewOnExplorerByAddress,
   getNetworkType
 } from './network';
+import { getSupportedWallets } from './wallet';
 import { compile } from './pathToRegexp'
 
 const Theme = Styles.Theme.ThemeVars;
 
-interface IModuleMenu extends IModuleMenuItem {
+interface IModuleMenu {
   caption?: string;
   module?: string;
   url?: string;
   params?: any;
+	env?: string;
+	networks?: number[];
+  isToExternal?: boolean;
+  img?: string;
+  menus?: IModuleMenu[];
+  isDisabled?: boolean;
 }
 interface ILogo {
   desktop?: string;
@@ -98,6 +102,7 @@ export class Header extends Module {
   private imgDesktopLogo: Image;
   private imgMobileLogo: Image;
   private logo: ILogo;
+  private supportedNetworks: INetwork[] = [];
   @observable()
   private walletInfo = {
     address: '',
@@ -113,8 +118,8 @@ export class Header extends Module {
 
   get symbol() {
     let symbol = '';
-    if (this.selectedNetwork?.chainId && NativeTokenByChainId[this.selectedNetwork?.chainId]) {
-      symbol = NativeTokenByChainId[this.selectedNetwork?.chainId]?.symbol;
+    if (this.selectedNetwork?.chainId && this.selectedNetwork?.symbol) {
+      symbol = this.selectedNetwork?.symbol;
     }
     return symbol;
   }
@@ -137,6 +142,8 @@ export class Header extends Module {
       this.selectedNetwork = getNetworkInfo(wallet.chainId);
       this.updateConnectedStatus(connected);
       this.updateList(connected);
+      this.renderMobileMenu();
+      this.renderDesktopMenu();
     })
     this.$eventBus.register(this, EventId.IsWalletDisconnected, async (connected: boolean) => {
       this.selectedNetwork = getNetworkInfo(wallet.chainId);
@@ -200,6 +207,8 @@ export class Header extends Module {
     this.walletInfo.balance = isConnected ? formatNumber((await wallet.balance).toFixed(), 2) : '0';
     this.updateConnectedStatus(isConnected);
     this.updateList(isConnected);
+    this.renderMobileMenu();
+    this.renderDesktopMenu();
   };
 
   updateConnectedStatus = (isConnected: boolean) => {
@@ -213,7 +222,8 @@ export class Header extends Module {
     } else {
       this.hsViewAccount.visible = false;
     }
-    if (this.selectedNetwork && !this.selectedNetwork.isDisabled) {
+    const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network === this.selectedNetwork) !== -1;
+    if (isSupportedNetwork) {
       this.btnNetwork.icon = <i-icon width={26} height={26} image={{ url: Assets.img.network[this.selectedNetwork.img] || application.assets(this.selectedNetwork.img) }} ></i-icon>
       this.btnNetwork.caption = this.selectedNetwork.name;
     } else {
@@ -329,6 +339,7 @@ export class Header extends Module {
   renderWalletList = () => {
     this.gridWalletList.clearInnerHTML();
     this.walletMapper = new Map();
+    const walletList  = getSupportedWallets();
     walletList.forEach((wallet) => {
       const isActive = this.isWalletActive(wallet.name);
       if (isActive) this.currActiveWallet = wallet.name;
@@ -360,8 +371,8 @@ export class Header extends Module {
   renderNetworks() {
     this.gridNetworkGroup.clearInnerHTML();
     this.networkMapper = new Map();
-    const networksList = getSiteSupportedNetworks();
-    this.gridNetworkGroup.append(...networksList.map((network) => {
+    this.supportedNetworks = getSiteSupportedNetworks();
+    this.gridNetworkGroup.append(...this.supportedNetworks.map((network) => {
       const img = network.img ? <i-image url={Assets.img.network[network.img] || application.assets(network.img)} width={34} height={34} /> : [];
       const isActive = this.isNetworkActive(network.chainId);
       if (isActive) this.currActiveNetworkId = network.chainId;
@@ -423,8 +434,8 @@ export class Header extends Module {
         if (item.img)
           _menuItem.icon = { width: 24, height: 24, image: { width: 24, height: 24, url: application.assets(item.img) } }
       }
-      if (item.subItems && item.subItems.length) {
-        _menuItem.items = this._getMenuData(item.subItems, mode, validMenuItemsFn);
+      if (item.menus && item.menus.length) {
+        _menuItem.items = this._getMenuData(item.menus, mode, validMenuItemsFn);
       }
       menuItems.push(_menuItem);
     })
@@ -435,10 +446,10 @@ export class Header extends Module {
     let chainId = this.selectedNetwork?.chainId || Wallet.getInstance().chainId;
     let validMenuItemsFn: (item: IModuleMenu) => boolean;
     if (chainId) {
-      validMenuItemsFn = (item: IModuleMenu) => !item.isDisabled && (!item.supportedChainIds || item.supportedChainIds.includes(chainId));
+      validMenuItemsFn = (item: IModuleMenu) => !item.isDisabled && (!item.networks || item.networks.includes(chainId)) && isValidEnv(item.env);
     }
     else {
-      validMenuItemsFn = (item: IModuleMenu) => !item.isDisabled;
+      validMenuItemsFn = (item: IModuleMenu) => !item.isDisabled && isValidEnv(item.env);
     }
     return this._getMenuData(list, mode, validMenuItemsFn);
   }
@@ -476,7 +487,7 @@ export class Header extends Module {
                 height="20px"
                 display="inline-block"
                 margin={{ right: 5 }}
-                fill={Theme.text.secondary}
+                fill={Theme.text.primary}
                 onClick={this.toggleMenu}
               />
               <i-modal
@@ -513,7 +524,7 @@ export class Header extends Module {
                   padding={{ top: '0.375rem', bottom: '0.375rem', left: '0.75rem', right: '0.75rem' }}
                   background={{ color: '#101026' }}
                   border={{ width: '1px', style: 'solid', color: '#101026', radius: 5 }}
-                  font={{ color: Theme.text.secondary }}
+                  font={{ color: Theme.text.primary }}
                   onClick={this.openNetworkModal}
                   caption={"Unsupported Network"}
                 ></i-button>
@@ -528,7 +539,7 @@ export class Header extends Module {
                 border={{ radius: 6 }}
                 padding={{ top: 6, bottom: 6, left: 10, right: 10 }}
               >
-                <i-label id="lblBalance" font={{ color: Theme.text.secondary }}></i-label>
+                <i-label id="lblBalance" font={{ color: Theme.text.primary }}></i-label>
               </i-hstack>
               <i-panel id="pnlWalletDetail" visible={false}>
                 <i-button
@@ -536,7 +547,7 @@ export class Header extends Module {
                   padding={{ top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }}
                   margin={{ left: '0.5rem' }}
                   border={{ radius: 5 }}
-                  font={{ color: Theme.text.secondary }}
+                  font={{ color: Theme.text.primary }}
                   background={{ color: Theme.colors.error.light }}
                   onClick={this.openWalletDetailModal}
                 ></i-button>
@@ -555,7 +566,7 @@ export class Header extends Module {
                       width="100%"
                       height="auto"
                       border={{ radius: 5 }}
-                      font={{ color: Theme.text.secondary }}
+                      font={{ color: Theme.text.primary }}
                       background={{ color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }}
                       padding={{ top: '0.5rem', bottom: '0.5rem' }}
                       onClick={this.openAccountModal}
@@ -565,7 +576,7 @@ export class Header extends Module {
                       width="100%"
                       height="auto"
                       border={{ radius: 5 }}
-                      font={{ color: Theme.text.secondary }}
+                      font={{ color: Theme.text.primary }}
                       background={{ color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }}
                       padding={{ top: '0.5rem', bottom: '0.5rem' }}
                       onClick={this.openConnectModal}
@@ -575,7 +586,7 @@ export class Header extends Module {
                       width="100%"
                       height="auto"
                       border={{ radius: 5 }}
-                      font={{ color: Theme.text.secondary }}
+                      font={{ color: Theme.text.primary }}
                       background={{ color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }}
                       padding={{ top: '0.5rem', bottom: '0.5rem' }}
                       onClick={this.logout}
@@ -587,7 +598,7 @@ export class Header extends Module {
                 id="btnConnectWallet"
                 caption="Connect Wallet"
                 border={{ radius: 5 }}
-                font={{ color: Theme.text.secondary }}
+                font={{ color: Theme.text.primary }}
                 padding={{ top: '0.375rem', bottom: '0.375rem', left: '0.5rem', right: '0.5rem' }}
                 margin={{ left: '0.5rem' }}
                 onClick={this.openConnectModal}
@@ -676,7 +687,7 @@ export class Header extends Module {
               <i-label font={{ size: '0.875rem' }} caption='Connected with' />
               <i-button
                 caption='Logout'
-                font={{ color: Theme.text.secondary }}
+                font={{ color: Theme.text.primary }}
                 background={{ color: Theme.colors.error.light }}
                 padding={{ top: 6, bottom: 6, left: 10, right: 10 }}
                 border={{ radius: 5 }}
@@ -696,12 +707,12 @@ export class Header extends Module {
                   name="copy"
                   width="16px"
                   height="16px"
-                  fill={Theme.text.primary}
+                  fill={Theme.text.secondary}
                 ></i-icon>
                 <i-label caption="Copy Address" font={{ size: "0.875rem", bold: true }} />
               </i-hstack>
               <i-hstack id="hsViewAccount" class="pointer" verticalAlignment="center" onClick={this.viewOnExplorerByAddress.bind(this)}>
-                <i-icon name="external-link-alt" width="16" height="16" fill={Theme.text.primary} display="inline-block" />
+                <i-icon name="external-link-alt" width="16" height="16" fill={Theme.text.secondary} display="inline-block" />
                 <i-label id="lblViewAccount" caption="View on Etherscan" margin={{ left: "0.5rem" }} font={{ size: "0.875rem", bold: true }} />
               </i-hstack>
             </i-hstack>

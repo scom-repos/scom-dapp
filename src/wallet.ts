@@ -10,6 +10,8 @@ export interface INetwork {
   name: string;
   img?: string;
   rpc?: string;
+	symbol?: string;
+	env?: string;
   explorerName?: string;
   explorerTxUrl?: string;
   explorerAddressUrl?: string;
@@ -20,12 +22,6 @@ export const enum EventId {
   ConnectWallet = 'connectWallet',
   IsWalletConnected = 'isWalletConnected',
   chainChanged = 'chainChanged',
-  ShowActionModal = 'showActionModal',
-  SetActionModalData = 'setActionModalData',
-  ConfirmAction = 'confirmAction',
-  ShowResult = 'showResult',
-  SetResultMessage = 'setResultMessage',
-  SwitchScene = 'switchScene',
   IsWalletDisconnected = "IsWalletDisconnected"
 };
 
@@ -101,4 +97,18 @@ export const hasMetaMask = function () {
 export const truncateAddress = (address: string) => {
   if (address === undefined || address === null) return '';
   return address.substring(0, 6) + '...' + address.substring(address.length - 4);
+}
+
+export const getSupportedWallets = () => {
+  return walletList.filter(wallet => state.wallets.includes(wallet.name));
+}
+
+const state = {
+  wallets: []
+}
+
+export const updateWallets = (options: any) => {
+  if (options.wallets) {
+    state.wallets = options.wallets
+  }
 }
