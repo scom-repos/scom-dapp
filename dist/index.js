@@ -589,6 +589,10 @@ define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"]
                         }
                     }
                 }
+            },
+            '.header-logo > img': {
+                width: '100%',
+                maxHeight: 50
             }
         }
     });
@@ -1322,14 +1326,14 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         }
         render() {
             return (this.$render("i-panel", { padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' } },
-                this.$render("i-hstack", { width: "100%", position: "relative", horizontalAlignment: 'space-between', wrap: 'wrap' },
+                this.$render("i-grid-layout", { width: '100%', position: "relative", verticalAlignment: 'center', templateColumns: ["1fr", "auto"] },
                     this.$render("i-hstack", { id: "hsMobileMenu", verticalAlignment: "center", width: 100, visible: false },
                         this.$render("i-icon", { id: "hamburger", class: 'pointer', name: "bars", width: "20px", height: "20px", display: "inline-block", margin: { right: 5 }, fill: Theme.text.secondary, onClick: this.toggleMenu }),
                         this.$render("i-modal", { id: "mdMobileMenu", height: "auto", minWidth: "250px", showBackdrop: false, popupPlacement: "bottomLeft", background: { color: Theme.background.modal } },
                             this.$render("i-menu", { id: "menuMobile", mode: "inline" })),
-                        this.$render("i-image", { height: "100%", url: "", id: "imgMobileLogo", margin: { left: '0.5rem', right: '1.25rem' } })),
-                    this.$render("i-hstack", { id: "hsDesktopMenu", wrap: "nowrap", verticalAlignment: "center", maxWidth: "calc(100% - 640px)", width: "100%" },
-                        this.$render("i-image", { stack: { shrink: '0' }, height: "100%", url: "", id: "imgDesktopLogo", margin: { left: '0.5rem', right: '1.25rem' } }),
+                        this.$render("i-image", { id: "imgMobileLogo", class: "header-logo", margin: { right: '1.25rem' } })),
+                    this.$render("i-hstack", { id: "hsDesktopMenu", wrap: "nowrap", verticalAlignment: "center", width: "100%", overflow: "hidden" },
+                        this.$render("i-image", { id: "imgDesktopLogo", class: "header-logo", margin: { right: '1.25rem' } }),
                         this.$render("i-menu", { id: "menuDesktop", width: "100%", border: { left: { color: '#192046', width: '1px', style: 'solid' } } })),
                     this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'end' },
                         this.$render("i-panel", null,
@@ -1447,6 +1451,14 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             super(parent, options);
             this.classList.add(index_css_1.default);
             this._options = options;
+            let defaultRoute = this._options.routing.find(route => route.default);
+            if (defaultRoute && !location.hash) {
+                const toPath = pathToRegexp_2.compile(defaultRoute.url, { encode: encodeURIComponent });
+                location.hash = toPath();
+            }
+            else {
+                this.handleHashChange();
+            }
         }
         ;
         async init() {
@@ -1455,7 +1467,6 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             this.logo = this.options.logo || "";
             network_3.updateNetworks(this.options);
             super.init();
-            this.handleHashChange();
         }
         ;
         hideCurrentModule() {
@@ -1465,8 +1476,9 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
         async getModuleByPath(path) {
             let menu;
             let params;
-            for (let i = 0; i < this._options.menus.length; i++) {
-                let item = this._options.menus[i];
+            let list = [...this._options.routing, ...this._options.menus];
+            for (let i = 0; i < list.length; i++) {
+                let item = list[i];
                 if (item.url == path) {
                     menu = item;
                     break;
@@ -1477,7 +1489,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
                     let _match = item.regex(path);
                     if (_match !== false) {
                         menu = item;
-                        params = Object.assign(Object.assign({}, menu.params), _match.params);
+                        params = "params" in menu ? Object.assign(Object.assign({}, menu.params), _match.params) : _match.params;
                         break;
                     }
                     ;

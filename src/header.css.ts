@@ -79,6 +79,10 @@ export default Styles.style({
           }
         }
       }
+    },
+    '.header-logo > img': {
+      width: '100%',
+      maxHeight: 50
     }
   }
 })

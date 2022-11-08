@@ -161,11 +161,11 @@ export class Header extends Module {
     this.renderNetworks();
     this.updateConnectedStatus(isWalletConnected());
     this.initData();
-    if (this.logo.desktop){
+    if (this.logo.desktop) {
       let logo = application.assets(this.logo.desktop);
       this.imgDesktopLogo.url = logo;
     }
-    if (this.logo.mobile){
+    if (this.logo.mobile) {
       let logo = application.assets(this.logo.mobile);
       this.imgMobileLogo.url = logo;
     }
@@ -214,7 +214,7 @@ export class Header extends Module {
       this.hsViewAccount.visible = false;
     }
     if (this.selectedNetwork && !this.selectedNetwork.isDisabled) {
-      this.btnNetwork.icon = <i-icon width={26} height={26} image={{ url: Assets.img.network[this.selectedNetwork.img] || application.assets(this.selectedNetwork.img)}} ></i-icon>
+      this.btnNetwork.icon = <i-icon width={26} height={26} image={{ url: Assets.img.network[this.selectedNetwork.img] || application.assets(this.selectedNetwork.img) }} ></i-icon>
       this.btnNetwork.caption = this.selectedNetwork.name;
     } else {
       this.btnNetwork.icon = undefined;
@@ -400,12 +400,12 @@ export class Header extends Module {
       });
     }
   }
-  
+
   getMenuPath(url: string, params: any) {
     try {
       const toPath = compile(url, { encode: encodeURIComponent });
       return toPath(params);
-    } catch (err) {}
+    } catch (err) { }
     return "";
   }
 
@@ -421,7 +421,7 @@ export class Header extends Module {
       if (mode === 'mobile') {
         _menuItem.font = { color: Theme.colors.primary.main };
         if (item.img)
-          _menuItem.icon = { width: 24, height: 24, image: { width: 24, height: 24, url: application.assets(item.img)} }
+          _menuItem.icon = { width: 24, height: 24, image: { width: 24, height: 24, url: application.assets(item.img) } }
       }
       if (item.subItems && item.subItems.length) {
         _menuItem.items = this._getMenuData(item.subItems, mode, validMenuItemsFn);
@@ -460,142 +460,141 @@ export class Header extends Module {
   render() {
     return (
       <i-panel padding={{ top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }} >
-        <i-hstack width="100%" position="relative" horizontalAlignment='space-between' wrap='wrap'>
-          <i-hstack
-            id="hsMobileMenu"
-            verticalAlignment="center"
-            width={100}
-            visible={false}
-          >            
-            <i-icon
-              id="hamburger"
-              class='pointer'
-              name="bars"
-              width="20px"
-              height="20px"
-              display="inline-block"
-              margin={{ right: 5 }}
-              fill={Theme.text.secondary}
-              onClick={this.toggleMenu}
-            />
-            <i-modal
-              id="mdMobileMenu"
-              height="auto"
-              minWidth="250px"
-              showBackdrop={false}
-              popupPlacement="bottomLeft"
-              background={{ color: Theme.background.modal }}
-            >
-              <i-menu id="menuMobile" mode="inline"></i-menu>
-            </i-modal>
-            <i-image             
-              height="100%"
-              url=""
-              id="imgMobileLogo"
-              margin={{left: '0.5rem', right: '1.25rem'}}
-            />
-
-          </i-hstack>
-          <i-hstack id="hsDesktopMenu" wrap="nowrap" verticalAlignment="center" maxWidth="calc(100% - 640px)" width="100%">
-            <i-image
-              stack={{ shrink: '0' }}
-              height="100%"
-              url=""
-              id="imgDesktopLogo"
-              margin={{left: '0.5rem', right: '1.25rem'}}
-            />
-            <i-menu id="menuDesktop" width="100%" border={{ left: { color: '#192046', width: '1px', style: 'solid' } }}></i-menu>
-          </i-hstack>
-          <i-hstack verticalAlignment='center' horizontalAlignment='end'>
-            <i-panel>
-              <i-button
-                id="btnNetwork"
-                class="btn-network"
-                margin={{ right: '1rem' }}
-                padding={{ top: '0.375rem', bottom: '0.375rem', left: '0.75rem', right: '0.75rem' }}
-                background={{ color: '#101026' }}
-                border={{ width: '1px', style: 'solid', color: '#101026', radius: 5 }}
-                font={{ color: Theme.text.secondary }}
-                onClick={this.openNetworkModal}
-                caption={"Unsupported Network"}
-              ></i-button>
-            </i-panel>
+        {/* <i-hstack width="100%" position="relative" horizontalAlignment='space-between' wrap='wrap'> */}
+          <i-grid-layout width='100%' position="relative" verticalAlignment='center' templateColumns={["1fr", "auto"]}>
             <i-hstack
-              id="hsBalance"
-              visible={false}
-              horizontalAlignment="center"
+              id="hsMobileMenu"
               verticalAlignment="center"
-              background={{ color: "#192046" }}
-              lineHeight="25px"
-              border={{ radius: 6 }}
-              padding={{ top: 6, bottom: 6, left: 10, right: 10 }}
+              width={100}
+              visible={false}
             >
-              <i-label id="lblBalance" font={{ color: Theme.text.secondary }}></i-label>
+              <i-icon
+                id="hamburger"
+                class='pointer'
+                name="bars"
+                width="20px"
+                height="20px"
+                display="inline-block"
+                margin={{ right: 5 }}
+                fill={Theme.text.secondary}
+                onClick={this.toggleMenu}
+              />
+              <i-modal
+                id="mdMobileMenu"
+                height="auto"
+                minWidth="250px"
+                showBackdrop={false}
+                popupPlacement="bottomLeft"
+                background={{ color: Theme.background.modal }}
+              >
+                <i-menu id="menuMobile" mode="inline"></i-menu>
+              </i-modal>
+              <i-image
+                id="imgMobileLogo"
+                class="header-logo"
+                margin={{ right: '1.25rem' }}
+              />
+
             </i-hstack>
-            <i-panel id="pnlWalletDetail" visible={false}>
+            <i-hstack id="hsDesktopMenu" wrap="nowrap" verticalAlignment="center" width="100%" overflow="hidden">
+              <i-image
+                id="imgDesktopLogo"
+                class="header-logo"
+                margin={{ right: '1.25rem' }}
+              />
+              <i-menu id="menuDesktop" width="100%" border={{ left: { color: '#192046', width: '1px', style: 'solid' } }}></i-menu>
+            </i-hstack>
+            <i-hstack verticalAlignment='center' horizontalAlignment='end'>
+              <i-panel>
+                <i-button
+                  id="btnNetwork"
+                  class="btn-network"
+                  margin={{ right: '1rem' }}
+                  padding={{ top: '0.375rem', bottom: '0.375rem', left: '0.75rem', right: '0.75rem' }}
+                  background={{ color: '#101026' }}
+                  border={{ width: '1px', style: 'solid', color: '#101026', radius: 5 }}
+                  font={{ color: Theme.text.secondary }}
+                  onClick={this.openNetworkModal}
+                  caption={"Unsupported Network"}
+                ></i-button>
+              </i-panel>
+              <i-hstack
+                id="hsBalance"
+                visible={false}
+                horizontalAlignment="center"
+                verticalAlignment="center"
+                background={{ color: "#192046" }}
+                lineHeight="25px"
+                border={{ radius: 6 }}
+                padding={{ top: 6, bottom: 6, left: 10, right: 10 }}
+              >
+                <i-label id="lblBalance" font={{ color: Theme.text.secondary }}></i-label>
+              </i-hstack>
+              <i-panel id="pnlWalletDetail" visible={false}>
+                <i-button
+                  id="btnWalletDetail"
+                  padding={{ top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }}
+                  margin={{ left: '0.5rem' }}
+                  border={{ radius: 5 }}
+                  font={{ color: Theme.text.secondary }}
+                  background={{ color: Theme.colors.error.light }}
+                  onClick={this.openWalletDetailModal}
+                ></i-button>
+                <i-modal
+                  id="mdWalletDetail"
+                  height="auto"
+                  maxWidth={200}
+                  minWidth={200}
+                  showBackdrop={false}
+                  popupPlacement="bottomRight"
+                  background={{ color: "#252a48" }}
+                >
+                  <i-vstack gap={15} padding={{ top: 10, left: 10, right: 10, bottom: 10 }}>
+                    <i-button
+                      caption="Account"
+                      width="100%"
+                      height="auto"
+                      border={{ radius: 5 }}
+                      font={{ color: Theme.text.secondary }}
+                      background={{ color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }}
+                      padding={{ top: '0.5rem', bottom: '0.5rem' }}
+                      onClick={this.openAccountModal}
+                    ></i-button>
+                    <i-button
+                      caption="Switch wallet"
+                      width="100%"
+                      height="auto"
+                      border={{ radius: 5 }}
+                      font={{ color: Theme.text.secondary }}
+                      background={{ color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }}
+                      padding={{ top: '0.5rem', bottom: '0.5rem' }}
+                      onClick={this.openConnectModal}
+                    ></i-button>
+                    <i-button
+                      caption="Logout"
+                      width="100%"
+                      height="auto"
+                      border={{ radius: 5 }}
+                      font={{ color: Theme.text.secondary }}
+                      background={{ color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }}
+                      padding={{ top: '0.5rem', bottom: '0.5rem' }}
+                      onClick={this.logout}
+                    ></i-button>
+                  </i-vstack>
+                </i-modal>
+              </i-panel>
               <i-button
-                id="btnWalletDetail"
-                padding={{ top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }}
-                margin={{ left: '0.5rem' }}
+                id="btnConnectWallet"
+                caption="Connect Wallet"
                 border={{ radius: 5 }}
                 font={{ color: Theme.text.secondary }}
-                background={{ color: Theme.colors.error.light }}
-                onClick={this.openWalletDetailModal}
+                padding={{ top: '0.375rem', bottom: '0.375rem', left: '0.5rem', right: '0.5rem' }}
+                margin={{ left: '0.5rem' }}
+                onClick={this.openConnectModal}
               ></i-button>
-              <i-modal
-                id="mdWalletDetail"
-                height="auto"
-                maxWidth={200}
-                minWidth={200}
-                showBackdrop={false}
-                popupPlacement="bottomRight"
-                background={{ color: "#252a48" }}
-              >
-                <i-vstack gap={15} padding={{ top: 10, left: 10, right: 10, bottom: 10 }}>
-                  <i-button
-                    caption="Account"
-                    width="100%"
-                    height="auto"
-                    border={{ radius: 5 }}
-                    font={{ color: Theme.text.secondary }}
-                    background={{ color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }}
-                    padding={{ top: '0.5rem', bottom: '0.5rem' }}
-                    onClick={this.openAccountModal}
-                  ></i-button>
-                  <i-button
-                    caption="Switch wallet"
-                    width="100%"
-                    height="auto"
-                    border={{ radius: 5 }}
-                    font={{ color: Theme.text.secondary }}
-                    background={{ color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }}
-                    padding={{ top: '0.5rem', bottom: '0.5rem' }}
-                    onClick={this.openConnectModal}
-                  ></i-button>
-                  <i-button
-                    caption="Logout"
-                    width="100%"
-                    height="auto"
-                    border={{ radius: 5 }}
-                    font={{ color: Theme.text.secondary }}
-                    background={{ color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }}
-                    padding={{ top: '0.5rem', bottom: '0.5rem' }}
-                    onClick={this.logout}
-                  ></i-button>
-                </i-vstack>
-              </i-modal>
-            </i-panel>
-            <i-button
-              id="btnConnectWallet"
-              caption="Connect Wallet"
-              border={{ radius: 5 }}
-              font={{ color: Theme.text.secondary }}
-              padding={{ top: '0.375rem', bottom: '0.375rem', left: '0.5rem', right: '0.5rem' }}
-              margin={{ left: '0.5rem' }}
-              onClick={this.openConnectModal}
-            ></i-button>
-          </i-hstack>
-        </i-hstack>
+            </i-hstack>
+          </i-grid-layout>
+        {/* </i-hstack> */}
         <i-modal
           id='mdNetwork'
           title='Supported Network'

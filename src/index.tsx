@@ -3,7 +3,7 @@ import styleClass from './index.css';
 import { updateNetworks } from './network';
 export { Header } from './header';
 export { Footer } from './footer';
-import {match, MatchFunction} from './pathToRegexp'
+import {match, MatchFunction, compile} from './pathToRegexp'
 Styles.Theme.applyTheme(Styles.Theme.darkTheme);
 interface IMenu{
 	caption: string;
@@ -27,6 +27,7 @@ interface ISCConfig{
 	modules: {[name: string]: {path: string, dependencies: string[]}};
 	dependencies?: {[name: string]: string};
 	menus: IMenu[];
+	routing: IRoute[];
 	networks?: INetwork[];
 	copyrightInfo: string;
 	poweredBy?: string;
@@ -40,6 +41,12 @@ interface INetwork {
 	env: string,
 	explorer: string
 };
+interface IRoute {
+	url: string;
+	module: string;
+	default?: boolean;
+	regex?: MatchFunction;
+}
 @customModule
 export default class MainLauncher extends Module {
 	private pnlMain: Panel;
@@ -52,6 +59,13 @@ export default class MainLauncher extends Module {
 		super(parent, options);
 		this.classList.add(styleClass);
 		this._options = options;
+		let defaultRoute: IRoute | undefined = this._options.routing.find(route => route.default);
+		if (defaultRoute && !location.hash) {
+      const toPath = compile(defaultRoute.url, { encode: encodeURIComponent });
+			location.hash = toPath();
+		} else {
+			this.handleHashChange()
+		}
 	};
 	async init(){		
 		window.onhashchange = this.handleHashChange.bind(this);
@@ -59,17 +73,17 @@ export default class MainLauncher extends Module {
 		this.logo = this.options.logo || "";
 		updateNetworks(this.options);
 		super.init();
-		this.handleHashChange()
 	};
 	hideCurrentModule(){
 		if (this.currentModule)
 			this.currentModule.style.display = 'none';
 	}
 	async getModuleByPath(path: string): Promise<Module>{
-		let menu: IMenu;
+		let menu: IMenu | IRoute;
 		let params: any;
-		for (let i = 0; i < this._options.menus.length; i ++){
-			let item = this._options.menus[i];
+		let list: Array<IMenu | IRoute> = [ ...this._options.routing, ...this._options.menus ];
+		for (let i = 0; i < list.length; i ++){
+			let item = list[i];
 			if (item.url == path){
 				menu = item;
 				break;
@@ -81,7 +95,7 @@ export default class MainLauncher extends Module {
 				let _match = item.regex(path);
 				if (_match !== false){
 					menu = item;
-					params = Object.assign({ ...menu.params }, _match.params);
+					params = "params" in menu ? Object.assign({ ...menu.params }, _match.params) : _match.params;
 					break;
 				};
 			};

@@ -36,6 +36,10 @@
         "@modules/module2": {
             "path": "module2",
             "dependencies": []
+        },
+        "@modules/module3": {
+            "path": "module3",
+            "dependencies": []
         }
     },
     "dependencies": {
@@ -48,7 +52,11 @@
             "url": "/module1",
             "module": "@modules/module1",
             "params": {},
-            "menus": []
+            "menus": [],
+            "env": "testnet",
+            "networks": [
+                43113
+            ]
         },
         {
             "caption": "Module 2",
@@ -56,6 +64,21 @@
             "module": "@modules/module2",
             "params": {},
             "menus": []
+        }
+    ],
+    "routing": [
+        {
+            "url": "/module1",
+            "module": "@modules/module1",
+            "default": true
+        },
+        {
+            "url": "/module3/:id?",
+            "module": "@modules/module3",
+            "env": "testnet",
+            "networks": [
+                43113
+            ]
         }
     ],
     "networks": [
@@ -174,8 +197,15 @@
             "isDisabled": true
         }
     ],
+    "wallets": [
+        "metamask"
+    ],
+    "themes": {
+        "default": "dark",
+        "dark": {},
+        "light": {}
+    },
     "copyright": "&#169; 2022 IJS Technologies. All rights reserved.",
-    "poweredBy": "SECURE COMPUTE",
     "version": "0.1.0-beta"
 });
       document.body.append(module);
