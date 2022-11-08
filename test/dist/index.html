@@ -12,23 +12,33 @@
       application.LibHost = "";
       let module = await application.newModule("@scom/dapp", {
     "env": "testnet",
+    "logo": {
+        "header": {
+            "desktop": "logo",
+            "mobile": "logoMobile"
+        },
+        "footer": "logoMobileDark"
+    },
     "main": "@scom/dapp",
-    "assets": "@dapp/assets",
-    "logo": "logo",
+    "assets": "@modules/assets",
     "moduleDir": "modules",
     "modules": {
-        "@dapp/assets": {
+        "@modules/assets": {
             "path": "assets",
             "dependencies": []
         },
-        "@dapp/module1": {
+        "@modules/module1": {
             "path": "module1",
             "dependencies": [
-                "@dapp/assets"
+                "@modules/assets"
             ]
         },
-        "@dapp/module2": {
+        "@modules/module2": {
             "path": "module2",
+            "dependencies": []
+        },
+        "@modules/module3": {
+            "path": "module3",
             "dependencies": []
         }
     },
@@ -40,19 +50,48 @@
         {
             "caption": "Module 1",
             "url": "/module1",
-            "module": "@dapp/module1",
+            "module": "@modules/module1",
             "params": {},
-            "menus": []
+            "menus": [],
+            "env": "testnet",
+            "networks": [
+                43113
+            ]
         },
         {
             "caption": "Module 2",
-            "url": "/module2",
-            "module": "@dapp/module2",
+            "url": "/module2/:id?",
+            "module": "@modules/module2",
             "params": {},
             "menus": []
         }
     ],
+    "routing": [
+        {
+            "url": "/module1",
+            "module": "@modules/module1",
+            "default": true
+        },
+        {
+            "url": "/module3/:id?",
+            "module": "@modules/module3",
+            "env": "testnet",
+            "networks": [
+                43113
+            ]
+        }
+    ],
     "networks": [
+        {
+            "name": "Avalanche FUJI C-Chain",
+            "chainId": 43113,
+            "img": "avax",
+            "rpc": "https://api.avax-test.network/ext/bc/C/rpc",
+            "env": "testnet",
+            "explorerName": "SnowTrace",
+            "explorerTxUrl": "https://testnet.snowtrace.io/tx/",
+            "explorerAddressUrl": "https://testnet.snowtrace.io/address/"
+        },
         {
             "name": "Ethereum",
             "chainId": 1,
@@ -61,7 +100,19 @@
             "env": "mainnet",
             "explorerName": "Etherscan",
             "explorerTxUrl": "https://etherscan.io/tx/",
-            "explorerAddressUrl": "https://etherscan.io/address/"
+            "explorerAddressUrl": "https://etherscan.io/address/",
+            "isDisabled": true
+        },
+        {
+            "name": "Kovan Test Network",
+            "chainId": 42,
+            "img": "eth",
+            "rpc": "https://kovan.infura.io/v3/{InfuraId}",
+            "env": "testnet",
+            "explorerName": "Etherscan",
+            "explorerTxUrl": "https://kovan.etherscan.io/tx/",
+            "explorerAddressUrl": "https://kovan.etherscan.io/address/",
+            "isDisabled": true
         },
         {
             "name": "Binance Smart Chain",
@@ -71,7 +122,29 @@
             "env": "mainnet",
             "explorerName": "BSCScan",
             "explorerTxUrl": "https://bscscan.com/tx/",
-            "explorerAddressUrl": "https://bscscan.com/address/"
+            "explorerAddressUrl": "https://bscscan.com/address/",
+            "isDisabled": true
+        },
+        {
+            "name": "Polygon",
+            "chainId": 137,
+            "img": "polygon",
+            "env": "mainnet",
+            "explorerName": "PolygonScan",
+            "explorerTxUrl": "https://polygonscan.com/tx/",
+            "explorerAddressUrl": "https://polygonscan.com/address/",
+            "isDisabled": true
+        },
+        {
+            "name": "Fantom Opera",
+            "chainId": 250,
+            "img": "ftm",
+            "rpc": "https://rpc.ftm.tools/",
+            "env": "mainnet",
+            "explorerName": "FTMScan",
+            "explorerTxUrl": "https://ftmscan.com/tx/",
+            "explorerAddressUrl": "https://ftmscan.com/address/",
+            "isDisabled": true
         },
         {
             "name": "BSC Testnet",
@@ -81,10 +154,59 @@
             "env": "testnet",
             "explorerName": "BSCScan",
             "explorerTxUrl": "https://testnet.bscscan.com/tx/",
-            "explorerAddressUrl": "https://testnet.bscscan.com/address/"
+            "explorerAddressUrl": "https://testnet.bscscan.com/address/",
+            "isDisabled": true
+        },
+        {
+            "name": "Amino Testnet",
+            "chainId": 31337,
+            "img": "amio",
+            "env": "testnet",
+            "isDisabled": true
+        },
+        {
+            "name": "Mumbai",
+            "chainId": 80001,
+            "img": "polygon",
+            "rpc": "https://matic-mumbai.chainstacklabs.com",
+            "env": "testnet",
+            "explorerName": "PolygonScan",
+            "explorerTxUrl": "https://mumbai.polygonscan.com/tx/",
+            "explorerAddressUrl": "https://mumbai.polygonscan.com/address/",
+            "isDisabled": true
+        },
+        {
+            "name": "Fantom Testnet",
+            "chainId": 4002,
+            "img": "ftm",
+            "rpc": "https://rpc.testnet.fantom.network/",
+            "env": "testnet",
+            "explorerName": "FTMScan",
+            "explorerTxUrl": "https://testnet.ftmscan.com/tx/",
+            "explorerAddressUrl": "https://testnet.ftmscan.com/address/",
+            "isDisabled": true
+        },
+        {
+            "name": "AminoX Testnet",
+            "chainId": 13370,
+            "img": "amio",
+            "env": "testnet",
+            "explorerName": "AminoX Explorer",
+            "explorerTxUrl": "https://aminoxtestnet.blockscout.alphacarbon.network/tx/",
+            "explorerAddressUrl": "https://aminoxtestnet.blockscout.alphacarbon.network/address/",
+            "isDisabled": true
         }
     ],
-    "copyright": "&#169; 2022 IJS Technologies. All rights reserved."
+    "wallets": [
+        "metamask"
+    ],
+    "themes": {
+        "default": "dark",
+        "dark": {},
+        "light": {}
+    },
+    "copyright": "&#169; 2022 IJS Technologies. All rights reserved.",
+    "version": "0.1.0-beta"
 });
       document.body.append(module);
     };

@@ -6,5 +6,7 @@ function fullPath(path: string): string{
 };
 export default {
     logo: fullPath('img/logo.svg'),
+    logoMobile: fullPath('img/logo-mobile.svg'),
+    logoMobileDark: fullPath('img/logo-mobile-dark.svg'),
     fullPath
 };
