@@ -1,5 +1,6 @@
 /// <amd-module name="@scom/dapp/assets.ts" />
 declare module "@scom/dapp/assets.ts" {
+    type viewportType = "desktop" | "tablet" | "mobile";
     interface ILogo {
         header: string;
         footer: string;
@@ -16,6 +17,8 @@ declare module "@scom/dapp/assets.ts" {
         get logo(): ILogo;
         set breakpoints(value: IBreakpoints);
         get breakpoints(): IBreakpoints;
+        get viewport(): viewportType;
+        private _getLogoPath;
         private _getLogo;
     }
     export const assets: Assets;

@@ -1,13 +1,7 @@
-import { application } from '@ijstech/components';
+import { application, Styles } from '@ijstech/components';
 const moduleDir = application.currentModuleDir;
 type themeType = "light" | "dark";
 type viewportType = "desktop" | "tablet" | "mobile";
-// type IThemeLogo = {
-//     [key in themeType]: string;
-// }
-// type IViewportLogo = {
-//     [key in viewportType]: IThemeLogo | string;
-// }
 interface ILogo {
     header: string;
     footer: string;
@@ -25,16 +19,9 @@ class Assets {
         return this._instance
     }
     get logo(): ILogo {
-        // TODO: get current theme
-        let currnetTheme: themeType = "dark";
-        let _logo: ILogo;
-        if (window.innerWidth > this._breakpoints?.tablet) {
-            _logo = this._getLogo("desktop", currnetTheme);
-        } else if (window.innerWidth > this._breakpoints?.mobile) {
-            _logo = this._getLogo("tablet", currnetTheme);
-        } else {
-            _logo = this._getLogo("mobile", currnetTheme);
-        }
+        let currentTheme = Styles.Theme.currentTheme;
+        let theme: themeType = currentTheme === Styles.Theme.defaultTheme ? "light" : "dark";
+        let _logo: ILogo = this._getLogo(this.viewport, theme);
         return _logo;
     }
     set breakpoints(value: IBreakpoints) {
@@ -43,13 +30,33 @@ class Assets {
     get breakpoints() {
         return this._breakpoints;
     }
+    get viewport(): viewportType {
+        if (window.innerWidth > this._breakpoints?.tablet)
+            return "desktop";
+        else if (window.innerWidth > this._breakpoints?.mobile)
+            return "tablet";
+        else
+            return "mobile"
+    }
+    private _getLogoPath(viewport: viewportType, theme: themeType, type: "header" | "footer"): string {
+        let asset = application.assets(`logo/${type}`);
+        let path: string;
+        if (typeof asset === 'object') {
+            if (typeof asset[viewport] === 'object') {
+                path = asset[viewport][theme]
+            } else if (typeof asset[viewport] === 'string') {
+                path = asset[viewport]
+            } else if (asset[theme]) {
+                path = asset[theme]
+            }
+        } else if (typeof asset === 'string') {
+            path = asset
+        }
+        return path;
+    }
     private _getLogo(viewport: viewportType, theme: themeType): ILogo {
-        const header = 
-            application.assets(`logo/header/${viewport}/${theme}`) || application.assets(`logo/header/${viewport}`) ||
-            application.assets(`logo/header/${theme}`) || application.assets(`logo/header`);
-        const footer =
-            application.assets(`logo/footer/${viewport}/${theme}`) || application.assets(`logo/footer/${viewport}`) ||
-            application.assets(`logo/footer/${theme}`) || application.assets(`logo/footer`);
+        const header = this._getLogoPath(viewport, theme, "header");
+        const footer = this._getLogoPath(viewport, theme, "footer");
         return { header, footer }
     }
 }

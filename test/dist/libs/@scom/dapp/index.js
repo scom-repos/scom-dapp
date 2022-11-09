@@ -16,19 +16,9 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
             return this._instance;
         }
         get logo() {
-            var _a, _b;
-            // TODO: get current theme
-            let currnetTheme = "dark";
-            let _logo;
-            if (window.innerWidth > ((_a = this._breakpoints) === null || _a === void 0 ? void 0 : _a.tablet)) {
-                _logo = this._getLogo("desktop", currnetTheme);
-            }
-            else if (window.innerWidth > ((_b = this._breakpoints) === null || _b === void 0 ? void 0 : _b.mobile)) {
-                _logo = this._getLogo("tablet", currnetTheme);
-            }
-            else {
-                _logo = this._getLogo("mobile", currnetTheme);
-            }
+            let currentTheme = components_1.Styles.Theme.currentTheme;
+            let theme = currentTheme === components_1.Styles.Theme.defaultTheme ? "light" : "dark";
+            let _logo = this._getLogo(this.viewport, theme);
             return _logo;
         }
         set breakpoints(value) {
@@ -37,11 +27,37 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
         get breakpoints() {
             return this._breakpoints;
         }
+        get viewport() {
+            var _a, _b;
+            if (window.innerWidth > ((_a = this._breakpoints) === null || _a === void 0 ? void 0 : _a.tablet))
+                return "desktop";
+            else if (window.innerWidth > ((_b = this._breakpoints) === null || _b === void 0 ? void 0 : _b.mobile))
+                return "tablet";
+            else
+                return "mobile";
+        }
+        _getLogoPath(viewport, theme, type) {
+            let asset = components_1.application.assets(`logo/${type}`);
+            let path;
+            if (typeof asset === 'object') {
+                if (typeof asset[viewport] === 'object') {
+                    path = asset[viewport][theme];
+                }
+                else if (typeof asset[viewport] === 'string') {
+                    path = asset[viewport];
+                }
+                else if (asset[theme]) {
+                    path = asset[theme];
+                }
+            }
+            else if (typeof asset === 'string') {
+                path = asset;
+            }
+            return path;
+        }
         _getLogo(viewport, theme) {
-            const header = components_1.application.assets(`logo/header/${viewport}/${theme}`) || components_1.application.assets(`logo/header/${viewport}`) ||
-                components_1.application.assets(`logo/header/${theme}`) || components_1.application.assets(`logo/header`);
-            const footer = components_1.application.assets(`logo/footer/${viewport}/${theme}`) || components_1.application.assets(`logo/footer/${viewport}`) ||
-                components_1.application.assets(`logo/footer/${theme}`) || components_1.application.assets(`logo/footer`);
+            const header = this._getLogoPath(viewport, theme, "header");
+            const footer = this._getLogoPath(viewport, theme, "footer");
             return { header, footer };
         }
     }
@@ -1361,15 +1377,18 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             window.removeEventListener('resize', this.controlMenuDisplay.bind(this));
         }
         controlMenuDisplay() {
+            const url = assets_2.assets.logo.header;
             if (window.innerWidth < 760) {
                 this.hsMobileMenu.visible = true;
                 this.hsDesktopMenu.visible = false;
-                this.imgMobileLogo.url = assets_2.assets.logo.header;
+                if (this.imgMobileLogo.url !== url)
+                    this.imgMobileLogo.url = url;
             }
             else {
                 this.hsMobileMenu.visible = false;
                 this.hsDesktopMenu.visible = true;
-                this.imgDesktopLogo.url = assets_2.assets.logo.header;
+                if (this.imgDesktopLogo.url !== url)
+                    this.imgDesktopLogo.url = url;
             }
         }
         updateDot(connected, type) {
@@ -1526,7 +1545,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                             this.$render("i-modal", { id: "mdWalletDetail", height: "auto", maxWidth: 200, minWidth: 200, showBackdrop: false, popupPlacement: "bottomRight", background: { color: "#252a48" } },
                                 this.$render("i-vstack", { gap: 15, padding: { top: 10, left: 10, right: 10, bottom: 10 } },
                                     this.$render("i-button", { caption: "Account", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.text.primary }, background: { color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openAccountModal }),
-                                    this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.text.primary }, background: { color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openConnectModal }),
+                                    this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.text.primary }, background: { color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openSwitchModal }),
                                     this.$render("i-button", { caption: "Logout", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.text.primary }, background: { color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.logout })))),
                         this.$render("i-button", { id: "btnConnectWallet", caption: "Connect Wallet", border: { radius: 5 }, font: { color: Theme.text.primary }, padding: { top: '0.375rem', bottom: '0.375rem', left: '0.5rem', right: '0.5rem' }, margin: { left: '0.5rem' }, onClick: this.openConnectModal }))),
                 this.$render("i-modal", { id: 'mdNetwork', title: 'Supported Network', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
@@ -1603,7 +1622,9 @@ define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@
             window.removeEventListener('resize', this.updateLogo);
         }
         updateLogo() {
-            this.imgLogo.url = assets_3.assets.logo.footer;
+            const url = assets_3.assets.logo.footer;
+            if (this.imgLogo.url !== url)
+                this.imgLogo.url = url;
         }
         render() {
             return (this.$render("i-panel", { padding: { top: '1rem', bottom: '1rem', right: '2rem', left: '2rem' }, background: { color: components_7.Styles.Theme.ThemeVars.background.main } },
