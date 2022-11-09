@@ -178,15 +178,18 @@ export class Header extends Module {
   }
 
   controlMenuDisplay() {
+    const url = assets.logo.header;
     if (window.innerWidth < 760) {
       this.hsMobileMenu.visible = true;
       this.hsDesktopMenu.visible = false;
-      this.imgMobileLogo.url = assets.logo.header;
+      if (this.imgMobileLogo.url !== url)
+        this.imgMobileLogo.url = url;
     }
     else {
       this.hsMobileMenu.visible = false;
       this.hsDesktopMenu.visible = true;
-      this.imgDesktopLogo.url = assets.logo.header;
+      if (this.imgDesktopLogo.url !== url)
+        this.imgDesktopLogo.url = url;
     }
   }
 

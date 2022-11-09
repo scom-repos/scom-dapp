@@ -18,6 +18,7 @@ declare module "@scom/dapp/assets.ts" {
         set breakpoints(value: IBreakpoints);
         get breakpoints(): IBreakpoints;
         get viewport(): viewportType;
+        private _getLogoPath;
         private _getLogo;
     }
     export const assets: Assets;

@@ -56,7 +56,9 @@ export class Footer extends Module {
   }
 
   updateLogo() {
-    this.imgLogo.url = assets.logo.footer;
+    const url = assets.logo.footer;
+    if (this.imgLogo.url !== url)
+      this.imgLogo.url = url;
   }
 
   render() {

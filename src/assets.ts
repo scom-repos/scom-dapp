@@ -38,13 +38,25 @@ class Assets {
         else
             return "mobile"
     }
+    private _getLogoPath(viewport: viewportType, theme: themeType, type: "header" | "footer"): string {
+        let asset = application.assets(`logo/${type}`);
+        let path: string;
+        if (typeof asset === 'object') {
+            if (typeof asset[viewport] === 'object') {
+                path = asset[viewport][theme]
+            } else if (typeof asset[viewport] === 'string') {
+                path = asset[viewport]
+            } else if (asset[theme]) {
+                path = asset[theme]
+            }
+        } else if (typeof asset === 'string') {
+            path = asset
+        }
+        return path;
+    }
     private _getLogo(viewport: viewportType, theme: themeType): ILogo {
-        const header =
-            application.assets(`logo/header/${viewport}/${theme}`) || application.assets(`logo/header/${viewport}`) ||
-            application.assets(`logo/header/${theme}`) || application.assets(`logo/header`);
-        const footer =
-            application.assets(`logo/footer/${viewport}/${theme}`) || application.assets(`logo/footer/${viewport}`) ||
-            application.assets(`logo/footer/${theme}`) || application.assets(`logo/footer`);
+        const header = this._getLogoPath(viewport, theme, "header");
+        const footer = this._getLogoPath(viewport, theme, "footer");
         return { header, footer }
     }
 }

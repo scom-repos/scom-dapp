@@ -36,11 +36,28 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
             else
                 return "mobile";
         }
+        _getLogoPath(viewport, theme, type) {
+            let asset = components_1.application.assets(`logo/${type}`);
+            let path;
+            if (typeof asset === 'object') {
+                if (typeof asset[viewport] === 'object') {
+                    path = asset[viewport][theme];
+                }
+                else if (typeof asset[viewport] === 'string') {
+                    path = asset[viewport];
+                }
+                else if (asset[theme]) {
+                    path = asset[theme];
+                }
+            }
+            else if (typeof asset === 'string') {
+                path = asset;
+            }
+            return path;
+        }
         _getLogo(viewport, theme) {
-            const header = components_1.application.assets(`logo/header/${viewport}/${theme}`) || components_1.application.assets(`logo/header/${viewport}`) ||
-                components_1.application.assets(`logo/header/${theme}`) || components_1.application.assets(`logo/header`);
-            const footer = components_1.application.assets(`logo/footer/${viewport}/${theme}`) || components_1.application.assets(`logo/footer/${viewport}`) ||
-                components_1.application.assets(`logo/footer/${theme}`) || components_1.application.assets(`logo/footer`);
+            const header = this._getLogoPath(viewport, theme, "header");
+            const footer = this._getLogoPath(viewport, theme, "footer");
             return { header, footer };
         }
     }
@@ -1360,15 +1377,18 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             window.removeEventListener('resize', this.controlMenuDisplay.bind(this));
         }
         controlMenuDisplay() {
+            const url = assets_2.assets.logo.header;
             if (window.innerWidth < 760) {
                 this.hsMobileMenu.visible = true;
                 this.hsDesktopMenu.visible = false;
-                this.imgMobileLogo.url = assets_2.assets.logo.header;
+                if (this.imgMobileLogo.url !== url)
+                    this.imgMobileLogo.url = url;
             }
             else {
                 this.hsMobileMenu.visible = false;
                 this.hsDesktopMenu.visible = true;
-                this.imgDesktopLogo.url = assets_2.assets.logo.header;
+                if (this.imgDesktopLogo.url !== url)
+                    this.imgDesktopLogo.url = url;
             }
         }
         updateDot(connected, type) {
@@ -1602,7 +1622,9 @@ define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@
             window.removeEventListener('resize', this.updateLogo);
         }
         updateLogo() {
-            this.imgLogo.url = assets_3.assets.logo.footer;
+            const url = assets_3.assets.logo.footer;
+            if (this.imgLogo.url !== url)
+                this.imgLogo.url = url;
         }
         render() {
             return (this.$render("i-panel", { padding: { top: '1rem', bottom: '1rem', right: '2rem', left: '2rem' }, background: { color: components_7.Styles.Theme.ThemeVars.background.main } },
