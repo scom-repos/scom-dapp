@@ -572,7 +572,7 @@ export class Header extends Module {
                       font={{ color: Theme.text.primary }}
                       background={{ color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }}
                       padding={{ top: '0.5rem', bottom: '0.5rem' }}
-                      onClick={this.openConnectModal}
+                      onClick={this.openSwitchModal}
                     ></i-button>
                     <i-button
                       caption="Logout"
