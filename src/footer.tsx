@@ -9,6 +9,7 @@ import {
   Label
 } from '@ijstech/components';
 import { logoStyle } from './footer.css';
+import { assets } from './assets';
 
 const Theme = Styles.Theme.ThemeVars;
 
@@ -34,16 +35,28 @@ export class Footer extends Module {
 
   init() {
     super.init();
-    const logo = this.getAttribute('logo', true, "");
-    if (logo) {
-      this.imgLogo.url = application.assets(logo)
-    };
+    this.updateLogo = this.updateLogo.bind(this);
+    this.updateLogo();
     const version = this.getAttribute("version", true, "");
     this.lblVersion.caption = version ? "Version: " + version : version;
     this.lblVersion.visible = !!version;
     const copyright = this.getAttribute('copyrightInfo', true, "");
     this.lblCopyright.caption = version ? copyright + " |" : copyright;;
     this.lblCopyright.visible = !!copyright;
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    window.addEventListener('resize', this.updateLogo);
+  }
+
+  disconnectCallback(): void {
+    super.disconnectCallback();
+    window.removeEventListener('resize', this.updateLogo);
+  }
+
+  updateLogo() {
+    this.imgLogo.url = assets.logo.footer;
   }
 
   render() {

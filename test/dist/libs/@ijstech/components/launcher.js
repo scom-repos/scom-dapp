@@ -23346,6 +23346,15 @@ var Modal = class extends Container {
           this.visible = false;
         }
       });
+      document.body.addEventListener("click", (event) => {
+        if (!this.visible || this.showBackdrop || !this.closeOnBackdropClick)
+          return;
+        const target = event.target;
+        let parent = this._parent || this.linkTo || this.parentElement;
+        if (!this.modalDiv.contains(target) && !(parent == null ? void 0 : parent.contains(target))) {
+          this.visible = false;
+        }
+      });
       const itemAttr = this.getAttribute("item", true);
       if (itemAttr)
         this.item = itemAttr;

@@ -21,7 +21,7 @@ import {
 import { Wallet, WalletPlugin, WalletPluginConfig } from "@ijstech/eth-wallet";
 import { INetwork, EventId, formatNumber, truncateAddress, isWalletConnected, isValidEnv } from './network';
 import styleClass from './header.css';
-import Assets from './assets';
+import Assets, { assets } from './assets';
 import {
   connectWallet,
   logoutWallet,
@@ -100,7 +100,6 @@ export class Header extends Module {
   private currActiveWallet: WalletPlugin;
   private imgDesktopLogo: Image;
   private imgMobileLogo: Image;
-  private logo: ILogo;
   private supportedNetworks: INetwork[] = [];
   @observable()
   private walletInfo = {
@@ -157,7 +156,6 @@ export class Header extends Module {
   init() {
     this.classList.add(styleClass);
     this.selectedNetwork = getNetworkInfo(getDefaultChainId());
-    this.logo = this.getAttribute("logo", true, {});
     super.init();
     this._menuItems = this.getAttribute("menuItems", true, []);
     this.renderMobileMenu();
@@ -167,14 +165,6 @@ export class Header extends Module {
     this.renderNetworks();
     this.updateConnectedStatus(isWalletConnected());
     this.initData();
-    if (this.logo.desktop) {
-      let logo = application.assets(this.logo.desktop);
-      this.imgDesktopLogo.url = logo;
-    }
-    if (this.logo.mobile) {
-      let logo = application.assets(this.logo.mobile);
-      this.imgMobileLogo.url = logo;
-    }
   }
 
   connectedCallback(): void {
@@ -191,10 +181,12 @@ export class Header extends Module {
     if (window.innerWidth < 760) {
       this.hsMobileMenu.visible = true;
       this.hsDesktopMenu.visible = false;
+      this.imgMobileLogo.url = assets.logo.header;
     }
     else {
       this.hsMobileMenu.visible = false;
       this.hsDesktopMenu.visible = true;
+      this.imgDesktopLogo.url = assets.logo.header;
     }
   }
 
@@ -474,7 +466,7 @@ export class Header extends Module {
             <i-hstack
               id="hsMobileMenu"
               verticalAlignment="center"
-              width={100}
+              width="max-content"
               visible={false}
             >
               <i-icon
@@ -501,7 +493,7 @@ export class Header extends Module {
               <i-image
                 id="imgMobileLogo"
                 class="header-logo"
-                margin={{ right: '1.25rem' }}
+                margin={{ right: '0.5rem' }}
               />
 
             </i-hstack>

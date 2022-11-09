@@ -5,6 +5,7 @@ import { updateWallets } from './wallet';
 export { Header } from './header';
 export { Footer } from './footer';
 import {match, MatchFunction, compile} from './pathToRegexp'
+import { assets } from './assets';
 Styles.Theme.applyTheme(Styles.Theme.darkTheme);
 interface IMenu{
 	caption: string;
@@ -19,16 +20,8 @@ interface IMenu{
 	menus?: IMenu[];
 	regex?: MatchFunction;
 };
-interface ILogo {
-	header?: {
-		desktop?: string;
-		mobile?: string;
-	};
-	footer?: string;
-};
 interface ISCConfig{
 	env: string;
-	logo?: ILogo;
 	moduleDir?: string;
 	modules: {[name: string]: {path: string, dependencies: string[]}};
 	dependencies?: {[name: string]: string};
@@ -39,6 +32,7 @@ interface ISCConfig{
 	version?: string;
 	wallet?: string[];
 	themes?: ITheme;
+	breakpoints?: IBreakpoints;
 };
 interface INetwork {
 	name?: string,
@@ -63,6 +57,11 @@ interface ITheme {
 	dark?: Styles.Theme.ITheme;
 	light?: Styles.Theme.ITheme;
 }
+interface IBreakpoints {
+	mobile: number;
+	tablet: number;
+	desktop: number;
+}
 @customModule
 export default class MainLauncher extends Module {
 	private pnlMain: Panel;
@@ -85,6 +84,7 @@ export default class MainLauncher extends Module {
 	async init(){		
 		window.onhashchange = this.handleHashChange.bind(this);
 		this.menuItems = this.options.menus || [];
+		assets.breakpoints = this.options.breakpoints;
 		updateNetworks(this.options);
 		updateWallets(this.options);
 		this.updateThemes(this.options.themes)
@@ -171,7 +171,7 @@ export default class MainLauncher extends Module {
 	}
 	async render() {
 		return <i-vstack height="inherit">
-			<main-header logo={this.options.logo?.header} id="headerElm" menuItems={this.menuItems} height="auto" width="100%"></main-header>
+			<main-header id="headerElm" menuItems={this.menuItems} height="auto" width="100%"></main-header>
 			<i-panel id="pnlMain" stack={{ grow: "1", shrink: "0" }} ></i-panel>
 			<main-footer
 				id="footerElm"
@@ -179,7 +179,6 @@ export default class MainLauncher extends Module {
 				class='footer'
 				height="auto"
 				width="100%"
-				logo={this.options.logo?.footer}
 				copyrightInfo={this._options.copyrightInfo}
 				version={this._options.version}
 			></main-footer>

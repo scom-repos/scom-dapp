@@ -7,7 +7,45 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.assets = void 0;
     const moduleDir = components_1.application.currentModuleDir;
+    class Assets {
+        static get instance() {
+            if (!this._instance)
+                this._instance = new this();
+            return this._instance;
+        }
+        get logo() {
+            var _a, _b;
+            // TODO: get current theme
+            let currnetTheme = "dark";
+            let _logo;
+            if (window.innerWidth > ((_a = this._breakpoints) === null || _a === void 0 ? void 0 : _a.tablet)) {
+                _logo = this._getLogo("desktop", currnetTheme);
+            }
+            else if (window.innerWidth > ((_b = this._breakpoints) === null || _b === void 0 ? void 0 : _b.mobile)) {
+                _logo = this._getLogo("tablet", currnetTheme);
+            }
+            else {
+                _logo = this._getLogo("mobile", currnetTheme);
+            }
+            return _logo;
+        }
+        set breakpoints(value) {
+            this._breakpoints = value;
+        }
+        get breakpoints() {
+            return this._breakpoints;
+        }
+        _getLogo(viewport, theme) {
+            const header = components_1.application.assets(`logo/header/${viewport}/${theme}`) || components_1.application.assets(`logo/header/${viewport}`) ||
+                components_1.application.assets(`logo/header/${theme}`) || components_1.application.assets(`logo/header`);
+            const footer = components_1.application.assets(`logo/footer/${viewport}/${theme}`) || components_1.application.assets(`logo/footer/${viewport}`) ||
+                components_1.application.assets(`logo/footer/${theme}`) || components_1.application.assets(`logo/footer`);
+            return { header, footer };
+        }
+    }
+    exports.assets = Assets.instance;
     function fullPath(path) {
         return `${moduleDir}/${path}`;
     }
@@ -1304,7 +1342,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         init() {
             this.classList.add(header_css_1.default);
             this.selectedNetwork = network_2.getNetworkInfo(network_2.getDefaultChainId());
-            this.logo = this.getAttribute("logo", true, {});
             super.init();
             this._menuItems = this.getAttribute("menuItems", true, []);
             this.renderMobileMenu();
@@ -1314,14 +1351,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.renderNetworks();
             this.updateConnectedStatus(network_1.isWalletConnected());
             this.initData();
-            if (this.logo.desktop) {
-                let logo = components_5.application.assets(this.logo.desktop);
-                this.imgDesktopLogo.url = logo;
-            }
-            if (this.logo.mobile) {
-                let logo = components_5.application.assets(this.logo.mobile);
-                this.imgMobileLogo.url = logo;
-            }
         }
         connectedCallback() {
             super.connectedCallback();
@@ -1335,10 +1364,12 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             if (window.innerWidth < 760) {
                 this.hsMobileMenu.visible = true;
                 this.hsDesktopMenu.visible = false;
+                this.imgMobileLogo.url = assets_2.assets.logo.header;
             }
             else {
                 this.hsMobileMenu.visible = false;
                 this.hsDesktopMenu.visible = true;
+                this.imgDesktopLogo.url = assets_2.assets.logo.header;
             }
         }
         updateDot(connected, type) {
@@ -1477,11 +1508,11 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         render() {
             return (this.$render("i-panel", { padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, background: { color: Theme.background.paper } },
                 this.$render("i-grid-layout", { width: '100%', position: "relative", verticalAlignment: 'center', templateColumns: ["1fr", "auto"] },
-                    this.$render("i-hstack", { id: "hsMobileMenu", verticalAlignment: "center", width: 100, visible: false },
+                    this.$render("i-hstack", { id: "hsMobileMenu", verticalAlignment: "center", width: "max-content", visible: false },
                         this.$render("i-icon", { id: "hamburger", class: 'pointer', name: "bars", width: "20px", height: "20px", display: "inline-block", margin: { right: 5 }, fill: Theme.text.primary, onClick: this.toggleMenu }),
                         this.$render("i-modal", { id: "mdMobileMenu", height: "auto", minWidth: "250px", showBackdrop: false, popupPlacement: "bottomLeft", background: { color: Theme.background.modal } },
                             this.$render("i-menu", { id: "menuMobile", mode: "inline" })),
-                        this.$render("i-image", { id: "imgMobileLogo", class: "header-logo", margin: { right: '1.25rem' } })),
+                        this.$render("i-image", { id: "imgMobileLogo", class: "header-logo", margin: { right: '0.5rem' } })),
                     this.$render("i-hstack", { id: "hsDesktopMenu", wrap: "nowrap", verticalAlignment: "center", width: "100%", overflow: "hidden" },
                         this.$render("i-image", { id: "imgDesktopLogo", class: "header-logo", margin: { right: '1.25rem' } }),
                         this.$render("i-menu", { id: "menuDesktop", width: "100%", border: { left: { color: '#192046', width: '1px', style: 'solid' } } })),
@@ -1544,7 +1575,7 @@ define("@scom/dapp/footer.css.ts", ["require", "exports", "@ijstech/components"]
         }
     });
 });
-define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@scom/dapp/footer.css.ts"], function (require, exports, components_7, footer_css_1) {
+define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@scom/dapp/footer.css.ts", "@scom/dapp/assets.ts"], function (require, exports, components_7, footer_css_1, assets_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Footer = void 0;
@@ -1553,11 +1584,8 @@ define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@
     let Footer = class Footer extends components_7.Module {
         init() {
             super.init();
-            const logo = this.getAttribute('logo', true, "");
-            if (logo) {
-                this.imgLogo.url = components_7.application.assets(logo);
-            }
-            ;
+            this.updateLogo = this.updateLogo.bind(this);
+            this.updateLogo();
             const version = this.getAttribute("version", true, "");
             this.lblVersion.caption = version ? "Version: " + version : version;
             this.lblVersion.visible = !!version;
@@ -1565,6 +1593,17 @@ define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@
             this.lblCopyright.caption = version ? copyright + " |" : copyright;
             ;
             this.lblCopyright.visible = !!copyright;
+        }
+        connectedCallback() {
+            super.connectedCallback();
+            window.addEventListener('resize', this.updateLogo);
+        }
+        disconnectCallback() {
+            super.disconnectCallback();
+            window.removeEventListener('resize', this.updateLogo);
+        }
+        updateLogo() {
+            this.imgLogo.url = assets_3.assets.logo.footer;
         }
         render() {
             return (this.$render("i-panel", { padding: { top: '1rem', bottom: '1rem', right: '2rem', left: '2rem' }, background: { color: components_7.Styles.Theme.ThemeVars.background.main } },
@@ -1583,14 +1622,13 @@ define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@
     ], Footer);
     exports.Footer = Footer;
 });
-define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/index.css.ts", "@scom/dapp/network.ts", "@scom/dapp/wallet.ts", "@scom/dapp/header.tsx", "@scom/dapp/footer.tsx", "@scom/dapp/pathToRegexp.ts"], function (require, exports, components_8, index_css_1, network_3, wallet_3, header_1, footer_1, pathToRegexp_2) {
+define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/index.css.ts", "@scom/dapp/network.ts", "@scom/dapp/wallet.ts", "@scom/dapp/header.tsx", "@scom/dapp/footer.tsx", "@scom/dapp/pathToRegexp.ts", "@scom/dapp/assets.ts"], function (require, exports, components_8, index_css_1, network_3, wallet_3, header_1, footer_1, pathToRegexp_2, assets_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Footer = exports.Header = void 0;
     Object.defineProperty(exports, "Header", { enumerable: true, get: function () { return header_1.Header; } });
     Object.defineProperty(exports, "Footer", { enumerable: true, get: function () { return footer_1.Footer; } });
     components_8.Styles.Theme.applyTheme(components_8.Styles.Theme.darkTheme);
-    ;
     ;
     ;
     ;
@@ -1621,6 +1659,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
         async init() {
             window.onhashchange = this.handleHashChange.bind(this);
             this.menuItems = this.options.menus || [];
+            assets_4.assets.breakpoints = this.options.breakpoints;
             network_3.updateNetworks(this.options);
             wallet_3.updateWallets(this.options);
             this.updateThemes(this.options.themes);
@@ -1703,11 +1742,10 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             components_8.Styles.Theme.applyTheme(theme);
         }
         async render() {
-            var _a, _b;
             return this.$render("i-vstack", { height: "inherit" },
-                this.$render("main-header", { logo: (_a = this.options.logo) === null || _a === void 0 ? void 0 : _a.header, id: "headerElm", menuItems: this.menuItems, height: "auto", width: "100%" }),
+                this.$render("main-header", { id: "headerElm", menuItems: this.menuItems, height: "auto", width: "100%" }),
                 this.$render("i-panel", { id: "pnlMain", stack: { grow: "1", shrink: "0" } }),
-                this.$render("main-footer", { id: "footerElm", stack: { shrink: '0' }, class: 'footer', height: "auto", width: "100%", logo: (_b = this.options.logo) === null || _b === void 0 ? void 0 : _b.footer, copyrightInfo: this._options.copyrightInfo, version: this._options.version }));
+                this.$render("main-footer", { id: "footerElm", stack: { shrink: '0' }, class: 'footer', height: "auto", width: "100%", copyrightInfo: this._options.copyrightInfo, version: this._options.version }));
         }
         ;
     };

@@ -1,5 +1,24 @@
 /// <amd-module name="@scom/dapp/assets.ts" />
 declare module "@scom/dapp/assets.ts" {
+    interface ILogo {
+        header: string;
+        footer: string;
+    }
+    interface IBreakpoints {
+        mobile: number;
+        tablet: number;
+        desktop: number;
+    }
+    class Assets {
+        private static _instance;
+        private _breakpoints;
+        static get instance(): Assets;
+        get logo(): ILogo;
+        set breakpoints(value: IBreakpoints);
+        get breakpoints(): IBreakpoints;
+        private _getLogo;
+    }
+    export const assets: Assets;
     function fullPath(path: string): string;
     const _default: {
         fonts: {
@@ -339,7 +358,6 @@ declare module "@scom/dapp/header.tsx" {
         private currActiveWallet;
         private imgDesktopLogo;
         private imgMobileLogo;
-        private logo;
         private supportedNetworks;
         private walletInfo;
         constructor(parent?: Container, options?: any);
@@ -402,6 +420,9 @@ declare module "@scom/dapp/footer.tsx" {
         private lblCopyright;
         private lblVersion;
         init(): void;
+        connectedCallback(): void;
+        disconnectCallback(): void;
+        updateLogo(): void;
         render(): any;
     }
 }

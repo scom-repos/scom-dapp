@@ -1,7 +1,60 @@
-import {application} from '@ijstech/components';
+import { application } from '@ijstech/components';
 const moduleDir = application.currentModuleDir;
-
-function fullPath(path: string): string{
+type themeType = "light" | "dark";
+type viewportType = "desktop" | "tablet" | "mobile";
+// type IThemeLogo = {
+//     [key in themeType]: string;
+// }
+// type IViewportLogo = {
+//     [key in viewportType]: IThemeLogo | string;
+// }
+interface ILogo {
+    header: string;
+    footer: string;
+}
+interface IBreakpoints {
+    mobile: number;
+    tablet: number;
+    desktop: number;
+}
+class Assets {
+    private static _instance: Assets;
+    private _breakpoints: IBreakpoints;
+    public static get instance() {
+        if (!this._instance) this._instance = new this();
+        return this._instance
+    }
+    get logo(): ILogo {
+        // TODO: get current theme
+        let currnetTheme: themeType = "dark";
+        let _logo: ILogo;
+        if (window.innerWidth > this._breakpoints?.tablet) {
+            _logo = this._getLogo("desktop", currnetTheme);
+        } else if (window.innerWidth > this._breakpoints?.mobile) {
+            _logo = this._getLogo("tablet", currnetTheme);
+        } else {
+            _logo = this._getLogo("mobile", currnetTheme);
+        }
+        return _logo;
+    }
+    set breakpoints(value: IBreakpoints) {
+        this._breakpoints = value;
+    }
+    get breakpoints() {
+        return this._breakpoints;
+    }
+    private _getLogo(viewport: viewportType, theme: themeType): ILogo {
+        const header = 
+            application.assets(`logo/header/${viewport}/${theme}`) || application.assets(`logo/header/${viewport}`) ||
+            application.assets(`logo/header/${theme}`) || application.assets(`logo/header`);
+        const footer =
+            application.assets(`logo/footer/${viewport}/${theme}`) || application.assets(`logo/footer/${viewport}`) ||
+            application.assets(`logo/footer/${theme}`) || application.assets(`logo/footer`);
+        return { header, footer }
+    }
+}
+export const assets = Assets.instance;
+function fullPath(path: string): string {
     return `${moduleDir}/${path}`
 };
 export default {
@@ -30,6 +83,6 @@ export default {
             binanceChainWallet: fullPath('img/wallet/binance-chain-wallet.svg'),
             walletconnect: fullPath('img/wallet/walletconnect.svg')
         }
-    },    
+    },
     fullPath
 };
