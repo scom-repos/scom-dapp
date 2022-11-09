@@ -17162,70 +17162,6 @@ var getBackgroundStyleClass = (value) => {
   styleObj.background = bg;
   return style(styleObj);
 };
-var getSpacingValue = (value) => {
-  if (typeof value === "number")
-    return value + "px";
-  return value;
-};
-var getControlMediaQueriesStyle = (mediaQueries) => {
-  let styleObj = {
-    $nest: {}
-  };
-  if (mediaQueries) {
-    for (let mediaQuery of mediaQueries) {
-      let mediaQueryRule;
-      if (mediaQuery.minWidth && mediaQuery.maxWidth) {
-        mediaQueryRule = `@media (min-width: ${mediaQuery.minWidth}) and (max-width: ${mediaQuery.maxWidth})`;
-      } else if (mediaQuery.minWidth) {
-        mediaQueryRule = `@media (min-width: ${mediaQuery.minWidth})`;
-      } else if (mediaQuery.maxWidth) {
-        mediaQueryRule = `@media (max-width: ${mediaQuery.maxWidth})`;
-      }
-      if (mediaQueryRule) {
-        styleObj["$nest"][mediaQueryRule] = {};
-        if (typeof mediaQuery.properties.visible === "boolean") {
-          const visible = mediaQuery.properties.visible;
-          styleObj["$nest"][mediaQueryRule]["display"] = visible ? "flex !important" : "none !important";
-        }
-        if (mediaQuery.properties.padding) {
-          const { top = 0, right = 0, bottom = 0, left = 0 } = mediaQuery.properties.padding;
-          styleObj["$nest"][mediaQueryRule]["padding"] = `${getSpacingValue(top)} ${getSpacingValue(right)} ${getSpacingValue(bottom)} ${getSpacingValue(left)} !important`;
-        }
-        if (mediaQuery.properties.margin) {
-          const { top = 0, right = 0, bottom = 0, left = 0 } = mediaQuery.properties.margin;
-          styleObj["$nest"][mediaQueryRule]["margin"] = `${getSpacingValue(top)} ${getSpacingValue(right)} ${getSpacingValue(bottom)} ${getSpacingValue(left)} !important`;
-        }
-        if (mediaQuery.properties.border) {
-          const { radius, width, style: style2, color, bottom, top, left, right } = mediaQuery.properties.border;
-          if (width !== void 0 && width !== null)
-            styleObj["$nest"][mediaQueryRule]["border"] = `${width || ""} ${style2 || ""} ${color || ""}!important`;
-          if (radius)
-            styleObj["$nest"][mediaQueryRule]["borderRadius"] = `${getSpacingValue(radius)} !important`;
-          if (bottom)
-            styleObj["$nest"][mediaQueryRule]["borderBottom"] = `${getSpacingValue(bottom.width || "")} ${bottom.style || ""} ${bottom.color || ""}!important`;
-          if (top)
-            styleObj["$nest"][mediaQueryRule]["borderTop"] = `${getSpacingValue(top.width || "") || ""} ${top.style || ""} ${top.color || ""}!important`;
-          if (left)
-            styleObj["$nest"][mediaQueryRule]["borderLeft"] = `${getSpacingValue(left.width || "")} ${left.style || ""} ${left.color || ""}!important`;
-          if (right)
-            styleObj["$nest"][mediaQueryRule]["borderRight"] = `${getSpacingValue(right.width || "")} ${right.style || ""} ${right.color || ""}!important`;
-        }
-        if (mediaQuery.properties.background) {
-          const { color, image } = mediaQuery.properties.background;
-          let bgString = "";
-          image && (bgString += `url(${image})`);
-          color && (bgString += `${color}`);
-          styleObj["$nest"][mediaQueryRule]["background"] = bgString + "!important";
-        }
-      }
-    }
-  }
-  return styleObj;
-};
-var getControlMediaQueriesStyleClass = (mediaQueries) => {
-  let styleObj = getControlMediaQueriesStyle(mediaQueries);
-  return style(styleObj);
-};
 
 // packages/tooltip/src/style/tooltip.css.ts
 var Theme = theme_exports.ThemeVars;
@@ -18019,8 +17955,6 @@ var Control = class extends Component {
   connectedCallback() {
     super.connectedCallback();
     refresh();
-    if (!this.mediaQueries)
-      this.setAttributeToProperty("mediaQueries");
   }
   disconnectCallback() {
     this.parent = void 0;
@@ -18562,16 +18496,6 @@ var Control = class extends Component {
   }
   set opacity(value) {
     this.style.opacity = typeof value === "string" ? value : `${value}`;
-  }
-  get mediaQueries() {
-    return this._cmediaQueries;
-  }
-  set mediaQueries(value) {
-    this._cmediaQueries = value;
-    let style2 = getControlMediaQueriesStyleClass(this._cmediaQueries);
-    this._mediaStyle && this.classList.remove(this._mediaStyle);
-    this._mediaStyle = style2;
-    this.classList.add(style2);
   }
 };
 var ContainerResizer = class {
@@ -19171,7 +19095,6 @@ var Application = class {
     return result;
   }
   async loadPackage(packageName, modulePath, options) {
-    var _a, _b;
     if (RequireJS.defined(packageName)) {
       if (!this.packages[packageName]) {
         let m = window["require"](packageName);
@@ -19184,13 +19107,10 @@ var Application = class {
     let libPath = LibPath || "";
     if (LibPath && !LibPath.endsWith("/"))
       libPath = libPath + "/";
-    if (!modulePath) {
-      if ((_a = options == null ? void 0 : options.modules) == null ? void 0 : _a[packageName])
-        modulePath = "modules/" + ((_b = options == null ? void 0 : options.modules) == null ? void 0 : _b[packageName].path) + "/index.js";
-      else
-        return null;
-    } else if (modulePath == "*")
-      modulePath = "libs/" + packageName + "/index.js";
+    if (!modulePath)
+      modulePath = libPath + "modules/" + packageName + "/index.js";
+    else if (modulePath == "*")
+      modulePath = libPath + "libs/" + packageName + "/index.js";
     else if (modulePath.startsWith("{LIB}/"))
       modulePath = modulePath.replace("{LIB}/", libPath);
     let script = await this.getScript(modulePath);
@@ -19221,7 +19141,7 @@ var Application = class {
     let modulePath = module2;
     if (options) {
       if (!this._assets && options.assets)
-        this._assets = await this.loadPackage(options.assets, "", options) || {};
+        this._assets = await this.loadPackage(options.assets) || {};
       if (options.modules && options.modules[module2] && options.modules[module2].path) {
         modulePath = "/";
         if (options.rootDir)
@@ -22325,7 +22245,9 @@ cssRule("i-tabs", {
   }
 });
 var getTabMediaQueriesStyleClass = (mediaQueries) => {
-  let styleObj = getControlMediaQueriesStyle(mediaQueries);
+  let styleObj = {
+    $nest: {}
+  };
   for (let mediaQuery of mediaQueries) {
     let mediaQueryRule;
     if (mediaQuery.minWidth && mediaQuery.maxWidth) {
@@ -22336,12 +22258,8 @@ var getTabMediaQueriesStyleClass = (mediaQueries) => {
       mediaQueryRule = `@media (max-width: ${mediaQuery.maxWidth})`;
     }
     if (mediaQueryRule) {
-      const nestObj = styleObj["$nest"][mediaQueryRule]["$nest"] || {};
-      const ruleObj = styleObj["$nest"][mediaQueryRule];
       styleObj["$nest"][mediaQueryRule] = {
-        ...ruleObj,
         $nest: {
-          ...nestObj,
           ".tabs-nav": {}
         }
       };
@@ -22357,10 +22275,6 @@ var getTabMediaQueriesStyleClass = (mediaQueries) => {
           styleObj["$nest"][mediaQueryRule]["$nest"][".tabs-nav"]["width"] = "auto";
           styleObj["$nest"][mediaQueryRule]["$nest"][".tabs-nav"]["justifyContent"] = "start";
         }
-      }
-      if (typeof mediaQuery.properties.visible === "boolean") {
-        const visible = mediaQuery.properties.visible;
-        styleObj["$nest"][mediaQueryRule]["display"] = visible ? "block !important" : "none !important";
       }
     }
   }
@@ -23407,7 +23321,9 @@ var getStackDirectionStyleClass = (direction) => {
   });
 };
 var getStackMediaQueriesStyleClass = (mediaQueries) => {
-  let styleObj = getControlMediaQueriesStyle(mediaQueries);
+  let styleObj = {
+    $nest: {}
+  };
   for (let mediaQuery of mediaQueries) {
     let mediaQueryRule;
     if (mediaQuery.minWidth && mediaQuery.maxWidth) {
@@ -23418,7 +23334,7 @@ var getStackMediaQueriesStyleClass = (mediaQueries) => {
       mediaQueryRule = `@media (max-width: ${mediaQuery.maxWidth})`;
     }
     if (mediaQueryRule) {
-      styleObj["$nest"][mediaQueryRule] = styleObj["$nest"][mediaQueryRule] || {};
+      styleObj["$nest"][mediaQueryRule] = {};
       if (mediaQuery.properties.direction) {
         styleObj["$nest"][mediaQueryRule]["flexDirection"] = mediaQuery.properties.direction == "vertical" ? "column" : "row";
       }
@@ -23440,15 +23356,26 @@ var getStackMediaQueriesStyleClass = (mediaQueries) => {
         const gap = mediaQuery.properties.gap;
         styleObj["$nest"][mediaQueryRule]["gap"] = typeof gap === "string" ? `${gap} !important` : `${gap}px !important`;
       }
+      if (mediaQuery.properties.background) {
+        const { color, image } = mediaQuery.properties.background;
+        let bgString = "";
+        image && (bgString += `url(${image})`);
+        color && (bgString += `${color}`);
+        styleObj["$nest"][mediaQueryRule]["background"] = bgString;
+      }
+      if (mediaQuery.properties.padding) {
+        const { top = 0, right = 0, bottom = 0, left = 0 } = mediaQuery.properties.padding;
+        styleObj["$nest"][mediaQueryRule]["padding"] = `${getSpacingValue(top)} ${getSpacingValue(right)} ${getSpacingValue(bottom)} ${getSpacingValue(left)} !important`;
+      }
+      if (mediaQuery.properties.margin) {
+        const { top = 0, right = 0, bottom = 0, left = 0 } = mediaQuery.properties.margin;
+        styleObj["$nest"][mediaQueryRule]["margin"] = `${getSpacingValue(top)} ${getSpacingValue(right)} ${getSpacingValue(bottom)} ${getSpacingValue(left)} !important`;
+      }
       if (mediaQuery.properties.position) {
         styleObj["$nest"][mediaQueryRule]["position"] = `${mediaQuery.properties.position} !important`;
       }
       if (mediaQuery.properties.top !== null && mediaQuery.properties.top !== void 0) {
         styleObj["$nest"][mediaQueryRule]["top"] = `${mediaQuery.properties.top} !important`;
-      }
-      if (typeof mediaQuery.properties.visible === "boolean") {
-        const visible = mediaQuery.properties.visible;
-        styleObj["$nest"][mediaQueryRule]["display"] = visible ? "flex !important" : "none !important";
       }
     }
   }
@@ -23497,8 +23424,15 @@ var getTemplateAreasStyleClass = (templateAreas) => {
     gridTemplateAreas: templateAreasStr
   });
 };
+var getSpacingValue = (value) => {
+  if (typeof value === "number")
+    return value + "px";
+  return value;
+};
 var getGridLayoutMediaQueriesStyleClass = (mediaQueries) => {
-  let styleObj = getControlMediaQueriesStyle(mediaQueries);
+  let styleObj = {
+    $nest: {}
+  };
   for (let mediaQuery of mediaQueries) {
     let mediaQueryRule;
     if (mediaQuery.minWidth && mediaQuery.maxWidth) {
@@ -23509,7 +23443,7 @@ var getGridLayoutMediaQueriesStyleClass = (mediaQueries) => {
       mediaQueryRule = `@media (max-width: ${mediaQuery.maxWidth})`;
     }
     if (mediaQueryRule) {
-      styleObj["$nest"][mediaQueryRule] = styleObj["$nest"][mediaQueryRule] || {};
+      styleObj["$nest"][mediaQueryRule] = {};
       if (mediaQuery.properties.templateColumns) {
         styleObj["$nest"][mediaQueryRule]["gridTemplateColumns"] = mediaQuery.properties.templateColumns.join(" ");
       }
@@ -23535,10 +23469,20 @@ var getGridLayoutMediaQueriesStyleClass = (mediaQueries) => {
           styleObj["$nest"][mediaQueryRule]["columnGap"] = typeof gap.column === "string" ? gap.column : `${gap.column}px`;
         }
       }
-      if (typeof mediaQuery.properties.visible === "boolean") {
-        const visible = mediaQuery.properties.visible;
-        const display = mediaQuery.properties.display || "grid";
-        styleObj["$nest"][mediaQueryRule]["display"] = visible ? display + " !important" : "none !important";
+      if (mediaQuery.properties.background) {
+        const { color, image } = mediaQuery.properties.background;
+        let bgString = "";
+        image && (bgString += `url(${image})`);
+        color && (bgString += `${color}`);
+        styleObj["$nest"][mediaQueryRule]["background"] = bgString;
+      }
+      if (mediaQuery.properties.padding) {
+        const { top = 0, right = 0, bottom = 0, left = 0 } = mediaQuery.properties.padding;
+        styleObj["$nest"][mediaQueryRule]["padding"] = `${getSpacingValue(top)} ${getSpacingValue(right)} ${getSpacingValue(bottom)} ${getSpacingValue(left)} !important`;
+      }
+      if (mediaQuery.properties.margin) {
+        const { top = 0, right = 0, bottom = 0, left = 0 } = mediaQuery.properties.margin;
+        styleObj["$nest"][mediaQueryRule]["margin"] = `${getSpacingValue(top)} ${getSpacingValue(right)} ${getSpacingValue(bottom)} ${getSpacingValue(left)} !important`;
       }
     }
   }
@@ -27393,7 +27337,9 @@ var tableStyle = style({
   }
 });
 var getTableMediaQueriesStyleClass = (columns, mediaQueries) => {
-  let styleObj = getControlMediaQueriesStyle(mediaQueries);
+  let styleObj = {
+    $nest: {}
+  };
   for (let mediaQuery of mediaQueries) {
     let mediaQueryRule;
     if (mediaQuery.minWidth && mediaQuery.maxWidth) {
@@ -27404,34 +27350,18 @@ var getTableMediaQueriesStyleClass = (columns, mediaQueries) => {
       mediaQueryRule = `@media (max-width: ${mediaQuery.maxWidth})`;
     }
     if (mediaQueryRule) {
-      const ruleObj = styleObj["$nest"][mediaQueryRule];
       styleObj["$nest"][mediaQueryRule] = {
-        ...ruleObj,
         $nest: {}
       };
       if (mediaQuery.properties.fieldNames) {
         const fieldNames = mediaQuery.properties.fieldNames;
-        for (let column of columns) {
+        const filterColumns = columns.filter((column) => !fieldNames.includes(column.fieldName));
+        filterColumns.forEach((column) => {
           const fieldName = column.fieldName || "action";
-          if (!fieldNames.includes(column.fieldName)) {
-            styleObj["$nest"][mediaQueryRule]["$nest"][`[data-fieldname="${fieldName}"]`] = {
-              display: "none"
-            };
-          } else if (column.visible === false) {
-            styleObj["$nest"][mediaQueryRule]["$nest"][`[data-fieldname="${fieldName}"]`] = {
-              display: "table-cell !important"
-            };
-            styleObj["$nest"][mediaQueryRule]["$nest"][`[data-fieldname="${fieldName}"]`] = {
-              display: "table-cell !important",
-              $nest: {
-                "> i-table-column": {
-                  display: "table-cell !important"
-                }
-              }
-            };
-            console.log(fieldName, styleObj["$nest"][mediaQueryRule]["$nest"][`[data-fieldname="${fieldName}"]`]);
-          }
-        }
+          styleObj["$nest"][mediaQueryRule]["$nest"][`[data-fieldname="${fieldName}"]`] = {
+            display: "none"
+          };
+        });
       }
       if (mediaQuery.properties.expandable) {
         const expandable = mediaQuery.properties.expandable;
@@ -27554,7 +27484,6 @@ var TableColumn = class extends Control {
       if (this.options.textAlign)
         this.textAlign = this.options.textAlign;
       this.isHeader = this.options.header || false;
-      this.visible = typeof this.options.visible === "boolean" ? this.options.visible : true;
       this.columnElm = this.createElement("div", this);
       this.data = this.getAttribute("data", true);
       if (this.isHeader) {
@@ -27739,8 +27668,6 @@ var Table = class extends Control {
   set mediaQueries(value) {
     this._mediaQueries = value;
     const style2 = getTableMediaQueriesStyleClass(this.columns, this._mediaQueries);
-    this._mediaStyle && this.classList.remove(this._mediaStyle);
-    this._mediaStyle = style2;
     this.classList.add(style2);
   }
   onPageChanged(source, value) {
@@ -27763,7 +27690,6 @@ var Table = class extends Control {
     }
     this.columns.forEach((column, colIndex) => {
       const thElm = this.createElement("th", rowElm);
-      column.visible === false && (thElm.style.display = "none");
       thElm.classList.add("i-table-cell");
       thElm.setAttribute("data-fieldname", column.fieldName || "action");
       if (column.width)
@@ -27826,7 +27752,6 @@ var Table = class extends Control {
         value: columnData != null ? columnData : "--"
       });
       const tdElm = this.createElement("td", rowElm);
-      column.visible === false && (tdElm.style.display = "none");
       tdElm.classList.add("i-table-cell");
       tdElm.setAttribute("data-index", colIndex.toString());
       tdElm.setAttribute("data-fieldname", column.fieldName || "action");
