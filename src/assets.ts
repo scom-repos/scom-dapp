@@ -2,12 +2,6 @@ import { application, Styles } from '@ijstech/components';
 const moduleDir = application.currentModuleDir;
 type themeType = "light" | "dark";
 type viewportType = "desktop" | "tablet" | "mobile";
-// type IThemeLogo = {
-//     [key in themeType]: string;
-// }
-// type IViewportLogo = {
-//     [key in viewportType]: IThemeLogo | string;
-// }
 interface ILogo {
     header: string;
     footer: string;
@@ -25,17 +19,9 @@ class Assets {
         return this._instance
     }
     get logo(): ILogo {
-        // TODO: get current theme
         let currentTheme = Styles.Theme.currentTheme;
         let theme: themeType = currentTheme === Styles.Theme.defaultTheme ? "light" : "dark";
-        let _logo: ILogo;
-        if (window.innerWidth > this._breakpoints?.tablet) {
-            _logo = this._getLogo("desktop", theme);
-        } else if (window.innerWidth > this._breakpoints?.mobile) {
-            _logo = this._getLogo("tablet", theme);
-        } else {
-            _logo = this._getLogo("mobile", theme);
-        }
+        let _logo: ILogo = this._getLogo(this.viewport, theme);
         return _logo;
     }
     set breakpoints(value: IBreakpoints) {
@@ -44,8 +30,16 @@ class Assets {
     get breakpoints() {
         return this._breakpoints;
     }
+    get viewport(): viewportType {
+        if (window.innerWidth > this._breakpoints?.tablet)
+            return "desktop";
+        else if (window.innerWidth > this._breakpoints?.mobile)
+            return "tablet";
+        else
+            return "mobile"
+    }
     private _getLogo(viewport: viewportType, theme: themeType): ILogo {
-        const header = 
+        const header =
             application.assets(`logo/header/${viewport}/${theme}`) || application.assets(`logo/header/${viewport}`) ||
             application.assets(`logo/header/${theme}`) || application.assets(`logo/header`);
         const footer =

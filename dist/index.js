@@ -16,20 +16,9 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
             return this._instance;
         }
         get logo() {
-            var _a, _b;
-            // TODO: get current theme
             let currentTheme = components_1.Styles.Theme.currentTheme;
             let theme = currentTheme === components_1.Styles.Theme.defaultTheme ? "light" : "dark";
-            let _logo;
-            if (window.innerWidth > ((_a = this._breakpoints) === null || _a === void 0 ? void 0 : _a.tablet)) {
-                _logo = this._getLogo("desktop", theme);
-            }
-            else if (window.innerWidth > ((_b = this._breakpoints) === null || _b === void 0 ? void 0 : _b.mobile)) {
-                _logo = this._getLogo("tablet", theme);
-            }
-            else {
-                _logo = this._getLogo("mobile", theme);
-            }
+            let _logo = this._getLogo(this.viewport, theme);
             return _logo;
         }
         set breakpoints(value) {
@@ -37,6 +26,15 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
         }
         get breakpoints() {
             return this._breakpoints;
+        }
+        get viewport() {
+            var _a, _b;
+            if (window.innerWidth > ((_a = this._breakpoints) === null || _a === void 0 ? void 0 : _a.tablet))
+                return "desktop";
+            else if (window.innerWidth > ((_b = this._breakpoints) === null || _b === void 0 ? void 0 : _b.mobile))
+                return "tablet";
+            else
+                return "mobile";
         }
         _getLogo(viewport, theme) {
             const header = components_1.application.assets(`logo/header/${viewport}/${theme}`) || components_1.application.assets(`logo/header/${viewport}`) ||
