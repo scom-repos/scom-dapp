@@ -18,16 +18,17 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
         get logo() {
             var _a, _b;
             // TODO: get current theme
-            let currnetTheme = "dark";
+            let currentTheme = components_1.Styles.Theme.currentTheme;
+            let theme = currentTheme === components_1.Styles.Theme.defaultTheme ? "light" : "dark";
             let _logo;
             if (window.innerWidth > ((_a = this._breakpoints) === null || _a === void 0 ? void 0 : _a.tablet)) {
-                _logo = this._getLogo("desktop", currnetTheme);
+                _logo = this._getLogo("desktop", theme);
             }
             else if (window.innerWidth > ((_b = this._breakpoints) === null || _b === void 0 ? void 0 : _b.mobile)) {
-                _logo = this._getLogo("tablet", currnetTheme);
+                _logo = this._getLogo("tablet", theme);
             }
             else {
-                _logo = this._getLogo("mobile", currnetTheme);
+                _logo = this._getLogo("mobile", theme);
             }
             return _logo;
         }

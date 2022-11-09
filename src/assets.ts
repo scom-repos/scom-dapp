@@ -1,4 +1,4 @@
-import { application } from '@ijstech/components';
+import { application, Styles } from '@ijstech/components';
 const moduleDir = application.currentModuleDir;
 type themeType = "light" | "dark";
 type viewportType = "desktop" | "tablet" | "mobile";
@@ -26,14 +26,15 @@ class Assets {
     }
     get logo(): ILogo {
         // TODO: get current theme
-        let currnetTheme: themeType = "dark";
+        let currentTheme = Styles.Theme.currentTheme;
+        let theme: themeType = currentTheme === Styles.Theme.defaultTheme ? "light" : "dark";
         let _logo: ILogo;
         if (window.innerWidth > this._breakpoints?.tablet) {
-            _logo = this._getLogo("desktop", currnetTheme);
+            _logo = this._getLogo("desktop", theme);
         } else if (window.innerWidth > this._breakpoints?.mobile) {
-            _logo = this._getLogo("tablet", currnetTheme);
+            _logo = this._getLogo("tablet", theme);
         } else {
-            _logo = this._getLogo("mobile", currnetTheme);
+            _logo = this._getLogo("mobile", theme);
         }
         return _logo;
     }
