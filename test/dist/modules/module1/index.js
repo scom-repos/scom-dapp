@@ -11,7 +11,7 @@ define("@modules/module1", ["require", "exports", "@ijstech/components", "@modul
         render() {
             return this.$render("i-panel", null,
                 this.$render("i-label", { caption: 'Module 1!' }),
-                this.$render("i-image", { url: assets_1.default.logo }));
+                this.$render("i-image", { url: assets_1.default.logo.header.desktop }));
         }
     };
     Module1 = __decorate([

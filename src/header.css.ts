@@ -2,7 +2,6 @@ import { Styles } from '@ijstech/components';
 const Theme = Styles.Theme.ThemeVars;
 
 export default Styles.style({
-  backgroundColor: Theme.background.default,
   $nest: {
     '::-webkit-scrollbar-track': {
       borderRadius: '12px',

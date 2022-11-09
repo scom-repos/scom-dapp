@@ -16,6 +16,11 @@ export const walletList = [
         displayName: 'Binance Chain Wallet',
         img: 'binanceChainWallet'
     },
+    {
+        name: WalletPlugin.WalletConnect,
+        displayName: 'WalletConnect',
+        iconFile: 'walletconnect'
+    }
 ]
 
 // export const getWalletOptions = (): { [key in WalletPlugin]?: any } => {

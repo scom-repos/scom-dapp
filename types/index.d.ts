@@ -1,5 +1,24 @@
 /// <amd-module name="@scom/dapp/assets.ts" />
 declare module "@scom/dapp/assets.ts" {
+    interface ILogo {
+        header: string;
+        footer: string;
+    }
+    interface IBreakpoints {
+        mobile: number;
+        tablet: number;
+        desktop: number;
+    }
+    class Assets {
+        private static _instance;
+        private _breakpoints;
+        static get instance(): Assets;
+        get logo(): ILogo;
+        set breakpoints(value: IBreakpoints);
+        get breakpoints(): IBreakpoints;
+        private _getLogo;
+    }
+    export const assets: Assets;
     function fullPath(path: string): string;
     const _default: {
         fonts: {
@@ -25,6 +44,7 @@ declare module "@scom/dapp/assets.ts" {
                 metamask: string;
                 trustwallet: string;
                 binanceChainWallet: string;
+                walletconnect: string;
             };
         };
         fullPath: typeof fullPath;
@@ -52,11 +72,17 @@ declare module "@scom/dapp/helper.ts" {
 /// <amd-module name="@scom/dapp/walletList.ts" />
 declare module "@scom/dapp/walletList.ts" {
     import { WalletPlugin } from '@ijstech/eth-wallet';
-    export const walletList: {
+    export const walletList: ({
         name: WalletPlugin;
         displayName: string;
         img: string;
-    }[];
+        iconFile?: undefined;
+    } | {
+        name: WalletPlugin;
+        displayName: string;
+        iconFile: string;
+        img?: undefined;
+    })[];
 }
 /// <amd-module name="@scom/dapp/wallet.ts" />
 declare module "@scom/dapp/wallet.ts" {
@@ -66,6 +92,8 @@ declare module "@scom/dapp/wallet.ts" {
         name: string;
         img?: string;
         rpc?: string;
+        symbol?: string;
+        env?: string;
         explorerName?: string;
         explorerTxUrl?: string;
         explorerAddressUrl?: string;
@@ -75,12 +103,6 @@ declare module "@scom/dapp/wallet.ts" {
         ConnectWallet = "connectWallet",
         IsWalletConnected = "isWalletConnected",
         chainChanged = "chainChanged",
-        ShowActionModal = "showActionModal",
-        SetActionModalData = "setActionModalData",
-        ConfirmAction = "confirmAction",
-        ShowResult = "showResult",
-        SetResultMessage = "setResultMessage",
-        SwitchScene = "switchScene",
         IsWalletDisconnected = "IsWalletDisconnected"
     }
     export function isWalletConnected(): boolean;
@@ -92,6 +114,18 @@ declare module "@scom/dapp/wallet.ts" {
     export const hasWallet: () => boolean;
     export const hasMetaMask: () => boolean;
     export const truncateAddress: (address: string) => string;
+    export const getSupportedWallets: () => ({
+        name: WalletPlugin;
+        displayName: string;
+        img: string;
+        iconFile?: undefined;
+    } | {
+        name: WalletPlugin;
+        displayName: string;
+        iconFile: string;
+        img?: undefined;
+    })[];
+    export const updateWallets: (options: any) => void;
 }
 /// <amd-module name="@scom/dapp/network.ts" />
 declare module "@scom/dapp/network.ts" {
@@ -99,8 +133,6 @@ declare module "@scom/dapp/network.ts" {
     import { formatDate, formatNumber } from "@scom/dapp/helper.ts";
     import { INetwork, EventId } from "@scom/dapp/wallet.ts";
     export { isWalletConnected, hasWallet, hasMetaMask, truncateAddress, switchNetwork, connectWallet, logoutWallet } from "@scom/dapp/wallet.ts";
-    import { walletList } from "@scom/dapp/walletList.ts";
-    export { walletList };
     export { INetwork, EventId, formatDate, formatNumber };
     export interface ITokenObject {
         address?: string;
@@ -113,9 +145,6 @@ declare module "@scom/dapp/network.ts" {
         balance?: string | number;
         isNative?: boolean | null;
     }
-    export const NativeTokenByChainId: {
-        [key: number]: ITokenObject;
-    };
     export const updateNetworks: (options: any) => void;
     export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions): void;
     export function getChainId(): number;
@@ -124,13 +153,14 @@ declare module "@scom/dapp/network.ts" {
     export function getErc20(address: string): Erc20;
     export const getNetworkInfo: (chainId: number) => INetwork;
     export const getNetworkList: () => INetwork[];
-    export const getSupportedNetworkIds: () => number[];
     export const viewOnExplorerByTxHash: (chainId: number, txHash: string) => void;
     export const viewOnExplorerByAddress: (chainId: number, address: string) => void;
     export const getNetworkType: (chainId: number) => string;
     export const getDefaultChainId: () => number;
     export const getSiteSupportedNetworks: () => INetwork[];
+    export const isValidEnv: (env: string) => boolean;
     export const getInfuraId: () => string;
+    export const getEnv: () => string;
 }
 /// <amd-module name="@scom/dapp/header.css.ts" />
 declare module "@scom/dapp/header.css.ts" {
@@ -269,13 +299,19 @@ declare module "@scom/dapp/pathToRegexp.ts" {
 }
 /// <amd-module name="@scom/dapp/header.tsx" />
 declare module "@scom/dapp/header.tsx" {
-    import { Module, Control, ControlElement, Container, IMenuItem, IModuleMenuItem } from '@ijstech/components';
+    import { Module, Control, ControlElement, Container, IMenuItem } from '@ijstech/components';
     import { WalletPlugin } from "@ijstech/eth-wallet";
-    interface IModuleMenu extends IModuleMenuItem {
+    interface IModuleMenu {
         caption?: string;
         module?: string;
         url?: string;
         params?: any;
+        env?: string;
+        networks?: number[];
+        isToExternal?: boolean;
+        img?: string;
+        menus?: IModuleMenu[];
+        isDisabled?: boolean;
     }
     interface ILogo {
         desktop?: string;
@@ -311,7 +347,6 @@ declare module "@scom/dapp/header.tsx" {
         private lblNetworkDesc;
         private lblWalletAddress;
         private hsViewAccount;
-        private lblViewAccount;
         private gridWalletList;
         private gridNetworkGroup;
         private $eventBus;
@@ -323,7 +358,7 @@ declare module "@scom/dapp/header.tsx" {
         private currActiveWallet;
         private imgDesktopLogo;
         private imgMobileLogo;
-        private logo;
+        private supportedNetworks;
         private walletInfo;
         constructor(parent?: Container, options?: any);
         get symbol(): string;
@@ -372,7 +407,6 @@ declare module "@scom/dapp/footer.tsx" {
         logo?: string;
         copyrightInfo?: string;
         version?: string;
-        poweredBy?: string;
     }
     global {
         namespace JSX {
@@ -385,27 +419,38 @@ declare module "@scom/dapp/footer.tsx" {
         private imgLogo;
         private lblCopyright;
         private lblVersion;
-        private lblPoweredBy;
         init(): void;
+        connectedCallback(): void;
+        disconnectCallback(): void;
+        updateLogo(): void;
         render(): any;
     }
 }
 /// <amd-module name="@scom/dapp" />
 declare module "@scom/dapp" {
-    import { Module, Container } from '@ijstech/components';
+    import { Module, Styles, Container } from '@ijstech/components';
     export { Header } from "@scom/dapp/header.tsx";
     export { Footer } from "@scom/dapp/footer.tsx";
+    interface ITheme {
+        default: string;
+        dark?: Styles.Theme.ITheme;
+        light?: Styles.Theme.ITheme;
+    }
     export default class MainLauncher extends Module {
         private pnlMain;
         private menuItems;
-        private logo;
         private _options;
         private currentModule;
         constructor(parent?: Container, options?: any);
         init(): Promise<void>;
         hideCurrentModule(): void;
-        getModuleByPath(path: string): Promise<Module>;
+        getModuleByPath(path: string): Promise<{
+            module: Module;
+            params: any;
+        }>;
         handleHashChange(): Promise<void>;
+        mergeTheme: (target: Styles.Theme.ITheme, theme: Styles.Theme.ITheme) => Styles.Theme.ITheme;
+        updateThemes(themes?: ITheme): void;
         render(): Promise<any>;
     }
 }

@@ -2,8 +2,11 @@ import { Module, Styles, Container, customModule, application, Label } from '@ij
 @customModule
 export default class Module1 extends Module {
     private lblParams: Label;
-    onLoad(options?: any) {
+    onShow(options?: any) {
         this.lblParams.caption = options ? JSON.stringify(options) : "";
+    }
+    onHide() {
+        console.log("module 2 hide")
     }
     render() {
         return <i-panel>

@@ -2,8 +2,11 @@ import { Module, Styles, Container, customModule, application, Label } from '@ij
 @customModule
 export default class Module3 extends Module {
   private lblId: Label;
-  onLoad(options?: any) {
+  onShow(options?: any) {
     this.lblId.caption = options?.id || "";
+  }
+  onHide() {
+      console.log("module 3 hide")
   }
   render() {
     return <i-panel>
