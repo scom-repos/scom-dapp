@@ -73,7 +73,7 @@ export default class MainLauncher extends Module {
 		super(parent, options);
 		this.classList.add(styleClass);
 		this._options = options;
-		let defaultRoute: IRoute | undefined = this._options.routes.find(route => route.default);
+		let defaultRoute: IRoute | undefined = this._options?.routes?.find(route => route.default);
 		if (defaultRoute && !location.hash) {
       const toPath = compile(defaultRoute.url, { encode: encodeURIComponent });
 			location.hash = toPath();
@@ -98,11 +98,11 @@ export default class MainLauncher extends Module {
 	}
 	async getModuleByPath(path: string): Promise<{
 		module: Module,
-		params: any
+		params?: any
 	}>{
 		let menu: IMenu | IRoute;
 		let params: any;
-		let list: Array<IMenu | IRoute> = [ ...this._options.routes, ...this._options.menus ];
+		let list: Array<IMenu | IRoute> = [ ...this._options.routes || [], ...this._options.menus || []];
 		for (let i = 0; i < list.length; i ++){
 			let item = list[i];
 			if (item.url == path){
@@ -131,22 +131,22 @@ export default class MainLauncher extends Module {
 				module: menuObj.moduleObject,
 				params: params
 			};
-		};
+		}
 	};
 	async handleHashChange(){
 		let path = location.hash.split("?")[0];
 		if (path.startsWith('#/'))
 			path = path.substring(1);		
-		let { module, params } = await this.getModuleByPath(path);
-		if (module != this.currentModule)
+		let module = await this.getModuleByPath(path);
+		if (module?.module != this.currentModule)
 			this.hideCurrentModule();
-		this.currentModule = module;
+		this.currentModule = module?.module;
 		if (module){
-			if (this.pnlMain.contains(module))
-				module.style.display = 'initial';
+			if (this.pnlMain.contains(module.module))
+				module.module.style.display = 'initial';
 			else
-				this.pnlMain.append(module);
-			module.onShow(params);
+				this.pnlMain.append(module.module);
+			module.module.onShow(module.params);
 		};
 	};
 	mergeTheme = (target: Styles.Theme.ITheme, theme: Styles.Theme.ITheme) => {

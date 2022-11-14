@@ -449,7 +449,7 @@ declare module "@scom/dapp" {
         hideCurrentModule(): void;
         getModuleByPath(path: string): Promise<{
             module: Module;
-            params: any;
+            params?: any;
         }>;
         handleHashChange(): Promise<void>;
         mergeTheme: (target: Styles.Theme.ITheme, theme: Styles.Theme.ITheme) => Styles.Theme.ITheme;

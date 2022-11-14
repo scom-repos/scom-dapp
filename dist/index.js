@@ -1655,6 +1655,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
     ;
     let MainLauncher = class MainLauncher extends components_8.Module {
         constructor(parent, options) {
+            var _a, _b;
             super(parent, options);
             this.mergeTheme = (target, theme) => {
                 for (const key of Object.keys(theme)) {
@@ -1667,7 +1668,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             };
             this.classList.add(index_css_1.default);
             this._options = options;
-            let defaultRoute = this._options.routes.find(route => route.default);
+            let defaultRoute = (_b = (_a = this._options) === null || _a === void 0 ? void 0 : _a.routes) === null || _b === void 0 ? void 0 : _b.find(route => route.default);
             if (defaultRoute && !location.hash) {
                 const toPath = pathToRegexp_2.compile(defaultRoute.url, { encode: encodeURIComponent });
                 location.hash = toPath();
@@ -1696,7 +1697,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
         async getModuleByPath(path) {
             let menu;
             let params;
-            let list = [...this._options.routes, ...this._options.menus];
+            let list = [...this._options.routes || [], ...this._options.menus || []];
             for (let i = 0; i < list.length; i++) {
                 let item = list[i];
                 if (item.url == path) {
@@ -1729,23 +1730,22 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
                     params: params
                 };
             }
-            ;
         }
         ;
         async handleHashChange() {
             let path = location.hash.split("?")[0];
             if (path.startsWith('#/'))
                 path = path.substring(1);
-            let { module, params } = await this.getModuleByPath(path);
-            if (module != this.currentModule)
+            let module = await this.getModuleByPath(path);
+            if ((module === null || module === void 0 ? void 0 : module.module) != this.currentModule)
                 this.hideCurrentModule();
-            this.currentModule = module;
+            this.currentModule = module === null || module === void 0 ? void 0 : module.module;
             if (module) {
-                if (this.pnlMain.contains(module))
-                    module.style.display = 'initial';
+                if (this.pnlMain.contains(module.module))
+                    module.module.style.display = 'initial';
                 else
-                    this.pnlMain.append(module);
-                module.onShow(params);
+                    this.pnlMain.append(module.module);
+                module.module.onShow(module.params);
             }
             ;
         }
