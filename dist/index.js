@@ -37,7 +37,7 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
                 return "mobile";
         }
         _getLogoPath(viewport, theme, type) {
-            let asset = components_1.application.assets(`logo/${type}`);
+            let asset = components_1.application.assets(`logo/${type}`) || components_1.application.assets(`logo`);
             let path;
             if (typeof asset === 'object') {
                 if (typeof asset[viewport] === 'object') {
@@ -47,6 +47,7 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
                     path = asset[viewport];
                 }
                 else if (asset[theme]) {
+                    4;
                     path = asset[theme];
                 }
             }

@@ -39,14 +39,14 @@ class Assets {
             return "mobile"
     }
     private _getLogoPath(viewport: viewportType, theme: themeType, type: "header" | "footer"): string {
-        let asset = application.assets(`logo/${type}`);
+        let asset = application.assets(`logo/${type}`) || application.assets(`logo`);
         let path: string;
         if (typeof asset === 'object') {
             if (typeof asset[viewport] === 'object') {
                 path = asset[viewport][theme]
             } else if (typeof asset[viewport] === 'string') {
                 path = asset[viewport]
-            } else if (asset[theme]) {
+            } else if (asset[theme]) {4
                 path = asset[theme]
             }
         } else if (typeof asset === 'string') {
