@@ -27,7 +27,7 @@ interface ISCConfig{
 	dependencies?: {[name: string]: string};
 	menus: IMenu[];
 	routes: IRoute[];
-	networks?: INetwork[];
+	networks?: INetwork[] | "*";
 	copyrightInfo: string;
 	version?: string;
 	wallet?: string[];
