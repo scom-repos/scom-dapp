@@ -19,7 +19,7 @@ import {
   Image
 } from '@ijstech/components';
 import { Wallet, WalletPlugin, WalletPluginConfig } from "@ijstech/eth-wallet";
-import { INetwork, EventId, formatNumber, truncateAddress, isWalletConnected, isValidEnv } from './network';
+import { INetwork, EventId, formatNumber, truncateAddress, isWalletConnected, isValidEnv, isDefaultNetworkFromWallet } from './network';
 import styleClass from './header.css';
 import Assets, { assets } from './assets';
 import {
@@ -92,7 +92,7 @@ export class Header extends Module {
   private gridNetworkGroup: GridLayout;
 
   private $eventBus: IEventBus;
-  private selectedNetwork: INetwork;
+  private selectedNetwork: INetwork | undefined;
   private _menuItems: IModuleMenu[];
   private networkMapper: Map<number, HStack>;
   private walletMapper: Map<WalletPlugin, HStack>;
@@ -210,18 +210,19 @@ export class Header extends Module {
       this.lblBalance.caption = `${this.walletInfo.balance} ${this.symbol}`;
       this.btnWalletDetail.caption = this.shortlyAddress;
       this.lblWalletAddress.caption = this.shortlyAddress;
-      const networkType = getNetworkType(Wallet.getInstance().chainId);
-      this.hsViewAccount.visible = networkType !== 'Unknown';
+      const networkInfo = getNetworkInfo(Wallet.getInstance().chainId);
+      this.hsViewAccount.visible = !!networkInfo?.explorerAddressUrl;
     } else {
       this.hsViewAccount.visible = false;
     }
     const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network === this.selectedNetwork) !== -1;
     if (isSupportedNetwork) {
-      this.btnNetwork.icon = <i-icon width={26} height={26} image={{ url: Assets.img.network[this.selectedNetwork.img] || application.assets(this.selectedNetwork.img) }} ></i-icon>
-      this.btnNetwork.caption = this.selectedNetwork.name;
+      const img = this.selectedNetwork?.img ? Assets.img.network[this.selectedNetwork.img] || application.assets(this.selectedNetwork.img) : undefined;
+      this.btnNetwork.icon = img ? <i-icon width={26} height={26} image={{ url: img }} ></i-icon> : undefined;
+      this.btnNetwork.caption = this.selectedNetwork?.name??"";
     } else {
       this.btnNetwork.icon = undefined;
-      this.btnNetwork.caption = "Unsupported Network";
+      this.btnNetwork.caption = isDefaultNetworkFromWallet() ? "Unknown Network" : "Unsupported Network";
     }
     this.btnConnectWallet.visible = !isConnected;
     this.hsBalance.visible = isConnected;
@@ -265,6 +266,7 @@ export class Header extends Module {
   }
 
   openNetworkModal = () => {
+    if (isDefaultNetworkFromWallet()) return;
     this.mdNetwork.visible = true;
   }
 
@@ -299,7 +301,7 @@ export class Header extends Module {
   }
 
   async switchNetwork(chainId: number) {
-    if (!chainId) return;
+    if (!chainId || isDefaultNetworkFromWallet()) return;
     await switchNetwork(chainId);
     this.mdNetwork.visible = false;
   }

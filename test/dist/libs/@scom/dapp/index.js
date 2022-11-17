@@ -37,7 +37,7 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
                 return "mobile";
         }
         _getLogoPath(viewport, theme, type) {
-            let asset = components_1.application.assets(`logo/${type}`);
+            let asset = components_1.application.assets(`logo/${type}`) || components_1.application.assets(`logo`);
             let path;
             if (typeof asset === 'object') {
                 if (typeof asset[viewport] === 'object') {
@@ -47,6 +47,7 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
                     path = asset[viewport];
                 }
                 else if (asset[theme]) {
+                    4;
                     path = asset[theme];
                 }
             }
@@ -443,7 +444,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@s
 define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@scom/dapp/helper.ts", "@scom/dapp/wallet.ts"], function (require, exports, eth_wallet_4, helper_1, wallet_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getEnv = exports.getInfuraId = exports.isValidEnv = exports.getSiteSupportedNetworks = exports.getDefaultChainId = exports.getNetworkType = exports.viewOnExplorerByAddress = exports.viewOnExplorerByTxHash = exports.getNetworkList = exports.getNetworkInfo = exports.getErc20 = exports.getWalletProvider = exports.getWallet = exports.getChainId = exports.registerSendTxEvents = exports.updateNetworks = exports.formatNumber = exports.formatDate = exports.logoutWallet = exports.connectWallet = exports.switchNetwork = exports.truncateAddress = exports.hasMetaMask = exports.hasWallet = exports.isWalletConnected = void 0;
+    exports.isDefaultNetworkFromWallet = exports.getEnv = exports.getInfuraId = exports.isValidEnv = exports.getSiteSupportedNetworks = exports.getDefaultChainId = exports.getNetworkType = exports.viewOnExplorerByAddress = exports.viewOnExplorerByTxHash = exports.getNetworkList = exports.getNetworkInfo = exports.getErc20 = exports.getWalletProvider = exports.getWallet = exports.getChainId = exports.registerSendTxEvents = exports.updateNetworks = exports.formatNumber = exports.formatDate = exports.logoutWallet = exports.connectWallet = exports.switchNetwork = exports.truncateAddress = exports.hasMetaMask = exports.hasWallet = exports.isWalletConnected = void 0;
     Object.defineProperty(exports, "formatDate", { enumerable: true, get: function () { return helper_1.formatDate; } });
     Object.defineProperty(exports, "formatNumber", { enumerable: true, get: function () { return helper_1.formatNumber; } });
     Object.defineProperty(exports, "isWalletConnected", { enumerable: true, get: function () { return wallet_1.isWalletConnected; } });
@@ -575,14 +576,14 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         if (options.env) {
             setEnv(options.env);
         }
+        if (options.infuraId) {
+            setInfuraId(options.infuraId);
+        }
         if (options.networks) {
             setNetworkList(options.networks, options.infuraId);
         }
         if (options.defaultChainId) {
             setDefaultChainId(options.defaultChainId);
-        }
-        if (options.infuraId) {
-            setInfuraId(options.infuraId);
         }
     };
     exports.updateNetworks = updateNetworks;
@@ -628,19 +629,41 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         networkMap: {},
         defaultChainId: 0,
         infuraId: "",
-        env: ""
+        env: "",
+        defaultNetworkFromWallet: false
     };
     const setNetworkList = (networkList, infuraId) => {
+        var _a;
         state.networkMap = {};
+        state.defaultNetworkFromWallet = networkList === "*";
+        if (state.defaultNetworkFromWallet) {
+            const networksMap = getWallet().networksMap;
+            for (const chainId in networksMap) {
+                const networkInfo = networksMap[chainId];
+                const rpc = networkInfo.rpcUrls && networkInfo.rpcUrls.length ? networkInfo.rpcUrls[0] : "";
+                const explorerUrl = networkInfo.blockExplorerUrls && networkInfo.blockExplorerUrls.length ? networkInfo.blockExplorerUrls[0] : "";
+                state.networkMap[networkInfo.chainId] = {
+                    chainId: networkInfo.chainId,
+                    name: networkInfo.chainName,
+                    rpc: state.infuraId && rpc ? rpc.replace(/{InfuraId}/g, state.infuraId) : rpc,
+                    symbol: ((_a = networkInfo.nativeCurrency) === null || _a === void 0 ? void 0 : _a.symbol) || "",
+                    explorerTxUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}tx/` : "",
+                    explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : "",
+                };
+            }
+            return;
+        }
         networks.forEach(network => {
             const rpc = infuraId && network.rpc ? network.rpc.replace(/{InfuraId}/g, infuraId) : network.rpc;
             state.networkMap[network.chainId] = Object.assign(Object.assign({}, network), { isDisabled: true, rpc });
         });
-        for (let network of networkList) {
-            if (infuraId && network.rpc) {
-                network.rpc = network.rpc.replace(/{InfuraId}/g, infuraId);
+        if (Array.isArray(networkList)) {
+            for (let network of networkList) {
+                if (infuraId && network.rpc) {
+                    network.rpc = network.rpc.replace(/{InfuraId}/g, infuraId);
+                }
+                Object.assign(state.networkMap[network.chainId], Object.assign({ isDisabled: false }, network));
             }
-            Object.assign(state.networkMap[network.chainId], Object.assign({ isDisabled: false }, network));
         }
     };
     const getNetworkInfo = (chainId) => {
@@ -705,6 +728,10 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         return state.env;
     };
     exports.getEnv = getEnv;
+    const isDefaultNetworkFromWallet = () => {
+        return state.defaultNetworkFromWallet;
+    };
+    exports.isDefaultNetworkFromWallet = isDefaultNetworkFromWallet;
 });
 define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_4) {
     "use strict";
@@ -1232,24 +1259,26 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 this.renderDesktopMenu();
             };
             this.updateConnectedStatus = (isConnected) => {
+                var _a, _b, _c;
                 if (isConnected) {
                     this.lblBalance.caption = `${this.walletInfo.balance} ${this.symbol}`;
                     this.btnWalletDetail.caption = this.shortlyAddress;
                     this.lblWalletAddress.caption = this.shortlyAddress;
-                    const networkType = network_2.getNetworkType(eth_wallet_5.Wallet.getInstance().chainId);
-                    this.hsViewAccount.visible = networkType !== 'Unknown';
+                    const networkInfo = network_2.getNetworkInfo(eth_wallet_5.Wallet.getInstance().chainId);
+                    this.hsViewAccount.visible = !!(networkInfo === null || networkInfo === void 0 ? void 0 : networkInfo.explorerAddressUrl);
                 }
                 else {
                     this.hsViewAccount.visible = false;
                 }
                 const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network === this.selectedNetwork) !== -1;
                 if (isSupportedNetwork) {
-                    this.btnNetwork.icon = this.$render("i-icon", { width: 26, height: 26, image: { url: assets_2.default.img.network[this.selectedNetwork.img] || components_5.application.assets(this.selectedNetwork.img) } });
-                    this.btnNetwork.caption = this.selectedNetwork.name;
+                    const img = ((_a = this.selectedNetwork) === null || _a === void 0 ? void 0 : _a.img) ? assets_2.default.img.network[this.selectedNetwork.img] || components_5.application.assets(this.selectedNetwork.img) : undefined;
+                    this.btnNetwork.icon = img ? this.$render("i-icon", { width: 26, height: 26, image: { url: img } }) : undefined;
+                    this.btnNetwork.caption = (_c = (_b = this.selectedNetwork) === null || _b === void 0 ? void 0 : _b.name) !== null && _c !== void 0 ? _c : "";
                 }
                 else {
                     this.btnNetwork.icon = undefined;
-                    this.btnNetwork.caption = "Unsupported Network";
+                    this.btnNetwork.caption = network_1.isDefaultNetworkFromWallet() ? "Unknown Network" : "Unsupported Network";
                 }
                 this.btnConnectWallet.visible = !isConnected;
                 this.hsBalance.visible = isConnected;
@@ -1260,6 +1289,8 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 this.mdConnect.visible = true;
             };
             this.openNetworkModal = () => {
+                if (network_1.isDefaultNetworkFromWallet())
+                    return;
                 this.mdNetwork.visible = true;
             };
             this.openWalletDetailModal = () => {
@@ -1427,7 +1458,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             network_2.viewOnExplorerByAddress(eth_wallet_5.Wallet.getInstance().chainId, this.walletInfo.address);
         }
         async switchNetwork(chainId) {
-            if (!chainId)
+            if (!chainId || network_1.isDefaultNetworkFromWallet())
                 return;
             await network_2.switchNetwork(chainId);
             this.mdNetwork.visible = false;
@@ -1655,6 +1686,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
     ;
     let MainLauncher = class MainLauncher extends components_8.Module {
         constructor(parent, options) {
+            var _a, _b;
             super(parent, options);
             this.mergeTheme = (target, theme) => {
                 for (const key of Object.keys(theme)) {
@@ -1667,7 +1699,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             };
             this.classList.add(index_css_1.default);
             this._options = options;
-            let defaultRoute = this._options.routes.find(route => route.default);
+            let defaultRoute = (_b = (_a = this._options) === null || _a === void 0 ? void 0 : _a.routes) === null || _b === void 0 ? void 0 : _b.find(route => route.default);
             if (defaultRoute && !location.hash) {
                 const toPath = pathToRegexp_2.compile(defaultRoute.url, { encode: encodeURIComponent });
                 location.hash = toPath();
@@ -1696,7 +1728,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
         async getModuleByPath(path) {
             let menu;
             let params;
-            let list = [...this._options.routes, ...this._options.menus];
+            let list = [...this._options.routes || [], ...this._options.menus || []];
             for (let i = 0; i < list.length; i++) {
                 let item = list[i];
                 if (item.url == path) {
@@ -1729,23 +1761,22 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
                     params: params
                 };
             }
-            ;
         }
         ;
         async handleHashChange() {
             let path = location.hash.split("?")[0];
             if (path.startsWith('#/'))
                 path = path.substring(1);
-            let { module, params } = await this.getModuleByPath(path);
-            if (module != this.currentModule)
+            let module = await this.getModuleByPath(path);
+            if ((module === null || module === void 0 ? void 0 : module.module) != this.currentModule)
                 this.hideCurrentModule();
-            this.currentModule = module;
+            this.currentModule = module === null || module === void 0 ? void 0 : module.module;
             if (module) {
-                if (this.pnlMain.contains(module))
-                    module.style.display = 'initial';
+                if (this.pnlMain.contains(module.module))
+                    module.module.style.display = 'initial';
                 else
-                    this.pnlMain.append(module);
-                module.onShow(params);
+                    this.pnlMain.append(module.module);
+                module.module.onShow(module.params);
             }
             ;
         }

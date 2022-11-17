@@ -154,7 +154,7 @@ declare module "@scom/dapp/network.ts" {
     export function getWallet(): Wallet;
     export function getWalletProvider(): string;
     export function getErc20(address: string): Erc20;
-    export const getNetworkInfo: (chainId: number) => INetwork;
+    export const getNetworkInfo: (chainId: number) => INetwork | undefined;
     export const getNetworkList: () => INetwork[];
     export const viewOnExplorerByTxHash: (chainId: number, txHash: string) => void;
     export const viewOnExplorerByAddress: (chainId: number, address: string) => void;
@@ -164,6 +164,7 @@ declare module "@scom/dapp/network.ts" {
     export const isValidEnv: (env: string) => boolean;
     export const getInfuraId: () => string;
     export const getEnv: () => string;
+    export const isDefaultNetworkFromWallet: () => boolean;
 }
 /// <amd-module name="@scom/dapp/header.css.ts" />
 declare module "@scom/dapp/header.css.ts" {

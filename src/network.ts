@@ -1,8 +1,8 @@
 import { Erc20, Wallet, ISendTxEventsOptions, BigNumber } from '@ijstech/eth-wallet';
-import { formatDate, formatNumber} from './helper';
-import {INetwork, EventId} from './wallet';
-export {isWalletConnected, hasWallet, hasMetaMask, truncateAddress, switchNetwork, connectWallet, logoutWallet} from './wallet';
-export {INetwork, EventId, formatDate, formatNumber};
+import { formatDate, formatNumber } from './helper';
+import { INetwork, EventId } from './wallet';
+export { isWalletConnected, hasWallet, hasMetaMask, truncateAddress, switchNetwork, connectWallet, logoutWallet } from './wallet';
+export { INetwork, EventId, formatDate, formatNumber };
 
 export interface ITokenObject {
   address?: string;
@@ -136,69 +136,90 @@ export const updateNetworks = (options: any) => {
   if (options.env) {
     setEnv(options.env);
   }
+  if (options.infuraId) {
+    setInfuraId(options.infuraId)
+  }
   if (options.networks) {
     setNetworkList(options.networks, options.infuraId)
   }
   if (options.defaultChainId) {
     setDefaultChainId(options.defaultChainId)
   }
-  if (options.infuraId) {
-    setInfuraId(options.infuraId)
-  }		
 };
 export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions) {
-    const wallet = Wallet.getInstance();
-    wallet.registerSendTxEvents({
-        transactionHash: (error: Error, receipt?: string) => {
-            if (sendTxEventHandlers.transactionHash) {
-                sendTxEventHandlers.transactionHash(error, receipt);
-            }
-        },
-        confirmation: (receipt: any) => {
-            if (sendTxEventHandlers.confirmation) {
-                sendTxEventHandlers.confirmation(receipt);
-            }
-        },
-    })
+  const wallet = Wallet.getInstance();
+  wallet.registerSendTxEvents({
+    transactionHash: (error: Error, receipt?: string) => {
+      if (sendTxEventHandlers.transactionHash) {
+        sendTxEventHandlers.transactionHash(error, receipt);
+      }
+    },
+    confirmation: (receipt: any) => {
+      if (sendTxEventHandlers.confirmation) {
+        sendTxEventHandlers.confirmation(receipt);
+      }
+    },
+  })
 };
 export function getChainId() {
-    return Wallet.getInstance().chainId;
+  return Wallet.getInstance().chainId;
 };
 export function getWallet() {
-    return Wallet.getInstance();
+  return Wallet.getInstance();
 };
 export function getWalletProvider() {
-    return localStorage.getItem('walletProvider') || '';
+  return localStorage.getItem('walletProvider') || '';
 };
 export function getErc20(address: string) {
-    const wallet = getWallet();
-    return new Erc20(wallet, address);
+  const wallet = getWallet();
+  return new Erc20(wallet, address);
 };
 const state = {
   networkMap: {} as { [key: number]: INetwork },
   defaultChainId: 0,
   infuraId: "",
-  env: ""
+  env: "",
+  defaultNetworkFromWallet: false
 }
-const setNetworkList = (networkList: INetwork[], infuraId?: string) => {
+const setNetworkList = (networkList: INetwork[] | "*", infuraId?: string) => {
   state.networkMap = {};
+  state.defaultNetworkFromWallet = networkList === "*";
+  if (state.defaultNetworkFromWallet) {
+    const networksMap = getWallet().networksMap;
+    for (const chainId in networksMap) {
+      const networkInfo = networksMap[chainId];
+      const rpc = networkInfo.rpcUrls && networkInfo.rpcUrls.length ? networkInfo.rpcUrls[0] : "";
+      const explorerUrl = networkInfo.blockExplorerUrls && networkInfo.blockExplorerUrls.length ? networkInfo.blockExplorerUrls[0] : "";
+      state.networkMap[networkInfo.chainId] =  {
+        chainId: networkInfo.chainId,
+        name: networkInfo.chainName,
+        rpc: state.infuraId && rpc ? rpc.replace(/{InfuraId}/g, state.infuraId) : rpc,
+        symbol: networkInfo.nativeCurrency?.symbol || "",
+        explorerTxUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}tx/` : "",
+        explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : "",
+      }
+    }
+    return;
+  }
   networks.forEach(network => {
     const rpc = infuraId && network.rpc ? network.rpc.replace(/{InfuraId}/g, infuraId) : network.rpc;
     state.networkMap[network.chainId] = { ...network, isDisabled: true, rpc };
   })
-  for (let network of networkList) {
-    if (infuraId && network.rpc) {
-      network.rpc = network.rpc.replace(/{InfuraId}/g, infuraId);
+  if (Array.isArray(networkList)) {
+    for (let network of networkList) {
+      if (infuraId && network.rpc) {
+        network.rpc = network.rpc.replace(/{InfuraId}/g, infuraId);
+      }
+      Object.assign(state.networkMap[network.chainId], { isDisabled: false, ...network });
     }
-    Object.assign(state.networkMap[network.chainId], { isDisabled: false, ...network });
   }
 }
 
-export const getNetworkInfo = (chainId: number) => {
+export const getNetworkInfo = (chainId: number): INetwork | undefined => {
   return state.networkMap[chainId];
 }
 
-export const getNetworkList = ()  => {
+export const getNetworkList = () => {
   return Object.values(state.networkMap);
 }
 
@@ -220,7 +241,7 @@ export const viewOnExplorerByAddress = (chainId: number, address: string) => {
 
 export const getNetworkType = (chainId: number) => {
   let network = getNetworkInfo(chainId);
-  return network?.explorerName??'Unknown';
+  return network?.explorerName ?? 'Unknown';
 }
 
 const setDefaultChainId = (chainId: number) => {
@@ -231,9 +252,9 @@ export const getDefaultChainId = () => {
   return state.defaultChainId;
 }
 
-export const getSiteSupportedNetworks = ()  => {
+export const getSiteSupportedNetworks = () => {
   let networkFullList = Object.values(state.networkMap);
-  let list = networkFullList.filter(network => 
+  let list = networkFullList.filter(network =>
     !network.isDisabled && isValidEnv(network.env)
   );
   return list
@@ -258,4 +279,8 @@ const setEnv = (env: string) => {
 
 export const getEnv = () => {
   return state.env;
+}
+
+export const isDefaultNetworkFromWallet = () => {
+  return state.defaultNetworkFromWallet;
 }

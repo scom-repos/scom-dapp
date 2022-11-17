@@ -49,17 +49,7 @@
       "module": "@modules/module3"
     }
   ],
-  "networks": [
-    {
-      "chainId": 1
-    },
-    {
-      "chainId": 43113
-    },
-    {
-      "chainId": 97
-    }
-  ],
+  "networks": "*",
   "wallets": [
     "metamask"
   ],
