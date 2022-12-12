@@ -16,10 +16,6 @@ export default Styles.style({
       borderRadius: '12px',
       background: 'rgba(255, 255, 255, 0.2) 0% 0% no-repeat padding-box'
     },
-    '.btn-network:hover': {
-      backgroundColor: '#101026',
-      border: '1px solid #101026'
-    },
     '.os-modal': {
       boxSizing: 'border-box',
       $nest: {

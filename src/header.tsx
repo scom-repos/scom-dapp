@@ -508,41 +508,42 @@ export class Header extends Module {
                 class="header-logo"
                 margin={{ right: '1.25rem' }}
               />
-              <i-menu id="menuDesktop" width="100%" border={{ left: { color: '#192046', width: '1px', style: 'solid' } }}></i-menu>
+              <i-menu id="menuDesktop" width="100%" border={{ left: { color: Theme.divider, width: '1px', style: 'solid' } }}></i-menu>
             </i-hstack>
             <i-hstack verticalAlignment='center' horizontalAlignment='end'>
               <i-panel>
                 <i-button
                   id="btnNetwork"
+                  height={38}
                   class="btn-network"
-                  margin={{ right: '1rem' }}
-                  padding={{ top: '0.375rem', bottom: '0.375rem', left: '0.75rem', right: '0.75rem' }}
-                  background={{ color: '#101026' }}
-                  border={{ width: '1px', style: 'solid', color: '#101026', radius: 5 }}
-                  font={{ color: Theme.text.primary }}
+                  margin={{ right: '0.5rem' }}
+                  padding={{ top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }}
+                  border={{ radius: 5 }}
+                  font={{ color: Theme.colors.primary.contrastText }}
                   onClick={this.openNetworkModal}
                   caption={"Unsupported Network"}
                 ></i-button>
               </i-panel>
               <i-hstack
                 id="hsBalance"
+                height={38}
                 visible={false}
                 horizontalAlignment="center"
                 verticalAlignment="center"
-                background={{ color: "#192046" }}
-                lineHeight="25px"
-                border={{ radius: 6 }}
-                padding={{ top: 6, bottom: 6, left: 10, right: 10 }}
+                background={{ color: Theme.colors.primary.main }}
+                border={{ radius: 5 }}
+                padding={{ top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }}
               >
-                <i-label id="lblBalance" font={{ color: Theme.text.primary }}></i-label>
+                <i-label id="lblBalance" font={{ color: Theme.colors.primary.contrastText }}></i-label>
               </i-hstack>
               <i-panel id="pnlWalletDetail" visible={false}>
                 <i-button
                   id="btnWalletDetail"
+                  height={38}
                   padding={{ top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }}
                   margin={{ left: '0.5rem' }}
                   border={{ radius: 5 }}
-                  font={{ color: Theme.text.primary }}
+                  font={{ color: Theme.colors.error.contrastText }}
                   background={{ color: Theme.colors.error.light }}
                   onClick={this.openWalletDetailModal}
                 ></i-button>
@@ -553,7 +554,6 @@ export class Header extends Module {
                   minWidth={200}
                   showBackdrop={false}
                   popupPlacement="bottomRight"
-                  background={{ color: "#252a48" }}
                 >
                   <i-vstack gap={15} padding={{ top: 10, left: 10, right: 10, bottom: 10 }}>
                     <i-button
@@ -561,8 +561,8 @@ export class Header extends Module {
                       width="100%"
                       height="auto"
                       border={{ radius: 5 }}
-                      font={{ color: Theme.text.primary }}
-                      background={{ color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }}
+                      font={{ color: Theme.colors.primary.contrastText }}
+                      background={{ color: Theme.colors.error.light }}
                       padding={{ top: '0.5rem', bottom: '0.5rem' }}
                       onClick={this.openAccountModal}
                     ></i-button>
@@ -571,8 +571,8 @@ export class Header extends Module {
                       width="100%"
                       height="auto"
                       border={{ radius: 5 }}
-                      font={{ color: Theme.text.primary }}
-                      background={{ color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }}
+                      font={{ color: Theme.colors.primary.contrastText }}
+                      background={{ color: Theme.colors.error.light }}
                       padding={{ top: '0.5rem', bottom: '0.5rem' }}
                       onClick={this.openSwitchModal}
                     ></i-button>
@@ -581,8 +581,8 @@ export class Header extends Module {
                       width="100%"
                       height="auto"
                       border={{ radius: 5 }}
-                      font={{ color: Theme.text.primary }}
-                      background={{ color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }}
+                      font={{ color: Theme.colors.primary.contrastText }}
+                      background={{ color: Theme.colors.error.light }}
                       padding={{ top: '0.5rem', bottom: '0.5rem' }}
                       onClick={this.logout}
                     ></i-button>
@@ -591,11 +591,12 @@ export class Header extends Module {
               </i-panel>
               <i-button
                 id="btnConnectWallet"
+                height={38}
                 caption="Connect Wallet"
                 border={{ radius: 5 }}
-                font={{ color: Theme.text.primary }}
-                padding={{ top: '0.375rem', bottom: '0.375rem', left: '0.5rem', right: '0.5rem' }}
-                margin={{ left: '0.5rem' }}
+                font={{ color: Theme.colors.error.contrastText }}
+                background={{ color: Theme.colors.error.light }}
+                padding={{ top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }}
                 onClick={this.openConnectModal}
               ></i-button>
             </i-hstack>
