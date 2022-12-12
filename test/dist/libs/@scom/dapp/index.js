@@ -814,6 +814,9 @@ define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"]
             '.header-logo > img': {
                 width: '100%',
                 maxHeight: 50
+            },
+            '.wallet-modal > div': {
+                boxShadow: 'rgb(0 0 0 / 10%) 0px 0px 5px 0px, rgb(0 0 0 / 10%) 0px 0px 1px 0px'
             }
         }
     });
@@ -1569,7 +1572,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                             this.$render("i-label", { id: "lblBalance", font: { color: Theme.colors.primary.contrastText } })),
                         this.$render("i-panel", { id: "pnlWalletDetail", visible: false },
                             this.$render("i-button", { id: "btnWalletDetail", height: 38, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, margin: { left: '0.5rem' }, border: { radius: 5 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, onClick: this.openWalletDetailModal }),
-                            this.$render("i-modal", { id: "mdWalletDetail", height: "auto", maxWidth: 200, minWidth: 200, showBackdrop: false, popupPlacement: "bottomRight" },
+                            this.$render("i-modal", { id: "mdWalletDetail", class: "wallet-modal", height: "auto", maxWidth: 200, minWidth: 200, showBackdrop: false, popupPlacement: "bottomRight" },
                                 this.$render("i-vstack", { gap: 15, padding: { top: 10, left: 10, right: 10, bottom: 10 } },
                                     this.$render("i-button", { caption: "Account", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openAccountModal }),
                                     this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openSwitchModal }),

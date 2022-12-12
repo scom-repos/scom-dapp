@@ -78,6 +78,9 @@ export default Styles.style({
     '.header-logo > img': {
       width: '100%',
       maxHeight: 50
+    },
+    '.wallet-modal > div': {
+      boxShadow: 'rgb(0 0 0 / 10%) 0px 0px 5px 0px, rgb(0 0 0 / 10%) 0px 0px 1px 0px'
     }
   }
 })

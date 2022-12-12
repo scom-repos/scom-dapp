@@ -549,6 +549,7 @@ export class Header extends Module {
                 ></i-button>
                 <i-modal
                   id="mdWalletDetail"
+                  class="wallet-modal"
                   height="auto"
                   maxWidth={200}
                   minWidth={200}
