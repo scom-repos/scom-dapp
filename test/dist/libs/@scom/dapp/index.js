@@ -752,10 +752,6 @@ define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"]
                 borderRadius: '12px',
                 background: 'rgba(255, 255, 255, 0.2) 0% 0% no-repeat padding-box'
             },
-            '.btn-network:hover': {
-                backgroundColor: '#101026',
-                border: '1px solid #101026'
-            },
             '.os-modal': {
                 boxSizing: 'border-box',
                 $nest: {
@@ -818,6 +814,9 @@ define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"]
             '.header-logo > img': {
                 width: '100%',
                 maxHeight: 50
+            },
+            '.wallet-modal > div': {
+                boxShadow: 'rgb(0 0 0 / 10%) 0px 0px 5px 0px, rgb(0 0 0 / 10%) 0px 0px 1px 0px'
             }
         }
     });
@@ -1565,20 +1564,20 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                         this.$render("i-image", { id: "imgMobileLogo", class: "header-logo", margin: { right: '0.5rem' } })),
                     this.$render("i-hstack", { id: "hsDesktopMenu", wrap: "nowrap", verticalAlignment: "center", width: "100%", overflow: "hidden" },
                         this.$render("i-image", { id: "imgDesktopLogo", class: "header-logo", margin: { right: '1.25rem' } }),
-                        this.$render("i-menu", { id: "menuDesktop", width: "100%", border: { left: { color: '#192046', width: '1px', style: 'solid' } } })),
+                        this.$render("i-menu", { id: "menuDesktop", width: "100%", border: { left: { color: Theme.divider, width: '1px', style: 'solid' } } })),
                     this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'end' },
                         this.$render("i-panel", null,
-                            this.$render("i-button", { id: "btnNetwork", class: "btn-network", margin: { right: '1rem' }, padding: { top: '0.375rem', bottom: '0.375rem', left: '0.75rem', right: '0.75rem' }, background: { color: '#101026' }, border: { width: '1px', style: 'solid', color: '#101026', radius: 5 }, font: { color: Theme.text.primary }, onClick: this.openNetworkModal, caption: "Unsupported Network" })),
-                        this.$render("i-hstack", { id: "hsBalance", visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: "#192046" }, lineHeight: "25px", border: { radius: 6 }, padding: { top: 6, bottom: 6, left: 10, right: 10 } },
-                            this.$render("i-label", { id: "lblBalance", font: { color: Theme.text.primary } })),
+                            this.$render("i-button", { id: "btnNetwork", height: 38, class: "btn-network", margin: { right: '0.5rem' }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, onClick: this.openNetworkModal, caption: "Unsupported Network" })),
+                        this.$render("i-hstack", { id: "hsBalance", height: 38, visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: Theme.colors.primary.main }, border: { radius: 5 }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' } },
+                            this.$render("i-label", { id: "lblBalance", font: { color: Theme.colors.primary.contrastText } })),
                         this.$render("i-panel", { id: "pnlWalletDetail", visible: false },
-                            this.$render("i-button", { id: "btnWalletDetail", padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, margin: { left: '0.5rem' }, border: { radius: 5 }, font: { color: Theme.text.primary }, background: { color: Theme.colors.error.light }, onClick: this.openWalletDetailModal }),
-                            this.$render("i-modal", { id: "mdWalletDetail", height: "auto", maxWidth: 200, minWidth: 200, showBackdrop: false, popupPlacement: "bottomRight", background: { color: "#252a48" } },
+                            this.$render("i-button", { id: "btnWalletDetail", height: 38, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, margin: { left: '0.5rem' }, border: { radius: 5 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, onClick: this.openWalletDetailModal }),
+                            this.$render("i-modal", { id: "mdWalletDetail", class: "wallet-modal", height: "auto", maxWidth: 200, minWidth: 200, showBackdrop: false, popupPlacement: "bottomRight" },
                                 this.$render("i-vstack", { gap: 15, padding: { top: 10, left: 10, right: 10, bottom: 10 } },
-                                    this.$render("i-button", { caption: "Account", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.text.primary }, background: { color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openAccountModal }),
-                                    this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.text.primary }, background: { color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openSwitchModal }),
-                                    this.$render("i-button", { caption: "Logout", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.text.primary }, background: { color: "transparent linear-gradient(90deg, #8C5AFF 0%, #442391 100%) 0% 0% no-repeat padding-box" }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.logout })))),
-                        this.$render("i-button", { id: "btnConnectWallet", caption: "Connect Wallet", border: { radius: 5 }, font: { color: Theme.text.primary }, padding: { top: '0.375rem', bottom: '0.375rem', left: '0.5rem', right: '0.5rem' }, margin: { left: '0.5rem' }, onClick: this.openConnectModal }))),
+                                    this.$render("i-button", { caption: "Account", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openAccountModal }),
+                                    this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openSwitchModal }),
+                                    this.$render("i-button", { caption: "Logout", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.logout })))),
+                        this.$render("i-button", { id: "btnConnectWallet", height: 38, caption: "Connect Wallet", border: { radius: 5 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, onClick: this.openConnectModal }))),
                 this.$render("i-modal", { id: 'mdNetwork', title: 'Supported Network', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
                     this.$render("i-vstack", { height: '100%', lineHeight: 1.5, padding: { left: '1rem', right: '1rem', bottom: '2rem' } },
                         this.$render("i-label", { id: 'lblNetworkDesc', margin: { top: '1rem' }, font: { size: '.875rem' }, wordBreak: "break-word", caption: 'We support the following networks, please click to connect.' }),

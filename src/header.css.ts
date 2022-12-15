@@ -16,10 +16,6 @@ export default Styles.style({
       borderRadius: '12px',
       background: 'rgba(255, 255, 255, 0.2) 0% 0% no-repeat padding-box'
     },
-    '.btn-network:hover': {
-      backgroundColor: '#101026',
-      border: '1px solid #101026'
-    },
     '.os-modal': {
       boxSizing: 'border-box',
       $nest: {
@@ -82,6 +78,9 @@ export default Styles.style({
     '.header-logo > img': {
       width: '100%',
       maxHeight: 50
+    },
+    '.wallet-modal > div': {
+      boxShadow: 'rgb(0 0 0 / 10%) 0px 0px 5px 0px, rgb(0 0 0 / 10%) 0px 0px 1px 0px'
     }
   }
 })
