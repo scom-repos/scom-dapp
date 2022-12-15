@@ -63,11 +63,11 @@ export class Footer extends Module {
 
   render() {
     return (
-      <i-panel padding={{ top: '1rem', bottom: '1rem', right: '2rem', left: '2rem' }} background={{ color: Styles.Theme.ThemeVars.background.main }}>
+      <i-panel height={105} padding={{ top: '1rem', bottom: '1rem', right: '2rem', left: '2rem' }} background={{ color: Styles.Theme.ThemeVars.background.main }}>
         <i-hstack horizontalAlignment="space-between" verticalAlignment="center" width="100%">
           <i-vstack gap="0.5rem" width="100%">
             <i-hstack padding={{ bottom: '0.5rem' }} border={{ bottom: { width: 1, style: 'solid', color: Theme.divider } }} verticalAlignment="center" gap={8}>
-              <i-image id="imgLogo" class={logoStyle} />
+              <i-image id="imgLogo" class={logoStyle} height={40} />
               <i-label id="lblPoweredBy" caption='Powered by Secure Compute' font={{ bold: true }}></i-label>
             </i-hstack>
             <i-hstack gap={4} verticalAlignment="center" wrap="wrap">

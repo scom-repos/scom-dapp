@@ -445,6 +445,9 @@ declare module "@scom/dapp" {
         private menuItems;
         private _options;
         private currentModule;
+        private headerElm;
+        private footerElm;
+        private pnlScrollable;
         constructor(parent?: Container, options?: any);
         init(): Promise<void>;
         hideCurrentModule(): void;
@@ -455,6 +458,7 @@ declare module "@scom/dapp" {
         handleHashChange(): Promise<void>;
         mergeTheme: (target: Styles.Theme.ITheme, theme: Styles.Theme.ITheme) => Styles.Theme.ITheme;
         updateThemes(themes?: ITheme): void;
+        updateLayout(): void;
         render(): Promise<any>;
     }
 }
