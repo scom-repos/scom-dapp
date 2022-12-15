@@ -738,6 +738,7 @@ define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"]
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = components_4.Styles.Theme.ThemeVars;
     exports.default = components_4.Styles.style({
+        zIndex: 2,
         $nest: {
             '::-webkit-scrollbar-track': {
                 borderRadius: '12px',
@@ -812,11 +813,14 @@ define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"]
                 }
             },
             '.header-logo > img': {
-                width: '100%',
-                maxHeight: 50
+                maxHeight: 'unset',
+                maxWidth: 'unset'
             },
             '.wallet-modal > div': {
                 boxShadow: 'rgb(0 0 0 / 10%) 0px 0px 5px 0px, rgb(0 0 0 / 10%) 0px 0px 1px 0px'
+            },
+            '.wallet-modal .modal': {
+                minWidth: 200
             }
         }
     });
@@ -1555,15 +1559,15 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.mdMobileMenu.visible = !this.mdMobileMenu.visible;
         }
         render() {
-            return (this.$render("i-panel", { padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, background: { color: Theme.background.paper } },
+            return (this.$render("i-hstack", { height: 60, padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, background: { color: Theme.background.paper }, verticalAlignment: "center" },
                 this.$render("i-grid-layout", { width: '100%', position: "relative", verticalAlignment: 'center', templateColumns: ["1fr", "auto"] },
                     this.$render("i-hstack", { id: "hsMobileMenu", verticalAlignment: "center", width: "max-content", visible: false },
                         this.$render("i-icon", { id: "hamburger", class: 'pointer', name: "bars", width: "20px", height: "20px", display: "inline-block", margin: { right: 5 }, fill: Theme.text.primary, onClick: this.toggleMenu }),
                         this.$render("i-modal", { id: "mdMobileMenu", height: "auto", minWidth: "250px", showBackdrop: false, popupPlacement: "bottomLeft", background: { color: Theme.background.modal } },
                             this.$render("i-menu", { id: "menuMobile", mode: "inline" })),
-                        this.$render("i-image", { id: "imgMobileLogo", class: "header-logo", margin: { right: '0.5rem' } })),
+                        this.$render("i-image", { id: "imgMobileLogo", class: "header-logo", height: 40, margin: { right: '0.5rem' } })),
                     this.$render("i-hstack", { id: "hsDesktopMenu", wrap: "nowrap", verticalAlignment: "center", width: "100%", overflow: "hidden" },
-                        this.$render("i-image", { id: "imgDesktopLogo", class: "header-logo", margin: { right: '1.25rem' } }),
+                        this.$render("i-image", { id: "imgDesktopLogo", class: "header-logo", height: 40, margin: { right: '1.25rem' } }),
                         this.$render("i-menu", { id: "menuDesktop", width: "100%", border: { left: { color: Theme.divider, width: '1px', style: 'solid' } } })),
                     this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'end' },
                         this.$render("i-panel", null,
@@ -1572,7 +1576,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                             this.$render("i-label", { id: "lblBalance", font: { color: Theme.colors.primary.contrastText } })),
                         this.$render("i-panel", { id: "pnlWalletDetail", visible: false },
                             this.$render("i-button", { id: "btnWalletDetail", height: 38, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, margin: { left: '0.5rem' }, border: { radius: 5 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, onClick: this.openWalletDetailModal }),
-                            this.$render("i-modal", { id: "mdWalletDetail", class: "wallet-modal", height: "auto", maxWidth: 200, minWidth: 200, showBackdrop: false, popupPlacement: "bottomRight" },
+                            this.$render("i-modal", { id: "mdWalletDetail", class: "wallet-modal", height: "auto", maxWidth: 200, showBackdrop: false, popupPlacement: "bottomRight" },
                                 this.$render("i-vstack", { gap: 15, padding: { top: 10, left: 10, right: 10, bottom: 10 } },
                                     this.$render("i-button", { caption: "Account", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openAccountModal }),
                                     this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openSwitchModal }),
@@ -1592,7 +1596,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                     this.$render("i-vstack", { width: "100%", padding: { top: "1.75rem", bottom: "1rem", left: "2.75rem", right: "2.75rem" }, gap: 5 },
                         this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: 'center' },
                             this.$render("i-label", { font: { size: '0.875rem' }, caption: 'Connected with' }),
-                            this.$render("i-button", { caption: 'Logout', font: { color: Theme.text.primary }, background: { color: Theme.colors.error.light }, padding: { top: 6, bottom: 6, left: 10, right: 10 }, border: { radius: 5 }, onClick: this.logout })),
+                            this.$render("i-button", { caption: 'Logout', font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: 6, bottom: 6, left: 10, right: 10 }, border: { radius: 5 }, onClick: this.logout })),
                         this.$render("i-label", { id: "lblWalletAddress", font: { size: '1.25rem', bold: true, color: Theme.colors.primary.main }, lineHeight: 1.5 }),
                         this.$render("i-hstack", { verticalAlignment: "center", gap: "2.5rem" },
                             this.$render("i-hstack", { class: "pointer", verticalAlignment: "center", tooltip: { content: `The address has been copied`, trigger: 'click' }, gap: "0.5rem", onClick: this.copyWalletAddress },
@@ -1618,8 +1622,8 @@ define("@scom/dapp/footer.css.ts", ["require", "exports", "@ijstech/components"]
     exports.logoStyle = components_6.Styles.style({
         $nest: {
             '> img': {
-                width: '100%',
-                maxHeight: 50
+                maxHeight: 'unset',
+                maxWidth: 'unset'
             }
         }
     });
@@ -1657,11 +1661,11 @@ define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@
                 this.imgLogo.url = url;
         }
         render() {
-            return (this.$render("i-panel", { padding: { top: '1rem', bottom: '1rem', right: '2rem', left: '2rem' }, background: { color: components_7.Styles.Theme.ThemeVars.background.main } },
+            return (this.$render("i-panel", { height: 105, padding: { top: '1rem', bottom: '1rem', right: '2rem', left: '2rem' }, background: { color: components_7.Styles.Theme.ThemeVars.background.main } },
                 this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: "center", width: "100%" },
                     this.$render("i-vstack", { gap: "0.5rem", width: "100%" },
                         this.$render("i-hstack", { padding: { bottom: '0.5rem' }, border: { bottom: { width: 1, style: 'solid', color: Theme.divider } }, verticalAlignment: "center", gap: 8 },
-                            this.$render("i-image", { id: "imgLogo", class: footer_css_1.logoStyle }),
+                            this.$render("i-image", { id: "imgLogo", class: footer_css_1.logoStyle, height: 40 }),
                             this.$render("i-label", { id: "lblPoweredBy", caption: 'Powered by Secure Compute', font: { bold: true } })),
                         this.$render("i-hstack", { gap: 4, verticalAlignment: "center", wrap: "wrap" },
                             this.$render("i-label", { id: "lblCopyright", font: { color: Theme.text.secondary, size: '0.875em' } }),
@@ -1716,6 +1720,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             wallet_3.updateWallets(this.options);
             this.updateThemes(this.options.themes);
             super.init();
+            this.updateLayout();
         }
         ;
         hideCurrentModule() {
@@ -1792,11 +1797,34 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             const theme = themes.default === 'light' ? components_8.Styles.Theme.defaultTheme : components_8.Styles.Theme.darkTheme;
             components_8.Styles.Theme.applyTheme(theme);
         }
+        updateLayout() {
+            var _a, _b;
+            const header = this._options.header || {};
+            const footer = this._options.footer || {};
+            this.headerElm.visible = (_a = header.visible) !== null && _a !== void 0 ? _a : true;
+            this.footerElm.visible = (_b = footer.visible) !== null && _b !== void 0 ? _b : true;
+            if (header.fixed && footer.fixed) {
+                this.pnlMain.overflow.y = 'auto';
+            }
+            else {
+                if (header.fixed) {
+                    this.pnlScrollable.append(this.pnlMain);
+                    this.pnlScrollable.append(this.footerElm);
+                    this.pnlScrollable.visible = true;
+                }
+                else if (footer.fixed) {
+                    this.pnlScrollable.append(this.headerElm);
+                    this.pnlScrollable.append(this.pnlMain);
+                    this.pnlScrollable.visible = true;
+                }
+            }
+        }
         async render() {
-            return this.$render("i-vstack", { height: "inherit" },
+            return (this.$render("i-vstack", { height: "inherit" },
                 this.$render("main-header", { id: "headerElm", menuItems: this.menuItems, height: "auto", width: "100%" }),
-                this.$render("i-panel", { id: "pnlMain", stack: { grow: "1", shrink: "0" } }),
-                this.$render("main-footer", { id: "footerElm", stack: { shrink: '0' }, class: 'footer', height: "auto", width: "100%", copyrightInfo: this._options.copyrightInfo, version: this._options.version }));
+                this.$render("i-vstack", { id: "pnlScrollable", visible: false, stack: { grow: "1" }, overflow: { y: 'auto' } }),
+                this.$render("i-panel", { id: "pnlMain", stack: { grow: "1" } }),
+                this.$render("main-footer", { id: "footerElm", stack: { shrink: '0' }, class: 'footer', height: "auto", width: "100%", copyrightInfo: this._options.copyrightInfo, version: this._options.version })));
         }
         ;
     };

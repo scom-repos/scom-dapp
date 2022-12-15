@@ -81,11 +81,14 @@
         },
         "light": {}
     },
-    "copyright": "&#169; 2022 IJS Technologies. All rights reserved.",
+    "copyrightInfo": "&#169; 2022 IJS Technologies. All rights reserved.",
     "version": "0.1.0-beta",
     "breakpoints": {
         "mobile": 414,
         "tablet": 1280,
         "desktop": 1920
+    },
+    "header": {
+        "fixed": true
     }
 }

@@ -2,6 +2,7 @@ import { Styles } from '@ijstech/components';
 const Theme = Styles.Theme.ThemeVars;
 
 export default Styles.style({
+  zIndex: 2,
   $nest: {
     '::-webkit-scrollbar-track': {
       borderRadius: '12px',
@@ -76,11 +77,14 @@ export default Styles.style({
       }
     },
     '.header-logo > img': {
-      width: '100%',
-      maxHeight: 50
+      maxHeight: 'unset',
+      maxWidth: 'unset'
     },
     '.wallet-modal > div': {
       boxShadow: 'rgb(0 0 0 / 10%) 0px 0px 5px 0px, rgb(0 0 0 / 10%) 0px 0px 1px 0px'
+    },
+    '.wallet-modal .modal': {
+      minWidth: 200
     }
   }
 })

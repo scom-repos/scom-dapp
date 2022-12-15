@@ -465,8 +465,12 @@ export class Header extends Module {
 
   render() {
     return (
-      <i-panel padding={{ top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }} background={{ color: Theme.background.paper }}>
-        {/* <i-hstack width="100%" position="relative" horizontalAlignment='space-between' wrap='wrap'> */}
+      <i-hstack
+        height={60}
+        padding={{ top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }}
+        background={{ color: Theme.background.paper }}
+        verticalAlignment="center"
+      >
           <i-grid-layout width='100%' position="relative" verticalAlignment='center' templateColumns={["1fr", "auto"]}>
             <i-hstack
               id="hsMobileMenu"
@@ -498,6 +502,7 @@ export class Header extends Module {
               <i-image
                 id="imgMobileLogo"
                 class="header-logo"
+                height={40}
                 margin={{ right: '0.5rem' }}
               />
 
@@ -506,6 +511,7 @@ export class Header extends Module {
               <i-image
                 id="imgDesktopLogo"
                 class="header-logo"
+                height={40}
                 margin={{ right: '1.25rem' }}
               />
               <i-menu id="menuDesktop" width="100%" border={{ left: { color: Theme.divider, width: '1px', style: 'solid' } }}></i-menu>
@@ -552,7 +558,6 @@ export class Header extends Module {
                   class="wallet-modal"
                   height="auto"
                   maxWidth={200}
-                  minWidth={200}
                   showBackdrop={false}
                   popupPlacement="bottomRight"
                 >
@@ -602,7 +607,6 @@ export class Header extends Module {
               ></i-button>
             </i-hstack>
           </i-grid-layout>
-        {/* </i-hstack> */}
         <i-modal
           id='mdNetwork'
           title='Supported Network'
@@ -684,7 +688,7 @@ export class Header extends Module {
               <i-label font={{ size: '0.875rem' }} caption='Connected with' />
               <i-button
                 caption='Logout'
-                font={{ color: Theme.text.primary }}
+                font={{ color: Theme.colors.error.contrastText }}
                 background={{ color: Theme.colors.error.light }}
                 padding={{ top: 6, bottom: 6, left: 10, right: 10 }}
                 border={{ radius: 5 }}
@@ -715,7 +719,7 @@ export class Header extends Module {
             </i-hstack>
           </i-vstack>
         </i-modal>
-      </i-panel>
+      </i-hstack>
     )
   }
 }

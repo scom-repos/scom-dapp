@@ -4,27 +4,29 @@ import { updateNetworks } from './network';
 import { updateWallets } from './wallet';
 export { Header } from './header';
 export { Footer } from './footer';
-import {match, MatchFunction, compile} from './pathToRegexp'
+import { match, MatchFunction, compile } from './pathToRegexp'
 import { assets } from './assets';
+import { Header } from './header';
+import { Footer } from './footer';
 Styles.Theme.applyTheme(Styles.Theme.darkTheme);
-interface IMenu{
+interface IMenu {
 	caption: string;
 	url: string;
 	module: string;
 	params?: any;
 	env?: string;
 	networks?: number[];
-  isToExternal?: boolean;
-  img?: string;
-  isDisabled?: boolean;
+	isToExternal?: boolean;
+	img?: string;
+	isDisabled?: boolean;
 	menus?: IMenu[];
 	regex?: MatchFunction;
 };
-interface ISCConfig{
+interface ISCConfig {
 	env: string;
 	moduleDir?: string;
-	modules: {[name: string]: {path: string, dependencies: string[]}};
-	dependencies?: {[name: string]: string};
+	modules: { [name: string]: { path: string, dependencies: string[] } };
+	dependencies?: { [name: string]: string };
 	menus: IMenu[];
 	routes: IRoute[];
 	networks?: INetwork[] | "*";
@@ -33,6 +35,8 @@ interface ISCConfig{
 	wallet?: string[];
 	themes?: ITheme;
 	breakpoints?: IBreakpoints;
+	header?: IHeaderFooter;
+	footer?: IHeaderFooter;
 };
 interface INetwork {
 	name?: string,
@@ -62,12 +66,19 @@ interface IBreakpoints {
 	tablet: number;
 	desktop: number;
 }
+interface IHeaderFooter {
+	visible?: boolean,
+	fixed?: boolean
+}
 @customModule
 export default class MainLauncher extends Module {
 	private pnlMain: Panel;
 	private menuItems: any[];
 	private _options: ISCConfig;
 	private currentModule: Module;
+	private headerElm: Header;
+	private footerElm: Footer;
+	private pnlScrollable: Panel;
 
 	constructor(parent?: Container, options?: any) {
 		super(parent, options);
@@ -75,13 +86,13 @@ export default class MainLauncher extends Module {
 		this._options = options;
 		let defaultRoute: IRoute | undefined = this._options?.routes?.find(route => route.default);
 		if (defaultRoute && !location.hash) {
-      const toPath = compile(defaultRoute.url, { encode: encodeURIComponent });
+			const toPath = compile(defaultRoute.url, { encode: encodeURIComponent });
 			location.hash = toPath();
 		} else {
 			this.handleHashChange()
 		}
 	};
-	async init(){		
+	async init() {
 		window.onhashchange = this.handleHashChange.bind(this);
 		this.menuItems = this.options.menus || [];
 		assets.breakpoints = this.options.breakpoints;
@@ -89,8 +100,9 @@ export default class MainLauncher extends Module {
 		updateWallets(this.options);
 		this.updateThemes(this.options.themes)
 		super.init();
+		this.updateLayout();
 	};
-	hideCurrentModule(){
+	hideCurrentModule() {
 		if (this.currentModule) {
 			this.currentModule.style.display = 'none';
 			this.currentModule.onHide();
@@ -99,29 +111,29 @@ export default class MainLauncher extends Module {
 	async getModuleByPath(path: string): Promise<{
 		module: Module,
 		params?: any
-	}>{
+	}> {
 		let menu: IMenu | IRoute;
 		let params: any;
-		let list: Array<IMenu | IRoute> = [ ...this._options.routes || [], ...this._options.menus || []];
-		for (let i = 0; i < list.length; i ++){
+		let list: Array<IMenu | IRoute> = [...this._options.routes || [], ...this._options.menus || []];
+		for (let i = 0; i < list.length; i++) {
 			let item = list[i];
-			if (item.url == path){
+			if (item.url == path) {
 				menu = item;
 				break;
 			}
-			else { 
+			else {
 				if (!item.regex)
 					item.regex = match(item.url, { decode: decodeURIComponent })
-					
+
 				let _match = item.regex(path);
-				if (_match !== false){
+				if (_match !== false) {
 					menu = item;
 					params = "params" in menu ? Object.assign({ ...menu.params }, _match.params) : _match.params;
 					break;
 				};
 			};
 		};
-		if (menu){
+		if (menu) {
 			let menuObj: any = menu;
 			if (!menuObj.moduleObject) {
 				menuObj.moduleObject = await application.loadModule(menu.module, this._options);
@@ -133,15 +145,15 @@ export default class MainLauncher extends Module {
 			};
 		}
 	};
-	async handleHashChange(){
+	async handleHashChange() {
 		let path = location.hash.split("?")[0];
 		if (path.startsWith('#/'))
-			path = path.substring(1);		
+			path = path.substring(1);
 		let module = await this.getModuleByPath(path);
 		if (module?.module != this.currentModule)
 			this.hideCurrentModule();
 		this.currentModule = module?.module;
-		if (module){
+		if (module) {
 			if (this.pnlMain.contains(module.module))
 				module.module.style.display = 'initial';
 			else
@@ -169,19 +181,41 @@ export default class MainLauncher extends Module {
 		const theme = themes.default === 'light' ? Styles.Theme.defaultTheme : Styles.Theme.darkTheme;
 		Styles.Theme.applyTheme(theme);
 	}
+	updateLayout() {
+		const header = this._options.header || {};
+		const footer = this._options.footer || {};
+		this.headerElm.visible = header.visible ?? true;
+		this.footerElm.visible = footer.visible ?? true;
+		if (header.fixed && footer.fixed) {
+			this.pnlMain.overflow.y = 'auto';
+		} else {
+			if (header.fixed) {
+				this.pnlScrollable.append(this.pnlMain);
+				this.pnlScrollable.append(this.footerElm);
+				this.pnlScrollable.visible = true;
+			} else if (footer.fixed) {
+				this.pnlScrollable.append(this.headerElm);
+				this.pnlScrollable.append(this.pnlMain);
+				this.pnlScrollable.visible = true;
+			}
+		}
+	}
 	async render() {
-		return <i-vstack height="inherit">
-			<main-header id="headerElm" menuItems={this.menuItems} height="auto" width="100%"></main-header>
-			<i-panel id="pnlMain" stack={{ grow: "1", shrink: "0" }} ></i-panel>
-			<main-footer
-				id="footerElm"
-				stack={{ shrink: '0' }}
-				class='footer'
-				height="auto"
-				width="100%"
-				copyrightInfo={this._options.copyrightInfo}
-				version={this._options.version}
-			></main-footer>
-		</i-vstack>
+		return (
+			<i-vstack height="inherit">
+				<main-header id="headerElm" menuItems={this.menuItems} height="auto" width="100%"></main-header>
+				<i-vstack id="pnlScrollable" visible={false} stack={{ grow: "1" }} overflow={{ y: 'auto' }}></i-vstack>
+				<i-panel id="pnlMain" stack={{ grow: "1" }} ></i-panel>
+				<main-footer
+					id="footerElm"
+					stack={{ shrink: '0' }}
+					class='footer'
+					height="auto"
+					width="100%"
+					copyrightInfo={this._options.copyrightInfo}
+					version={this._options.version}
+				></main-footer>
+			</i-vstack>
+		)
 	};
 };
