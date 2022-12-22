@@ -1737,6 +1737,8 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
                 let item = list[i];
                 if (item.url == path) {
                     menu = item;
+                    if ("params" in menu)
+                        params = menu.params;
                     break;
                 }
                 else {
