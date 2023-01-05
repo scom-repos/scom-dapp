@@ -1498,8 +1498,14 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             let chainChangedEventHandler = async (hexChainId) => {
                 this.updateConnectedStatus(true);
             };
-            const selectedProvider = localStorage.getItem('walletProvider');
+            let selectedProvider = localStorage.getItem('walletProvider');
+            if (!selectedProvider && wallet_2.hasMetaMask()) {
+                selectedProvider = eth_wallet_5.WalletPlugin.MetaMask;
+            }
             const isValidProvider = Object.values(eth_wallet_5.WalletPlugin).includes(selectedProvider);
+            if (!eth_wallet_5.Wallet.getClientInstance().chainId) {
+                eth_wallet_5.Wallet.getClientInstance().chainId = network_2.getDefaultChainId();
+            }
             if (network_2.hasWallet() && isValidProvider) {
                 await network_2.connectWallet(selectedProvider, {
                     'accountsChanged': accountsChangedEventHandler,

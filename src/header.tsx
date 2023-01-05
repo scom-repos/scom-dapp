@@ -34,7 +34,7 @@ import {
   viewOnExplorerByAddress,
   getNetworkType
 } from './network';
-import { getSupportedWallets } from './wallet';
+import { getSupportedWallets, hasMetaMask } from './wallet';
 import { compile } from './pathToRegexp'
 
 const Theme = Styles.Theme.ThemeVars;
@@ -397,14 +397,20 @@ export class Header extends Module {
     let chainChangedEventHandler = async (hexChainId: number) => {
       this.updateConnectedStatus(true);
     }
-    const selectedProvider = localStorage.getItem('walletProvider') as WalletPlugin;
-    const isValidProvider = Object.values(WalletPlugin).includes(selectedProvider);
-    if (hasWallet() && isValidProvider) {
-      await connectWallet(selectedProvider, {
-        'accountsChanged': accountsChangedEventHandler,
-        'chainChanged': chainChangedEventHandler
-      });
-    }
+		let selectedProvider = localStorage.getItem('walletProvider') as WalletPlugin;
+		if (!selectedProvider && hasMetaMask()) {
+			selectedProvider = WalletPlugin.MetaMask;
+		}
+		const isValidProvider = Object.values(WalletPlugin).includes(selectedProvider);
+		if (!Wallet.getClientInstance().chainId) {
+			Wallet.getClientInstance().chainId = getDefaultChainId();
+		}
+		if (hasWallet() && isValidProvider) {
+			await connectWallet(selectedProvider, {
+				'accountsChanged': accountsChangedEventHandler,
+				'chainChanged': chainChangedEventHandler
+			});
+		}
   }
 
   getMenuPath(url: string, params: any) {
