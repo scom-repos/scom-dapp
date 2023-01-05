@@ -17,7 +17,9 @@
       "path": "module3"
     }
   },
-  "dependencies": {},
+  "dependencies": {
+    "@scom/dapp": "*"
+  },
   "menus": [
     {
       "caption": "Module 1",

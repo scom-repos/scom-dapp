@@ -196,7 +196,7 @@ export class Header extends Module {
   onChainChanged = async (chainId: number) => {
     this.walletInfo.networkId = chainId;
     this.selectedNetwork = getNetworkInfo(chainId);
-    let wallet = Wallet.getInstance();
+    let wallet = Wallet.getClientInstance();
     const isConnected = wallet.isConnected;
     this.walletInfo.balance = isConnected ? formatNumber((await wallet.balance).toFixed(), 2) : '0';
     this.updateConnectedStatus(isConnected);
@@ -230,7 +230,7 @@ export class Header extends Module {
   }
 
   updateDot(connected: boolean, type: 'network' | 'wallet') {
-    const wallet = Wallet.getInstance();
+    const wallet = Wallet.getClientInstance();
     if (type === 'network') {
       if (this.currActiveNetworkId !== undefined && this.currActiveNetworkId !== null && this.networkMapper.has(this.currActiveNetworkId)) {
         this.networkMapper.get(this.currActiveNetworkId).classList.remove('is-actived');
@@ -324,7 +324,7 @@ export class Header extends Module {
 
   isWalletActive(walletPlugin) {
     const provider = walletPlugin.toLowerCase();
-    return Wallet.isInstalled(walletPlugin) && Wallet.getInstance().clientSideProvider?.walletPlugin === provider;
+    return Wallet.isInstalled(walletPlugin) && Wallet.getClientInstance().clientSideProvider?.walletPlugin === provider;
   }
 
   isNetworkActive(chainId: number) {

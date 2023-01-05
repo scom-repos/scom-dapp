@@ -352,13 +352,13 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@s
     ;
     ;
     function isWalletConnected() {
-        const wallet = eth_wallet_3.Wallet.getInstance();
+        const wallet = eth_wallet_3.Wallet.getClientInstance();
         return wallet.isConnected;
     }
     exports.isWalletConnected = isWalletConnected;
     async function connectWallet(walletPlugin, eventHandlers) {
         // let walletProvider = localStorage.getItem('walletProvider') || '';
-        let wallet = eth_wallet_3.Wallet.getInstance();
+        let wallet = eth_wallet_3.Wallet.getClientInstance();
         const walletOptions = ''; //getWalletOptions();
         let providerOptions = walletOptions[walletPlugin];
         if (!wallet.chainId) {
@@ -372,7 +372,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@s
                 }
                 const connected = !!account;
                 if (connected) {
-                    localStorage.setItem('walletProvider', ((_b = (_a = eth_wallet_3.Wallet.getInstance()) === null || _a === void 0 ? void 0 : _a.clientSideProvider) === null || _b === void 0 ? void 0 : _b.walletPlugin) || '');
+                    localStorage.setItem('walletProvider', ((_b = (_a = eth_wallet_3.Wallet.getClientInstance()) === null || _a === void 0 ? void 0 : _a.clientSideProvider) === null || _b === void 0 ? void 0 : _b.walletPlugin) || '');
                 }
                 components_3.application.EventBus.dispatch("isWalletConnected" /* IsWalletConnected */, connected);
             },
@@ -393,14 +393,14 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@s
             components_3.application.EventBus.dispatch("chainChanged" /* chainChanged */, chainId);
             return;
         }
-        const wallet = eth_wallet_3.Wallet.getInstance();
+        const wallet = eth_wallet_3.Wallet.getClientInstance();
         if (((_a = wallet === null || wallet === void 0 ? void 0 : wallet.clientSideProvider) === null || _a === void 0 ? void 0 : _a.walletPlugin) === eth_wallet_3.WalletPlugin.MetaMask) {
             await wallet.switchNetwork(chainId);
         }
     }
     exports.switchNetwork = switchNetwork;
     async function logoutWallet() {
-        const wallet = eth_wallet_3.Wallet.getInstance();
+        const wallet = eth_wallet_3.Wallet.getClientInstance();
         await wallet.disconnect();
         localStorage.setItem('walletProvider', '');
         components_3.application.EventBus.dispatch("IsWalletDisconnected" /* IsWalletDisconnected */, false);
@@ -588,7 +588,7 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
     };
     exports.updateNetworks = updateNetworks;
     function registerSendTxEvents(sendTxEventHandlers) {
-        const wallet = eth_wallet_4.Wallet.getInstance();
+        const wallet = eth_wallet_4.Wallet.getClientInstance();
         wallet.registerSendTxEvents({
             transactionHash: (error, receipt) => {
                 if (sendTxEventHandlers.transactionHash) {
@@ -637,7 +637,8 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         state.networkMap = {};
         state.defaultNetworkFromWallet = networkList === "*";
         if (state.defaultNetworkFromWallet) {
-            const networksMap = getWallet().networksMap;
+            const wallet = getWallet();
+            const networksMap = wallet.networksMap;
             for (const chainId in networksMap) {
                 const networkInfo = networksMap[chainId];
                 const rpc = networkInfo.rpcUrls && networkInfo.rpcUrls.length ? networkInfo.rpcUrls[0] : "";
@@ -1253,7 +1254,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.onChainChanged = async (chainId) => {
                 this.walletInfo.networkId = chainId;
                 this.selectedNetwork = network_2.getNetworkInfo(chainId);
-                let wallet = eth_wallet_5.Wallet.getInstance();
+                let wallet = eth_wallet_5.Wallet.getClientInstance();
                 const isConnected = wallet.isConnected;
                 this.walletInfo.balance = isConnected ? network_1.formatNumber((await wallet.balance).toFixed(), 2) : '0';
                 this.updateConnectedStatus(isConnected);
@@ -1427,7 +1428,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         }
         updateDot(connected, type) {
             var _a, _b, _c;
-            const wallet = eth_wallet_5.Wallet.getInstance();
+            const wallet = eth_wallet_5.Wallet.getClientInstance();
             if (type === 'network') {
                 if (this.currActiveNetworkId !== undefined && this.currActiveNetworkId !== null && this.networkMapper.has(this.currActiveNetworkId)) {
                     this.networkMapper.get(this.currActiveNetworkId).classList.remove('is-actived');
@@ -1469,7 +1470,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         isWalletActive(walletPlugin) {
             var _a;
             const provider = walletPlugin.toLowerCase();
-            return eth_wallet_5.Wallet.isInstalled(walletPlugin) && ((_a = eth_wallet_5.Wallet.getInstance().clientSideProvider) === null || _a === void 0 ? void 0 : _a.walletPlugin) === provider;
+            return eth_wallet_5.Wallet.isInstalled(walletPlugin) && ((_a = eth_wallet_5.Wallet.getClientInstance().clientSideProvider) === null || _a === void 0 ? void 0 : _a.walletPlugin) === provider;
         }
         isNetworkActive(chainId) {
             return eth_wallet_5.Wallet.getInstance().chainId === chainId;
@@ -1703,7 +1704,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             this.classList.add(index_css_1.default);
             this._options = options;
             let defaultRoute = (_b = (_a = this._options) === null || _a === void 0 ? void 0 : _a.routes) === null || _b === void 0 ? void 0 : _b.find(route => route.default);
-            if (defaultRoute && !location.hash) {
+            if (defaultRoute && (!location.hash || location.hash === '#/')) {
                 const toPath = pathToRegexp_2.compile(defaultRoute.url, { encode: encodeURIComponent });
                 location.hash = toPath();
             }

@@ -4,8 +4,11 @@
     "author": "https://ijs.network",
     "license": "MIT",
     "main": "dist/index.js",
+    "plugin": "dist",
+    "types": "types/index.d.ts",
     "dependencies": {
-        "@ijstech/components": "^0.1.29",
+        "@ijstech/components": "^0.1.35",
+        "@ijstech/eth-contract": "^0.1.14",
         "@ijstech/eth-wallet": "^0.1.35"
     },
     "devDependencies": {

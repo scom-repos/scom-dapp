@@ -25,6 +25,7 @@
     },
     "dependencies": {
         "@ijstech/eth-wallet": "*",
+        "@ijstech/eth-contract": "*",
         "@scom/dapp": "*"
     },
     "menus": [
