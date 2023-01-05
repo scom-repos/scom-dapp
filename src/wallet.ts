@@ -3,7 +3,6 @@ import {
 } from '@ijstech/components';
 import { walletList } from './walletList';
 import {IWallet, Wallet, WalletPlugin } from '@ijstech/eth-wallet';
-// import { getDefaultChainId } from '.';
 
 export interface INetwork {
   chainId: number;
@@ -26,13 +25,13 @@ export const enum EventId {
 };
 
 export function isWalletConnected() {
-  const wallet = Wallet.getInstance();
+  const wallet = Wallet.getClientInstance();
   return wallet.isConnected;
 }
 
 export async function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: { [key: string]: Function }):Promise<IWallet> {
   // let walletProvider = localStorage.getItem('walletProvider') || '';
-  let wallet = Wallet.getInstance();
+  let wallet = Wallet.getClientInstance();
   const walletOptions = '';//getWalletOptions();
   let providerOptions = walletOptions[walletPlugin];
   if (!wallet.chainId) {
@@ -45,7 +44,7 @@ export async function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: 
       }
       const connected = !!account;
       if (connected) {
-        localStorage.setItem('walletProvider', Wallet.getInstance()?.clientSideProvider?.walletPlugin || '');
+        localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.walletPlugin || '');
       }
       application.EventBus.dispatch(EventId.IsWalletConnected, connected);
     },
@@ -66,14 +65,14 @@ export async function switchNetwork(chainId: number) {
     application.EventBus.dispatch(EventId.chainChanged, chainId);
     return;
   }
-  const wallet = Wallet.getInstance();
+  const wallet = Wallet.getClientInstance();
   if (wallet?.clientSideProvider?.walletPlugin === WalletPlugin.MetaMask) {
     await wallet.switchNetwork(chainId);
   }
 }
 
 export async function logoutWallet() {
-  const wallet = Wallet.getInstance();
+  const wallet = Wallet.getClientInstance();
   await wallet.disconnect();
   localStorage.setItem('walletProvider', '');
   application.EventBus.dispatch(EventId.IsWalletDisconnected, false);

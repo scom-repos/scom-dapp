@@ -1865,9 +1865,7 @@ var AMDLoader;
             moduleManager.enqueueDefineAnonymousModule(dependencies, callback);
         }
     };
-    // DefineFunc.amd = {
-    //     jQuery: true
-    // };
+    DefineFunc.amd = true;
     var _requireFunc_config = function (params, shouldOverwrite) {
         if (shouldOverwrite === void 0) { shouldOverwrite = false; }
         moduleManager.configure(params, shouldOverwrite);
@@ -10018,6 +10016,7 @@ __export(exports, {
   Unobserve: () => Unobserve,
   Upload: () => Upload,
   VStack: () => VStack,
+  Video: () => Video,
   application: () => application,
   customElements: () => customElements2,
   customModule: () => customModule,
@@ -10396,8 +10395,8 @@ var defaultTheme = {
   background: {
     default: "#fafafa",
     paper: "#fff",
-    main: "#181e3e",
-    modal: "#192046",
+    main: "#ffffff",
+    modal: "#ffffff",
     gradient: "linear-gradient(90deg, #a8327f 0%, #d4626a 100%)"
   },
   breakboints: {
@@ -10444,6 +10443,14 @@ var defaultTheme = {
       dark: "#f57c00",
       light: "#ffb74d",
       main: "#ff9800"
+    }
+  },
+  layout: {
+    container: {
+      width: "100%",
+      maxWidth: "100%",
+      textAlign: "left",
+      overflow: "auto"
     }
   },
   shadows: {
@@ -10542,6 +10549,14 @@ var darkTheme = {
       dark: "#f57c00",
       light: "#ffb74d",
       main: "#ffa726"
+    }
+  },
+  layout: {
+    container: {
+      width: "100%",
+      maxWidth: "100%",
+      textAlign: "left",
+      overflow: "auto"
     }
   },
   divider: "rgba(255, 255, 255, 0.12)",
@@ -11855,6 +11870,9 @@ var Component = class extends HTMLElement {
   }
   init() {
     this.initialized = true;
+    if (this.options["class"]) {
+      this.setAttribute("class", this.options["class"]);
+    }
     if (this._ready === void 0) {
       this._ready = true;
       if (this._readyCallback) {
@@ -12164,7 +12182,7 @@ cssRule("body", {
       maxWidth: "300px",
       overflowWrap: "break-word",
       fontWeight: 500,
-      zIndex: 10
+      zIndex: 9999
     },
     ".ii-tooltip-top::after": {
       content: "''",
@@ -13461,7 +13479,7 @@ var Control = class extends Component {
     this.style.fontFamily = value.name || "";
     this.style.fontStyle = value.style || "";
     this.style.textTransform = value.transform || "none";
-    this.style.fontWeight = value.bold ? "bold" : `${value.weight}` || "";
+    this.style.fontWeight = value.bold ? "bold" : `${value.weight || ""}`;
   }
   get display() {
     return this._display;
@@ -13632,8 +13650,8 @@ var RequireJS = {
   config(config) {
     window.require.config(config);
   },
-  require(reqs, callback) {
-    window.require(reqs, callback);
+  require(reqs2, callback) {
+    window.require(reqs2, callback);
   },
   defined(module2) {
     return window.require.defined(module2);
@@ -14091,28 +14109,33 @@ var Application = class {
     return result;
   }
   async loadPackage(packageName, modulePath, options) {
-    var _a, _b;
-    if (RequireJS.defined(packageName)) {
-      if (!this.packages[packageName]) {
-        let m = window["require"](packageName);
-        if (m)
-          this.packages[packageName] = m.default || m;
+    var _a, _b, _c;
+    options = options || this._initOptions;
+    if (options && options.modules && options.modules[packageName]) {
+      let pack = options.modules[packageName];
+      for (let i = 0; i < ((_a = pack.dependencies) == null ? void 0 : _a.length); i++) {
+        let n = pack.dependencies[i];
+        if (!RequireJS.defined(n))
+          await this.loadPackage(n);
       }
-      return this.packages[packageName];
+      ;
     }
     ;
-    let libPath = LibPath || "";
-    if (LibPath && !LibPath.endsWith("/"))
-      libPath = libPath + "/";
     if (!modulePath) {
-      if ((_a = options == null ? void 0 : options.modules) == null ? void 0 : _a[packageName])
-        modulePath = "modules/" + ((_b = options == null ? void 0 : options.modules) == null ? void 0 : _b[packageName].path) + "/index.js";
+      if ((_b = options == null ? void 0 : options.modules) == null ? void 0 : _b[packageName])
+        modulePath = ((options == null ? void 0 : options.rootDir) ? options.rootDir + "/" : "") + "modules/" + ((_c = options == null ? void 0 : options.modules) == null ? void 0 : _c[packageName].path) + "/index.js";
       else
         return null;
-    } else if (modulePath == "*")
-      modulePath = "libs/" + packageName + "/index.js";
-    else if (modulePath.startsWith("{LIB}/"))
+    } else if (modulePath == "*") {
+      modulePath = ((options == null ? void 0 : options.rootDir) ? options.rootDir + "/" : "") + "libs/" + packageName + "/index.js";
+    } else if (modulePath.startsWith("{LIB}/")) {
+      let libPath = LibPath || "";
+      if (LibPath && !LibPath.endsWith("/"))
+        libPath = libPath + "/";
       modulePath = modulePath.replace("{LIB}/", libPath);
+    }
+    if (this.packages[modulePath])
+      return this.packages[modulePath];
     let script = await this.getScript(modulePath);
     if (script) {
       _currentDefineModule = null;
@@ -14125,64 +14148,72 @@ var Application = class {
       this.currentModulePath = "";
       this.currentModuleDir = "";
       let m = window["require"](packageName);
-      if (m)
+      if (m) {
+        this.packages[modulePath] = m.default || m;
         return m.default || m;
+      }
     }
     ;
     return null;
   }
-  async loadModule(modulePath, options) {
-    let module2 = await this.newModule(modulePath, options);
+  async loadModule(modulePath, options, forceInit) {
+    let module2 = await this.newModule(modulePath, options, forceInit);
     if (module2)
       document.body.append(module2);
     return module2;
   }
-  async newModule(module2, options) {
+  getModulePath(module2) {
+    let options = this._initOptions;
     let modulePath = module2;
-    if (options) {
-      if (!this._assets && options.assets)
-        this._assets = await this.loadPackage(options.assets, "", options) || {};
-      if (options.modules && options.modules[module2] && options.modules[module2].path) {
-        modulePath = "/";
-        if (options.rootDir)
-          modulePath += options.rootDir + "/";
-        if (options.moduleDir)
-          modulePath += options.moduleDir + "/";
-        modulePath += options.modules[module2].path;
-        if (!modulePath.endsWith(".js"))
-          modulePath += "/index.js";
-      } else if (options.dependencies && options.dependencies[module2])
-        modulePath = `libs/${module2}/index.js`;
-    }
-    ;
-    let elmId = this.modulesId[modulePath];
-    if (elmId && modulePath)
-      return document.createElement(elmId);
-    if (options && options.dependencies) {
-      for (let p in options.dependencies) {
-        if (p != options.main)
-          await this.loadPackage(p, options.dependencies[p]);
+    if (options && options.modules && options.modules[module2] && options.modules[module2].path) {
+      modulePath = "";
+      if (options.rootDir)
+        modulePath += options.rootDir + "/";
+      if (options.moduleDir)
+        modulePath += options.moduleDir + "/";
+      modulePath += options.modules[module2].path;
+      if (!modulePath.endsWith(".js"))
+        modulePath += "/index.js";
+    } else if (options.dependencies && options.dependencies[module2])
+      modulePath = `${(options == null ? void 0 : options.rootDir) ? options.rootDir + "/" : ""}libs/${module2}/index.js`;
+    return modulePath;
+  }
+  async newModule(module2, options, forceInit) {
+    const _initOptions = this._initOptions;
+    if ((!this._initOptions || forceInit) && options) {
+      this._initOptions = options;
+      if (!this._assets && this._initOptions.assets)
+        this._assets = await this.loadPackage(this._initOptions.assets) || {};
+      if (this._initOptions.dependencies) {
+        for (let p in this._initOptions.dependencies) {
+          if (p != this._initOptions.main)
+            await this.loadPackage(p, this._initOptions.dependencies[p]);
+        }
+        ;
       }
+      ;
     }
     ;
+    let modulePath = module2;
+    if (this._initOptions)
+      modulePath = this.getModulePath(module2);
+    let elmId = this.modulesId[modulePath];
+    if (elmId && modulePath) {
+      if (forceInit && _initOptions)
+        this._initOptions = _initOptions;
+      return document.createElement(elmId);
+    }
     let script;
     if (options && options.script)
       script = options.script;
     else {
-      if (options && options.modules && options.modules[module2] && options.modules[module2].dependencies) {
-        let dependencies = options.modules[module2].dependencies;
+      if (this._initOptions && this._initOptions.modules && this._initOptions.modules[module2] && this._initOptions.modules[module2].dependencies) {
+        let dependencies = this._initOptions.modules[module2].dependencies;
         for (let i = 0; i < dependencies.length; i++) {
-          let pack = options.modules[dependencies[i]];
-          if (pack && pack.path) {
-            let path = "/";
-            if (options.rootDir)
-              path += options.rootDir + "/";
-            if (options.moduleDir)
-              path += options.moduleDir + "/";
-            path += pack.path;
-            if (!pack.path.endsWith(".js"))
-              path += "/index.js";
-            await this.loadPackage(dependencies[i], path, options);
+          let dep = dependencies[i];
+          let path = this.getModulePath(dep);
+          if (!this.packages[path]) {
+            await this.loadPackage(dep, path);
           }
           ;
         }
@@ -14203,6 +14234,9 @@ var Application = class {
       document.getElementsByTagName("html")[0].classList.add(applicationStyle);
       this.currentModulePath = "";
       this.currentModuleDir = "";
+      if (!_currentDefineModule && this.packages[modulePath]) {
+        _currentDefineModule = this.packages[modulePath];
+      }
       if (_currentDefineModule) {
         let module3 = _currentDefineModule.default || _currentDefineModule;
         if (module3) {
@@ -14213,11 +14247,15 @@ var Application = class {
           };
           customElements.define(elmId, Module2);
           let result = new Module2(null, options);
+          if (forceInit && _initOptions)
+            this._initOptions = _initOptions;
           return result;
         }
         ;
       }
     }
+    if (forceInit && _initOptions)
+      this._initOptions = _initOptions;
     return null;
   }
   async copyToClipboard(value) {
@@ -14865,7 +14903,7 @@ var CodeEditor = class extends Control {
       this.language = this.getAttribute("language", true);
       this.style.display = "inline-block";
       if (this.language)
-        this.loadContent("", this.language);
+        this.loadContent(void 0, this.language);
     }
     ;
   }
@@ -15448,17 +15486,21 @@ var ComboBox = class extends Control {
   }
   renderItems() {
     if (this.mode === "tags" && this.newItem) {
+      if (this.searchStr)
+        this.newItem.label = this.searchStr;
       const liElm = this.listElm.querySelector(`li[data-key="${this.newItem.value}"]`);
       if (liElm) {
         if (this.searchStr) {
+          liElm.textContent = this.searchStr;
           liElm.classList.add("matched");
           liElm.innerHTML = `<span class="highlight">${this.searchStr}</span>`;
-          this.newItem.label = this.searchStr;
-          return;
         } else {
           liElm.remove();
           this.newItem = null;
         }
+      } else {
+        const ul = this.listElm.querySelector("ul");
+        ul && this.add(this.newItem, ul);
       }
     }
     const regExp = new RegExp(this.escapeRegExp(this.searchStr), "g");
@@ -15466,9 +15508,14 @@ var ComboBox = class extends Control {
     if (this.searchStr)
       this.openList();
     const ulElm = this.createElement("ul", this.listElm);
+    let creatingNew = false;
     for (let item of this.items) {
-      const label = item.label;
-      if (!this.searchStr || label.toLowerCase().includes(this.searchStr.toLowerCase())) {
+      const label = item.label || "";
+      const isMatchedPart = this.searchStr && label.toLowerCase().includes(this.searchStr.toLowerCase());
+      const isMatchedDone = this.searchStr && label.toLowerCase() === this.searchStr.toLowerCase();
+      if (item.isNew && isMatchedPart && !isMatchedDone)
+        creatingNew = true;
+      if (!this.searchStr || isMatchedDone || isMatchedPart) {
         const liElm = this.createElement("li", ulElm);
         liElm.setAttribute("data-key", item.value);
         liElm.addEventListener("click", (event) => {
@@ -15486,21 +15533,22 @@ var ComboBox = class extends Control {
         liElm.innerHTML = displayItem;
       }
     }
-    if (!ulElm.innerHTML) {
-      if (this.mode === "tags" && !this.newItem) {
-        this.newItem = {
-          value: new Date().getTime().toString(),
-          label: this.searchStr
-        };
-        this.add(this.newItem, ulElm);
-        return;
-      } else {
+    if (!ulElm.innerHTML || creatingNew) {
+      if (this.mode === "tags") {
+        if (!this.newItem)
+          this.newItem = {
+            value: new Date().getTime().toString(),
+            label: this.searchStr
+          };
+        const liElm = this.listElm.querySelector(`li[data-key="${this.newItem.label}"]`);
+        if (!liElm)
+          this.add(this.newItem, ulElm);
+      } else if (!ulElm.innerHTML)
         ulElm.innerHTML = '<li style="text-align:center;">No data</li>';
-      }
     }
   }
   add(item, parent) {
-    const liElm = this.createElement("li", parent);
+    const liElm = this.createElement("li");
     liElm.setAttribute("data-key", item.value);
     liElm.addEventListener("click", (event) => {
       event.stopPropagation();
@@ -15508,6 +15556,7 @@ var ComboBox = class extends Control {
     });
     liElm.classList.add("matched");
     liElm.innerHTML = `<span class="highlight">${this.searchStr}</span>`;
+    parent.prepend(liElm);
   }
   handleRemove(event, item) {
     event.stopPropagation();
@@ -15532,10 +15581,10 @@ var ComboBox = class extends Control {
   onItemClick(event, liElm, item) {
     var _a;
     if (((_a = this.newItem) == null ? void 0 : _a.value) === item.value) {
-      item = { ...this.newItem, isNew: true };
+      item = { ...this.newItem, value: this.newItem.label, isNew: true };
       this.items.push(item);
-      this.newItem = null;
     }
+    this.newItem = null;
     if (Array.isArray(this.selectedItem)) {
       const index = this.getItemIndex(this.selectedItem, item);
       const selectedItem = this.selectedItem;
@@ -16755,6 +16804,19 @@ var Input = class extends Control {
         this.inputElm.addEventListener("blur", this._handleOnBlur.bind(this));
         this.inputElm.addEventListener("focus", this._handleOnFocus.bind(this));
         break;
+      case "color":
+        this.captionSpanElm = this.createElement("span", this);
+        this.labelElm = this.createElement("label", this.captionSpanElm);
+        this.inputElm = this.createElement("input", this);
+        this.inputElm.style.height = "auto";
+        this.inputElm.disabled = enabled === false;
+        this.inputElm.setAttribute("type", "color");
+        this.inputElm.addEventListener("input", this._handleChange.bind(this));
+        this.inputElm.addEventListener("keydown", this._handleInputKeyDown.bind(this));
+        this.inputElm.addEventListener("keyup", this._handleInputKeyUp.bind(this));
+        this.inputElm.addEventListener("blur", this._handleOnBlur.bind(this));
+        this.inputElm.addEventListener("focus", this._handleOnFocus.bind(this));
+        break;
       default:
         const inputType = type == "password" ? type : "text";
         this.captionSpanElm = this.createElement("span", this);
@@ -17760,10 +17822,11 @@ var MarkdownEditor = class extends Control {
       width: "auto"
     });
     container.appendChild(this.tabs);
-    this.mdEditor = new CodeEditor();
-    this.mdEditor.width = "100%";
-    this.mdEditor.height = "646px";
-    this.mdEditor.language = "markdown";
+    this.mdEditor = new CodeEditor(void 0, {
+      width: "100%",
+      height: "646px",
+      language: "markdown"
+    });
     this.editTab = this.tabs.add({
       caption: "Edit file",
       icon: {
@@ -17893,7 +17956,7 @@ var wrapperStyle = style({
   visibility: "hidden",
   transform: "scale(1.1)",
   transition: "visibility 0s linear .25s,opacity .25s 0s,transform .25s",
-  zIndex: 10,
+  zIndex: 1e3,
   overflow: "auto"
 });
 var noBackdropStyle = style({
@@ -17904,7 +17967,7 @@ var noBackdropStyle = style({
   visibility: "hidden",
   transform: "scale(1.1)",
   transition: "visibility 0s linear .25s,opacity .25s 0s,transform .25s",
-  zIndex: 10,
+  zIndex: 1e3,
   overflow: "auto",
   width: "100%",
   maxWidth: "inherit",
@@ -17960,7 +18023,8 @@ var Modal = class extends Container {
     });
   }
   get visible() {
-    return this.wrapperDiv.classList.contains(visibleStyle);
+    var _a;
+    return ((_a = this.wrapperDiv) == null ? void 0 : _a.classList.contains(visibleStyle)) || false;
   }
   set visible(value) {
     var _a, _b;
@@ -21133,9 +21197,9 @@ var Upload = class extends Control {
       if (!this.isPreviewing || !this.enabled)
         return;
       event.stopPropagation();
-      const file = this._dt.files.length ? this._dt.files[0] : null;
+      const file = this._dt.files.length ? this._dt.files[0] : void 0;
       this.clear();
-      if (this.onRemoved && file)
+      if (this.onRemoved)
         this.onRemoved(this, file);
     };
     this.toBase64 = (file) => new Promise((resolve, reject) => {
@@ -21474,34 +21538,36 @@ cssRule("i-pagination", {
   color: Theme24.text.primary,
   "$nest": {
     ".pagination": {
-      display: "inline-flex"
+      display: "inline-flex",
+      flexWrap: "wrap",
+      justifyContent: "center"
     },
     ".pagination a": {
       color: Theme24.text.primary,
       float: "left",
-      padding: "8px 16px",
+      padding: "4px 8px",
+      textAlign: "center",
       textDecoration: "none",
       transition: "background-color .3s",
-      border: "1px solid #ddd"
+      border: "1px solid #ddd",
+      minWidth: 36
     },
     ".pagination a.active": {
       backgroundColor: "#4CAF50",
       color: "white",
-      border: "1px solid #4CAF50"
+      border: "1px solid #4CAF50",
+      cursor: "default"
     },
     ".pagination a.disabled": {
       color: Theme24.text.disabled,
       pointerEvents: "none"
-    },
-    ".pagination-main": {
-      display: "flex"
     }
   }
 });
 
 // packages/pagination/src/pagination.ts
 var pagerCount = 7;
-var pagerCountMobile = 3;
+var pagerCountMobile = 5;
 var defaultCurrentPage = 1;
 var pageSize = 10;
 var Pagination = class extends Control {
@@ -21584,10 +21650,10 @@ var Pagination = class extends Control {
     if (!this.enabled)
       return;
     const target = event.target;
-    target.innerHTML = direction === -1 ? "<<" : ">>";
+    target.innerHTML = direction === -1 ? "&laquo;" : "&raquo;";
   }
   renderEllipsis(step) {
-    let item = this.createElement("a", this._mainPagiElm);
+    let item = this.createElement("a", this._paginationDiv);
     item.id = step === -1 ? "prevMoreElm" : "nextMoreElm";
     item.setAttribute("href", "#");
     item.innerHTML = "...";
@@ -21607,7 +21673,7 @@ var Pagination = class extends Control {
     });
   }
   renderPage(index) {
-    let item = this.createElement("a", this._mainPagiElm);
+    let item = this.createElement("a", this._paginationDiv);
     this.pageItems.push(item);
     item.setAttribute("href", "#");
     item.innerHTML = `${index}`;
@@ -21660,7 +21726,10 @@ var Pagination = class extends Control {
   }
   renderPageItem(size) {
     this.visible = size > 0;
-    this._mainPagiElm.innerHTML = "";
+    this._paginationDiv.innerHTML = "";
+    if (this._prevElm) {
+      this._paginationDiv.appendChild(this._prevElm);
+    }
     this.pageItems = [];
     if (size > 0) {
       if (size > this.pagerCount) {
@@ -21680,9 +21749,12 @@ var Pagination = class extends Control {
     } else if (size < 0) {
       const _s = this.pageItems.length + size;
       for (let i = this.pageItems.length - 1; i >= _s; i--) {
-        this._mainPagiElm.removeChild(this.pageItems[i]);
+        this._paginationDiv.removeChild(this.pageItems[i]);
         this.pageItems.pop();
       }
+    }
+    if (this._nextElm) {
+      this._paginationDiv.append(this._nextElm);
     }
   }
   init() {
@@ -21690,7 +21762,7 @@ var Pagination = class extends Control {
     if (!this._paginationDiv) {
       this.pageItems = [];
       this._paginationDiv = this.createElement("div", this);
-      this._paginationDiv.classList.add("pagination");
+      this._paginationDiv.classList.add("pagination", "pagination-main");
       this._prevElm = this.createElement("a", this._paginationDiv);
       this._prevElm.setAttribute("href", "#");
       this._prevElm.innerHTML = "&laquo;";
@@ -21700,8 +21772,6 @@ var Pagination = class extends Control {
         e.stopPropagation();
         this._handleOnPrev(e);
       });
-      this._mainPagiElm = this.createElement("div", this._paginationDiv);
-      this._mainPagiElm.classList.add("pagination-main");
       this.currentPage = +this.getAttribute("currentPage", true, defaultCurrentPage);
       this.totalPages = +this.getAttribute("totalPages", true, 0);
       this.pageSize = +this.getAttribute("pageSize", true, pageSize);
@@ -22438,10 +22508,12 @@ var TableColumn = class extends Control {
     this.sortElm.style.display = "block";
   }
   async appendNode(params) {
-    if (!this.columnElm || !this.onRenderCell)
+    if (!params)
       return;
     const { tdElm, rowData, rowIndex, cell } = params;
     this.rowData = rowData;
+    if (!this.columnElm || !this.onRenderCell)
+      return;
     let node = await this.onRenderCell(this, this.data, rowData, rowIndex, cell);
     if (!node)
       return;
@@ -22587,6 +22659,9 @@ var Table = class extends Control {
   set filteredData(value) {
     this._filteredData = value;
   }
+  get hasData() {
+    return this.filteredData && this.filteredData.length;
+  }
   get sortConfig() {
     if (!this._sortConfig || !Object.keys(this._sortConfig).length)
       return [];
@@ -22697,7 +22772,7 @@ var Table = class extends Control {
   }
   _handleClick(event) {
     const target = event.target;
-    if (target) {
+    if (target && this.hasData) {
       const rowElm = target.closest(".i-table-row");
       let colElm = target.closest("i-table-column");
       if (!colElm)
@@ -22767,7 +22842,7 @@ var Table = class extends Control {
   renderBody() {
     var _a, _b;
     this.tBodyElm.innerHTML = "";
-    if (this.filteredData && this.filteredData.length) {
+    if (this.hasData) {
       const currentPage = ((_a = this.pagination) == null ? void 0 : _a.currentPage) || 1;
       const pageSize2 = ((_b = this.pagination) == null ? void 0 : _b.pageSize) || 10;
       const dataList = this.pagination ? paginate(this.filteredData, pageSize2, currentPage) : this.filteredData;
@@ -22953,6 +23028,9 @@ var CarouselSlider = class extends Control {
   constructor(parent, options) {
     super(parent, options, { activeSlide: 0 });
     this._type = "dot";
+    this.posX1 = 0;
+    this.posX2 = 0;
+    this.threshold = 30;
   }
   get slidesToShow() {
     return this._slidesToShow;
@@ -23039,9 +23117,36 @@ var CarouselSlider = class extends Control {
     } else {
       this.renderDotPagination();
     }
+    if (this.arrowPrev)
+      this.arrowPrev.visible = this.isArrow;
+    if (this.arrowNext)
+      this.arrowNext.visible = this.isArrow;
+  }
+  get swipe() {
+    return this._swipe;
+  }
+  set swipe(value) {
+    this._swipe = value;
+    if (this._swipe) {
+      this.sliderListElm.onmousedown = this.dragStartHandler;
+      this.sliderListElm.addEventListener("touchstart", this.dragStartHandler);
+      this.sliderListElm.addEventListener("touchend", this.dragEndHandler);
+      this.sliderListElm.addEventListener("touchmove", this.dragHandler);
+    } else {
+      this.sliderListElm.onmousedown = null;
+      this.sliderListElm.removeEventListener("touchstart", this.dragStartHandler);
+      this.sliderListElm.removeEventListener("touchend", this.dragEndHandler);
+      this.sliderListElm.removeEventListener("touchmove", this.dragHandler);
+    }
   }
   get isArrow() {
     return this.type === "arrow";
+  }
+  disconnectCallback() {
+    this.sliderListElm.onmousedown = null;
+    this.sliderListElm.removeEventListener("touchstart", this.dragStartHandler);
+    this.sliderListElm.removeEventListener("touchend", this.dragEndHandler);
+    this.sliderListElm.removeEventListener("touchmove", this.dragHandler);
   }
   updateArrows(prev, next) {
     if (this.arrowPrev && this.arrowNext) {
@@ -23059,6 +23164,8 @@ var CarouselSlider = class extends Control {
   }
   updateSliderByArrows(value) {
     var _a;
+    if (!this._slider)
+      return;
     const lastIdx = value + this.slidesToShow;
     const validValue = value >= 0 && lastIdx <= this._slider.length ? value : 0;
     this.updateArrows(validValue > 0, lastIdx < this._slider.length);
@@ -23177,12 +23284,18 @@ var CarouselSlider = class extends Control {
     }
   }
   prev() {
-    const index = this.activeSlide - 1 < 0 ? this._slider.length - 1 : this.activeSlide - 1;
+    const index = this.activeSlide - 1 < 0 ? this.activeSlide : this.activeSlide - 1;
     this.activeSlide = index;
     this.setAutoplay();
   }
   next() {
-    const index = this.activeSlide + 1 >= this._slider.length ? 0 : this.activeSlide + 1;
+    let index;
+    if (!this.isArrow) {
+      const total = this.slidesToShow > 0 ? Math.ceil(this._slider.length / this.slidesToShow) : this._slider.length;
+      index = this.activeSlide + 1 >= total ? this.activeSlide : this.activeSlide + 1;
+    } else {
+      index = this.activeSlide + this.slidesToShow >= this._slider.length ? this.activeSlide : this.activeSlide + 1;
+    }
     this.activeSlide = index;
     this.setAutoplay();
   }
@@ -23198,8 +23311,61 @@ var CarouselSlider = class extends Control {
       this.sliderListElm.style.transform = `translateX(${tx}px)`;
     }
   }
+  dragStartHandler(event) {
+    if (event instanceof TouchEvent) {
+      this.posX1 = event.touches[0].clientX;
+      this.posX2 = 0;
+    } else {
+      event.preventDefault();
+      this.posX1 = event.clientX;
+      this.posX2 = 0;
+      this.sliderListElm.onmouseup = this.dragEndHandler;
+      this.sliderListElm.onmouseleave = this.dragEndHandler;
+      this.sliderListElm.onmousemove = this.dragHandler;
+    }
+    this.isSwiping = false;
+    if (this.onSwipeStart)
+      this.onSwipeStart();
+  }
+  dragHandler(event) {
+    var _a, _b;
+    if (event instanceof TouchEvent) {
+      this.posX2 = this.posX1 - event.touches[0].clientX;
+    } else {
+      this.posX2 = this.posX1 - event.clientX;
+    }
+    if (this.isArrow) {
+      const fixedWidth = this.slidesToShow === 1 && this._slider && ((_a = this._slider[0]) == null ? void 0 : _a.offsetWidth) && this._slider[0].offsetWidth !== this.offsetWidth - 50;
+      const itemWidth = this._slider && this._slider[0] ? this._slider[0].offsetWidth : (this.offsetWidth - 50) / this.slidesToShow;
+      const tx = fixedWidth ? -this._slider[0].offsetWidth * this._activeSlide : -itemWidth * this._activeSlide;
+      const tx2 = Math.min(Math.abs(this.posX2), itemWidth);
+      this.sliderListElm.style.transform = `translateX(${tx - (this.posX2 > 0 ? tx2 : -tx2)}px)`;
+    } else {
+      const fixedWidth = this.slidesToShow === 1 && this._slider && ((_b = this._slider[0]) == null ? void 0 : _b.offsetWidth) && this._slider[0].offsetWidth !== this.offsetWidth;
+      const tx = fixedWidth ? -this._slider[0].offsetWidth * this._activeSlide : -this.offsetWidth * this._activeSlide;
+      this.sliderListElm.style.transform = `translateX(${tx - this.posX2}px)`;
+    }
+    this.isSwiping = Math.abs(this.posX2) > this.threshold;
+  }
+  dragEndHandler(event) {
+    if (this.posX2 < -this.threshold) {
+      this.prev();
+    } else if (this.posX2 > this.threshold) {
+      this.next();
+    } else {
+      this.refresh();
+    }
+    this.sliderListElm.onmouseup = null;
+    this.sliderListElm.onmouseleave = null;
+    this.sliderListElm.onmousemove = null;
+    if (this.onSwipeEnd)
+      this.onSwipeEnd(this.isSwiping);
+  }
   init() {
     super.init();
+    this.dragStartHandler = this.dragStartHandler.bind(this);
+    this.dragHandler = this.dragHandler.bind(this);
+    this.dragEndHandler = this.dragEndHandler.bind(this);
     this.type = this.getAttribute("type", true, "dot");
     this.wrapperSliderElm = this.createElement("div", this);
     this.updateWrapperClass();
@@ -23209,8 +23375,8 @@ var CarouselSlider = class extends Control {
     this.sliderListElm = this.createElement("div", wrapper);
     this.sliderListElm.classList.add("slider-list");
     this.transitionSpeed = this.getAttribute("transitionSpeed", true, 500);
-    this.arrowPrev = new Icon(void 0, { name: "angle-left" });
-    this.arrowNext = new Icon(void 0, { name: "angle-right" });
+    this.arrowPrev = new Icon(void 0, { name: "angle-left", visible: this.isArrow });
+    this.arrowNext = new Icon(void 0, { name: "angle-right", visible: this.isArrow });
     this.arrowPrev.classList.add("slider-arrow");
     this.arrowNext.classList.add("slider-arrow");
     this.arrowPrev.onClick = () => this.prev();
@@ -23225,6 +23391,7 @@ var CarouselSlider = class extends Control {
     this.autoplay = this.getAttribute("autoplay", true);
     this.items = this.getAttribute("items", true, []);
     this.activeSlide = this.getAttribute("activeSlide", true, 0);
+    this.swipe = this.getAttribute("swipe", true, false);
   }
   static async create(options, parent) {
     let self = new this(parent, options);
@@ -23308,6 +23475,83 @@ var moment;
 RequireJS.require(["@moment"], (_moment) => {
   moment = _moment;
 });
+
+// packages/video/src/style/video.css.ts
+cssRule("i-video", {
+  $nest: {}
+});
+
+// packages/video/src/video.ts
+var reqs = ["video-js"];
+RequireJS.config({
+  baseUrl: `${LibPath}lib/video-js`,
+  paths: {
+    "video-js": "video-js"
+  }
+});
+function loadCss() {
+  const cssId = "videoCss";
+  if (!document.getElementById(cssId)) {
+    const head = document.getElementsByTagName("head")[0];
+    const link = document.createElement("link");
+    link.id = cssId;
+    link.rel = "stylesheet";
+    link.type = "text/css";
+    link.href = `${LibPath}lib/video-js/video-js.css`;
+    link.media = "all";
+    head.appendChild(link);
+  }
+}
+var Video = class extends Container {
+  get url() {
+    return this._url;
+  }
+  set url(value) {
+    this._url = value;
+    if (value && !this.sourceElm)
+      this.sourceElm = this.createElement("source", this.videoElm);
+    if (this.sourceElm)
+      this.sourceElm.src = value;
+  }
+  init() {
+    if (!this.initialized) {
+      super.init();
+      loadCss();
+      const self = this;
+      let id = `video-${new Date().getTime()}`;
+      this.videoElm = this.createElement("video-js", this);
+      this.videoElm.id = id;
+      this.videoElm.setAttribute("controls", "true");
+      this.videoElm.setAttribute("preload", "auto");
+      this.videoElm.classList.add("vjs-default-skin");
+      this.sourceElm = this.createElement("source", this.videoElm);
+      this.sourceElm.type = "application/x-mpegURL";
+      this.url = this.getAttribute("url", true);
+      RequireJS.require(reqs, function(videojs) {
+        self.player = videojs(id, {
+          playsinline: true,
+          autoplay: false,
+          controls: true,
+          fluid: true,
+          aspectRatio: "16:9",
+          responsive: true,
+          inactivityTimeout: 500,
+          preload: "auto",
+          techOrder: ["html5"],
+          plugins: {}
+        });
+      });
+    }
+  }
+  static async create(options, parent) {
+    let self = new this(parent, options);
+    await self.ready();
+    return self;
+  }
+};
+Video = __decorateClass([
+  customElements2("i-video")
+], Video);
 /*!-----------------------------------------------------------
 * Copyright (c) IJS Technologies. All rights reserved.
 * Released under dual AGPLv3/commercial license

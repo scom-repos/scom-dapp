@@ -5,17 +5,17 @@
         "node": ">=18.0.0"
     },
     "dependencies": {
-        "@ijstech/components": "^0.1.24",
-        "@ijstech/eth-contract": "^0.1.3",
-        "@ijstech/eth-wallet": "^0.1.20"
+        "@ijstech/components": "^0.1.35",
+        "@ijstech/eth-wallet": "^0.1.35"
     },
     "devDependencies": {
-        "@ijstech/cli": "^0.1.19",
-        "@ijstech/compiler": "^0.1.15",
-        "@scom/dapp": "file:../"
+        "@ijstech/cli": "^0.1.28",
+        "@ijstech/compiler": "^0.1.22",
+        "@scom/dapp": "file:./ref"
     },
     "scripts": {
-        "build": "rm -rf dist && npx @ijstech/compiler",
+        "cp:dapp": "rm -rf ref && mkdir ref && cp ../package.json ref/package.json && cp -r ../dist ref/dist && cp -r ../types ref/types",
+        "build": "npm run cp:dapp && rm -rf dist && npx @ijstech/compiler",
         "serve": "npx @ijstech/cli serve 8080",
         "test": "npm run build && npm run serve"
     }

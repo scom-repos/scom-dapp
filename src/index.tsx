@@ -1,4 +1,5 @@
 import { Module, Styles, Container, customModule, application, Panel } from '@ijstech/components';
+import {} from '@ijstech/eth-contract';
 import styleClass from './index.css';
 import { updateNetworks } from './network';
 import { updateWallets } from './wallet';
@@ -85,7 +86,7 @@ export default class MainLauncher extends Module {
 		this.classList.add(styleClass);
 		this._options = options;
 		let defaultRoute: IRoute | undefined = this._options?.routes?.find(route => route.default);
-		if (defaultRoute && !location.hash) {
+		if (defaultRoute && (!location.hash || location.hash === '#/')) {
 			const toPath = compile(defaultRoute.url, { encode: encodeURIComponent });
 			location.hash = toPath();
 		} else {

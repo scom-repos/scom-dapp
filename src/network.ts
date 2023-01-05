@@ -147,7 +147,7 @@ export const updateNetworks = (options: any) => {
   }
 };
 export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions) {
-  const wallet = Wallet.getInstance();
+  const wallet = Wallet.getClientInstance();
   wallet.registerSendTxEvents({
     transactionHash: (error: Error, receipt?: string) => {
       if (sendTxEventHandlers.transactionHash) {
@@ -185,7 +185,8 @@ const setNetworkList = (networkList: INetwork[] | "*", infuraId?: string) => {
   state.networkMap = {};
   state.defaultNetworkFromWallet = networkList === "*";
   if (state.defaultNetworkFromWallet) {
-    const networksMap = getWallet().networksMap;
+    const wallet: Wallet = getWallet() as Wallet;
+    const networksMap = wallet.networksMap;
     for (const chainId in networksMap) {
       const networkInfo = networksMap[chainId];
       const rpc = networkInfo.rpcUrls && networkInfo.rpcUrls.length ? networkInfo.rpcUrls[0] : "";
