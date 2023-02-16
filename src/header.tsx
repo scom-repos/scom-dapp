@@ -19,7 +19,7 @@ import {
   Image
 } from '@ijstech/components';
 import { Wallet, WalletPlugin, WalletPluginConfig } from "@ijstech/eth-wallet";
-import { INetwork, EventId, formatNumber, truncateAddress, isWalletConnected, isValidEnv, isDefaultNetworkFromWallet } from './network';
+import { INetwork, EventId, formatNumber, truncateAddress, isWalletConnected, isValidEnv, isDefaultNetworkFromWallet, getRequireLogin } from './network';
 import styleClass from './header.css';
 import Assets, { assets } from './assets';
 import {
@@ -36,6 +36,8 @@ import {
 } from './network';
 import { getSupportedWallets, hasMetaMask } from './wallet';
 import { compile } from './pathToRegexp'
+import { login, logout } from './utils';
+import { Alert } from './alert';
 
 const Theme = Styles.Theme.ThemeVars;
 
@@ -90,6 +92,7 @@ export class Header extends Module {
   private hsViewAccount: HStack;
   private gridWalletList: GridLayout;
   private gridNetworkGroup: GridLayout;
+  private mdMainAlert: Alert;
 
   private $eventBus: IEventBus;
   private selectedNetwork: INetwork | undefined;
@@ -132,6 +135,27 @@ export class Header extends Module {
     let wallet = Wallet.getInstance();
     this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
     this.$eventBus.register(this, EventId.IsWalletConnected, async (connected: boolean) => {
+      let requireLogin = getRequireLogin();
+      if (requireLogin) {
+        try {
+          const { success, error } = await login();
+          if (error || !success) {
+            this.mdMainAlert.message = {
+              status: 'error',
+              content: error?.message || 'Login failed'
+            };
+            this.mdMainAlert.showModal();
+            connected = false;
+          }
+        } catch (err) {
+          this.mdMainAlert.message = {
+            status: 'error',
+            content: 'Login failed'
+          };
+          this.mdMainAlert.showModal();
+          connected = false;
+        }
+      }
       if (connected) {
         this.walletInfo.address = wallet.address;
         this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
@@ -288,9 +312,10 @@ export class Header extends Module {
   }
 
   logout = async (target: Control, event: Event) => {
-    event.stopPropagation();
+    if (event) event.stopPropagation();
     this.mdWalletDetail.visible = false;
     await logoutWallet();
+    if (getRequireLogin()) await logout();
     this.updateConnectedStatus(false);
     this.updateList(false);
     this.mdAccount.visible = false;
@@ -725,6 +750,7 @@ export class Header extends Module {
             </i-hstack>
           </i-vstack>
         </i-modal>
+        <main-alert id="mdMainAlert"></main-alert>
       </i-hstack>
     )
   }

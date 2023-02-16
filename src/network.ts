@@ -1,8 +1,8 @@
 import { Erc20, Wallet, ISendTxEventsOptions, BigNumber } from '@ijstech/eth-wallet';
-import { formatDate, formatNumber } from './helper';
+import { formatNumber } from './helper';
 import { INetwork, EventId } from './wallet';
 export { isWalletConnected, hasWallet, hasMetaMask, truncateAddress, switchNetwork, connectWallet, logoutWallet } from './wallet';
-export { INetwork, EventId, formatDate, formatNumber };
+export { INetwork, EventId, formatNumber };
 
 export interface ITokenObject {
   address?: string;
@@ -137,13 +137,16 @@ export const updateNetworks = (options: any) => {
     setEnv(options.env);
   }
   if (options.infuraId) {
-    setInfuraId(options.infuraId)
+    setInfuraId(options.infuraId);
   }
   if (options.networks) {
-    setNetworkList(options.networks, options.infuraId)
+    setNetworkList(options.networks, options.infuraId);
   }
   if (options.defaultChainId) {
-    setDefaultChainId(options.defaultChainId)
+    setDefaultChainId(options.defaultChainId);
+  }
+  if (options.requireLogin) {
+    setRequireLogin(options.requireLogin);
   }
 };
 export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions) {
@@ -179,7 +182,8 @@ const state = {
   defaultChainId: 0,
   infuraId: "",
   env: "",
-  defaultNetworkFromWallet: false
+  defaultNetworkFromWallet: false,
+  requireLogin: false
 }
 const setNetworkList = (networkList: INetwork[] | "*", infuraId?: string) => {
   state.networkMap = {};
@@ -284,4 +288,12 @@ export const getEnv = () => {
 
 export const isDefaultNetworkFromWallet = () => {
   return state.defaultNetworkFromWallet;
+}
+
+const setRequireLogin = (value: boolean) => {
+  state.requireLogin = value
+}
+
+export const getRequireLogin = () => {
+  return state.requireLogin;
 }

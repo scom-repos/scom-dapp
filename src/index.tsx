@@ -5,6 +5,7 @@ import { updateNetworks } from './network';
 import { updateWallets } from './wallet';
 export { Header } from './header';
 export { Footer } from './footer';
+export { Alert } from './alert';
 import { match, MatchFunction, compile } from './pathToRegexp'
 import { assets } from './assets';
 import { Header } from './header';
@@ -38,6 +39,7 @@ interface ISCConfig {
 	breakpoints?: IBreakpoints;
 	header?: IHeaderFooter;
 	footer?: IHeaderFooter;
+	requireLogin?: boolean;
 };
 interface INetwork {
 	name?: string,

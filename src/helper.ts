@@ -1,17 +1,4 @@
 import { BigNumber } from "@ijstech/eth-wallet";
-// import moment from 'moment';
-
-export const formatDate = (date: any, customType?: string) => {
-  const formatType = customType || 'DD/MM/YYYY';
-  // return moment(date).format(formatType);
-}
-
-export const compareDate = (fromDate: any, toDate?: any) => {
-  // if (!toDate) {
-  //   toDate = moment();
-  // }
-  // return moment(fromDate).isSameOrBefore(toDate);
-}
 
 export const formatNumber = (value: any, decimals?: number) => {
   let val = value;
