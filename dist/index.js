@@ -1258,9 +1258,9 @@ define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], fun
         let data = eth_wallet_5.Utils.constructTypedMessageData(domain, customTypes, 'Login', message);
         return data;
     }
-    async function requestRandomSessionId(walletAddress) {
+    async function requestLoginSession(walletAddress) {
         let body = JSON.stringify({ walletAddress: walletAddress });
-        let response = await fetch(API_BASE_URL + '/requestRandomNumber', {
+        let response = await fetch(API_BASE_URL + '/requestLoginSession', {
             body: body,
             method: 'POST',
             credentials: 'include',
@@ -1274,11 +1274,11 @@ define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], fun
     }
     async function login() {
         const wallet = eth_wallet_5.Wallet.getClientInstance();
-        let randomSessionIdResult = await requestRandomSessionId(wallet.account.address);
-        let data = constructLoginTypedMessageData(wallet.chainId, randomSessionIdResult.uuid);
+        let session = await requestLoginSession(wallet.account.address);
+        let data = constructLoginTypedMessageData(wallet.chainId, session.uuid);
         let signature = await wallet.signTypedDataV4(data);
         let body = JSON.stringify({
-            uuid: randomSessionIdResult.uuid,
+            uuid: session.uuid,
             signature: signature,
             walletAddress: wallet.address
         });

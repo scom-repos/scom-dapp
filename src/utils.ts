@@ -24,9 +24,9 @@ function constructLoginTypedMessageData(chainId: number, uuid: string) {
   return data;
 }
 
-async function requestRandomSessionId(walletAddress: string) {
+async function requestLoginSession(walletAddress: string) {
   let body = JSON.stringify({ walletAddress: walletAddress });
-  let response = await fetch(API_BASE_URL + '/requestRandomNumber', {
+  let response = await fetch(API_BASE_URL + '/requestLoginSession', {
     body: body,
     method: 'POST',
     credentials: 'include',
@@ -41,11 +41,11 @@ async function requestRandomSessionId(walletAddress: string) {
 
 async function login() {
   const wallet = Wallet.getClientInstance();
-  let randomSessionIdResult = await requestRandomSessionId(wallet.account.address);
-  let data = constructLoginTypedMessageData(wallet.chainId, randomSessionIdResult.uuid);
+  let session = await requestLoginSession(wallet.account.address);
+  let data = constructLoginTypedMessageData(wallet.chainId, session.uuid);
   let signature = await wallet.signTypedDataV4(data);
   let body = JSON.stringify({
-    uuid: randomSessionIdResult.uuid,
+    uuid: session.uuid,
     signature: signature,
     walletAddress: wallet.address
   });
