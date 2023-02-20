@@ -83,5 +83,6 @@
   },
   "header": {
     "fixed": true
-  }
+  },
+  "requireLogin": true
 }

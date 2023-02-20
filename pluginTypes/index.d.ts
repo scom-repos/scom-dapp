@@ -63,8 +63,6 @@ declare module "@scom/dapp/index.css.ts" {
 /// <amd-module name="@scom/dapp/helper.ts" />
 declare module "@scom/dapp/helper.ts" {
     import { BigNumber } from "@ijstech/eth-wallet";
-    export const formatDate: (date: any, customType?: string) => void;
-    export const compareDate: (fromDate: any, toDate?: any) => void;
     export const formatNumber: (value: any, decimals?: number) => string;
     export const formatNumberWithSeparators: (value: number, precision?: number) => string;
     export const limitDecimals: (value: any, decimals: number) => any;
@@ -134,10 +132,10 @@ declare module "@scom/dapp/wallet.ts" {
 /// <amd-module name="@scom/dapp/network.ts" />
 declare module "@scom/dapp/network.ts" {
     import { Erc20, ISendTxEventsOptions } from '@ijstech/eth-wallet';
-    import { formatDate, formatNumber } from "@scom/dapp/helper.ts";
+    import { formatNumber } from "@scom/dapp/helper.ts";
     import { INetwork, EventId } from "@scom/dapp/wallet.ts";
     export { isWalletConnected, hasWallet, hasMetaMask, truncateAddress, switchNetwork, connectWallet, logoutWallet } from "@scom/dapp/wallet.ts";
-    export { INetwork, EventId, formatDate, formatNumber };
+    export { INetwork, EventId, formatNumber };
     export interface ITokenObject {
         address?: string;
         name: string;
@@ -166,6 +164,7 @@ declare module "@scom/dapp/network.ts" {
     export const getInfuraId: () => string;
     export const getEnv: () => string;
     export const isDefaultNetworkFromWallet: () => boolean;
+    export const getRequireLogin: () => boolean;
 }
 /// <amd-module name="@scom/dapp/header.css.ts" />
 declare module "@scom/dapp/header.css.ts" {
@@ -302,6 +301,52 @@ declare module "@scom/dapp/pathToRegexp.ts" {
      */
     export function pathToRegexp(path: Path, keys?: Key[], options?: TokensToRegexpOptions & ParseOptions): RegExp;
 }
+/// <amd-module name="@scom/dapp/utils.ts" />
+declare module "@scom/dapp/utils.ts" {
+    function login(): Promise<any>;
+    function logout(): Promise<any>;
+    export { login, logout };
+}
+/// <amd-module name="@scom/dapp/alert.css.ts" />
+declare module "@scom/dapp/alert.css.ts" {
+    export const modalStyle: string;
+}
+/// <amd-module name="@scom/dapp/alert.tsx" />
+declare module "@scom/dapp/alert.tsx" {
+    import { Module, ControlElement } from '@ijstech/components';
+    global {
+        namespace JSX {
+            interface IntrinsicElements {
+                ['main-alert']: ControlElement;
+            }
+        }
+    }
+    export interface IAlertMessage {
+        status: 'warning' | 'success' | 'error' | 'loading';
+        title?: string;
+        content?: string;
+        link?: {
+            caption: string;
+            href: string;
+        };
+        onClose?: any;
+    }
+    export class Alert extends Module {
+        private mdAlert;
+        private pnlMain;
+        private _message;
+        get message(): IAlertMessage;
+        set message(value: IAlertMessage);
+        private get iconName();
+        private get color();
+        closeModal: () => void;
+        showModal: () => void;
+        private renderUI;
+        private renderContent;
+        private renderLink;
+        render(): any;
+    }
+}
 /// <amd-module name="@scom/dapp/header.tsx" />
 declare module "@scom/dapp/header.tsx" {
     import { Module, Control, ControlElement, Container, IMenuItem } from '@ijstech/components';
@@ -354,6 +399,7 @@ declare module "@scom/dapp/header.tsx" {
         private hsViewAccount;
         private gridWalletList;
         private gridNetworkGroup;
+        private mdMainAlert;
         private $eventBus;
         private selectedNetwork;
         private _menuItems;
@@ -436,6 +482,7 @@ declare module "@scom/dapp" {
     import { Module, Styles, Container } from '@ijstech/components';
     export { Header } from "@scom/dapp/header.tsx";
     export { Footer } from "@scom/dapp/footer.tsx";
+    export { Alert } from "@scom/dapp/alert.tsx";
     interface ITheme {
         default: string;
         dark?: Styles.Theme.ITheme;
