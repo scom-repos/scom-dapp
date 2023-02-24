@@ -36,16 +36,20 @@ async function requestLoginSession(walletAddress: string) {
     }
   });
   let result = await response.json();
-  return result.result;
-}
-
+  return result;
+};
 async function login() {
   const wallet = Wallet.getClientInstance();
   let session = await requestLoginSession(wallet.account.address);
-  let data = constructLoginTypedMessageData(wallet.chainId, session.uuid);
+  if (session.success && session.data?.account)
+    return {success: true};
+
+  let data = constructLoginTypedMessageData(wallet.chainId, session.data.uuid);
   let signature = await wallet.signTypedDataV4(data);
+  let chainId = await wallet.getChainId();
   let body = JSON.stringify({
-    uuid: session.uuid,
+    chainId: chainId,
+    uuid: session.data.uuid,
     signature: signature,
     walletAddress: wallet.address
   });
@@ -60,8 +64,7 @@ async function login() {
   });
   let result = await response.json();
   return result;
-}
-
+};
 async function logout() {
   let response = await fetch(API_BASE_URL + '/logout', {
     method: 'POST',

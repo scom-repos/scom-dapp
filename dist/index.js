@@ -1270,15 +1270,21 @@ define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], fun
             }
         });
         let result = await response.json();
-        return result.result;
+        return result;
     }
+    ;
     async function login() {
+        var _a;
         const wallet = eth_wallet_5.Wallet.getClientInstance();
         let session = await requestLoginSession(wallet.account.address);
-        let data = constructLoginTypedMessageData(wallet.chainId, session.uuid);
+        if (session.success && ((_a = session.data) === null || _a === void 0 ? void 0 : _a.account))
+            return { success: true };
+        let data = constructLoginTypedMessageData(wallet.chainId, session.data.uuid);
         let signature = await wallet.signTypedDataV4(data);
+        let chainId = await wallet.getChainId();
         let body = JSON.stringify({
-            uuid: session.uuid,
+            chainId: chainId,
+            uuid: session.data.uuid,
             signature: signature,
             walletAddress: wallet.address
         });
@@ -1295,6 +1301,7 @@ define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], fun
         return result;
     }
     exports.login = login;
+    ;
     async function logout() {
         let response = await fetch(API_BASE_URL + '/logout', {
             method: 'POST',
