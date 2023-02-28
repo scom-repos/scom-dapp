@@ -2,26 +2,15 @@ import { Wallet, Utils, Types } from "@ijstech/eth-wallet";
 
 const API_BASE_URL = '/api/account/v0';
 
-function constructLoginTypedMessageData(chainId: number, uuid: string) {
-  let domain: Types.IEIP712Domain = {
-    name: 'scom',
-    version: '0.1.0',
-    chainId: chainId,
-    verifyingContract: ''
-  };
-  let customTypes: Types.EIP712TypeMap = {
-    Login: [
-      {
-        'name': 'uuid',
-        'type': 'string'
-      }
-    ]
-  };
-  let message = {
-    uuid: uuid
-  };
-  let data = Utils.constructTypedMessageData(domain, customTypes, 'Login', message);
-  return data;
+function constructPersonalSignMessage(walletAddress: string, uuid: string) {
+  let messageChunks = [
+      'Welcome to SCOM Marketplace!',
+      'Click to sign in and accept the SCOM Terms of Service.',
+      'This request will not trigger a blockchain transaction or cost any gas fees.',
+      `Wallet address:\n${walletAddress}`,
+      `Nonce:\n${uuid}`
+  ]
+  return messageChunks.join('\n\n');
 }
 
 async function requestLoginSession(walletAddress: string) {
@@ -44,12 +33,12 @@ async function login() {
   if (session.success && session.data?.account)
     return {success: true};
 
-  let data = constructLoginTypedMessageData(wallet.chainId, session.data.uuid);
-  let signature = await wallet.signTypedDataV4(data);
+  let msg = constructPersonalSignMessage(wallet.address, session.data.nonce);
+  let signature = await wallet.signMessage(msg);
   let chainId = await wallet.getChainId();
   let body = JSON.stringify({
     chainId: chainId,
-    uuid: session.data.uuid,
+    uuid: session.data.nonce,
     signature: signature,
     walletAddress: wallet.address
   });
