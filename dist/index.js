@@ -1237,26 +1237,15 @@ define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], fun
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.logout = exports.login = void 0;
     const API_BASE_URL = '/api/account/v0';
-    function constructLoginTypedMessageData(chainId, uuid) {
-        let domain = {
-            name: 'scom',
-            version: '0.1.0',
-            chainId: chainId,
-            verifyingContract: ''
-        };
-        let customTypes = {
-            Login: [
-                {
-                    'name': 'uuid',
-                    'type': 'string'
-                }
-            ]
-        };
-        let message = {
-            uuid: uuid
-        };
-        let data = eth_wallet_5.Utils.constructTypedMessageData(domain, customTypes, 'Login', message);
-        return data;
+    function constructPersonalSignMessage(walletAddress, uuid) {
+        let messageChunks = [
+            'Welcome to SCOM Marketplace!',
+            'Click to sign in and accept the SCOM Terms of Service.',
+            'This request will not trigger a blockchain transaction or cost any gas fees.',
+            `Wallet address:\n${walletAddress}`,
+            `Nonce:\n${uuid}`
+        ];
+        return messageChunks.join('\n\n');
     }
     async function requestLoginSession(walletAddress) {
         let body = JSON.stringify({ walletAddress: walletAddress });
@@ -1279,12 +1268,12 @@ define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], fun
         let session = await requestLoginSession(wallet.account.address);
         if (session.success && ((_a = session.data) === null || _a === void 0 ? void 0 : _a.account))
             return { success: true };
-        let data = constructLoginTypedMessageData(wallet.chainId, session.data.uuid);
-        let signature = await wallet.signTypedDataV4(data);
+        let msg = constructPersonalSignMessage(wallet.address, session.data.nonce);
+        let signature = await wallet.signMessage(msg);
         let chainId = await wallet.getChainId();
         let body = JSON.stringify({
             chainId: chainId,
-            uuid: session.data.uuid,
+            uuid: session.data.nonce,
             signature: signature,
             walletAddress: wallet.address
         });
