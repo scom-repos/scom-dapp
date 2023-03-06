@@ -38,11 +38,12 @@ export async function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: 
     // wallet.chainId = getDefaultChainId();
   }
   await wallet.connect(walletPlugin, {
-    onAccountChanged: (account: string) => {
+    onAccountChanged: async (account: string) => {
+      let connected = !!account;
       if (eventHandlers && eventHandlers.accountsChanged) {
-        eventHandlers.accountsChanged(account);
+        let { requireLogin, isLoggedIn } = await eventHandlers.accountsChanged(account);
+        if (requireLogin && !isLoggedIn) connected = false;
       }
-      const connected = !!account;
       if (connected) {
         localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.walletPlugin || '');
       }

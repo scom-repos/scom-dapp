@@ -428,6 +428,10 @@ declare module "@scom/dapp/header.tsx" {
         openWalletDetailModal: () => void;
         openAccountModal: (target: Control, event: Event) => void;
         openSwitchModal: (target: Control, event: Event) => void;
+        login: () => Promise<{
+            requireLogin: boolean;
+            isLoggedIn: boolean;
+        }>;
         logout: (target: Control, event: Event) => Promise<void>;
         viewOnExplorerByAddress(): void;
         switchNetwork(chainId: number): Promise<void>;
