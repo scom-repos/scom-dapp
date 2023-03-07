@@ -135,27 +135,6 @@ export class Header extends Module {
     let wallet = Wallet.getInstance();
     this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
     this.$eventBus.register(this, EventId.IsWalletConnected, async (connected: boolean) => {
-      let requireLogin = getRequireLogin();
-      if (requireLogin) {
-        try {
-          const { success, error } = await login();
-          if (error || !success) {
-            this.mdMainAlert.message = {
-              status: 'error',
-              content: error?.message || 'Login failed'
-            };
-            this.mdMainAlert.showModal();
-            connected = false;
-          }
-        } catch (err) {
-          this.mdMainAlert.message = {
-            status: 'error',
-            content: 'Login failed'
-          };
-          this.mdMainAlert.showModal();
-          connected = false;
-        }
-      }
       if (connected) {
         this.walletInfo.address = wallet.address;
         this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
@@ -311,6 +290,32 @@ export class Header extends Module {
     this.mdConnect.visible = true;
   }
 
+  login = async (): Promise<{ requireLogin: boolean, isLoggedIn: boolean }> => {
+    let requireLogin = getRequireLogin();
+    let isLoggedIn = false;
+    if (requireLogin) {
+      try {
+        const { success, error } = await login();
+        if (error || !success) {
+          this.mdMainAlert.message = {
+            status: 'error',
+            content: error?.message || 'Login failed'
+          };
+          this.mdMainAlert.showModal();
+        } else {
+          isLoggedIn = true;
+        }
+      } catch (err) {
+        this.mdMainAlert.message = {
+          status: 'error',
+          content: 'Login failed'
+        };
+        this.mdMainAlert.showModal();
+      }
+    }
+    return { requireLogin, isLoggedIn }
+  }
+
   logout = async (target: Control, event: Event) => {
     if (event) event.stopPropagation();
     this.mdWalletDetail.visible = false;
@@ -333,7 +338,9 @@ export class Header extends Module {
 
   connectToProviderFunc = async (walletPlugin: WalletPlugin) => {
     if (Wallet.isInstalled(walletPlugin)) {
-      await connectWallet(walletPlugin);
+      await connectWallet(walletPlugin, {
+				'accountsChanged': this.login
+			});
     }
     else {
       let config = WalletPluginConfig[walletPlugin];
@@ -417,8 +424,6 @@ export class Header extends Module {
   }
 
   async initData() {
-    let accountsChangedEventHandler = async (account: string) => {
-    }
     let chainChangedEventHandler = async (hexChainId: number) => {
       this.updateConnectedStatus(true);
     }
@@ -432,7 +437,7 @@ export class Header extends Module {
 		}
 		if (hasWallet() && isValidProvider) {
 			await connectWallet(selectedProvider, {
-				'accountsChanged': accountsChangedEventHandler,
+				'accountsChanged': this.login,
 				'chainChanged': chainChangedEventHandler
 			});
 		}

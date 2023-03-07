@@ -352,12 +352,14 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@s
             // wallet.chainId = getDefaultChainId();
         }
         await wallet.connect(walletPlugin, {
-            onAccountChanged: (account) => {
+            onAccountChanged: async (account) => {
                 var _a, _b;
+                let connected = !!account;
                 if (eventHandlers && eventHandlers.accountsChanged) {
-                    eventHandlers.accountsChanged(account);
+                    let { requireLogin, isLoggedIn } = await eventHandlers.accountsChanged(account);
+                    if (requireLogin && !isLoggedIn)
+                        connected = false;
                 }
-                const connected = !!account;
                 if (connected) {
                     localStorage.setItem('walletProvider', ((_b = (_a = eth_wallet_3.Wallet.getClientInstance()) === null || _a === void 0 ? void 0 : _a.clientSideProvider) === null || _b === void 0 ? void 0 : _b.walletPlugin) || '');
                 }
@@ -1237,30 +1239,19 @@ define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], fun
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.logout = exports.login = void 0;
     const API_BASE_URL = '/api/account/v0';
-    function constructLoginTypedMessageData(chainId, uuid) {
-        let domain = {
-            name: 'scom',
-            version: '0.1.0',
-            chainId: chainId,
-            verifyingContract: ''
-        };
-        let customTypes = {
-            Login: [
-                {
-                    'name': 'uuid',
-                    'type': 'string'
-                }
-            ]
-        };
-        let message = {
-            uuid: uuid
-        };
-        let data = eth_wallet_5.Utils.constructTypedMessageData(domain, customTypes, 'Login', message);
-        return data;
+    function constructPersonalSignMessage(walletAddress, uuid) {
+        let messageChunks = [
+            'Welcome to SCOM Marketplace!',
+            'Click to sign in and accept the SCOM Terms of Service.',
+            'This request will not trigger a blockchain transaction or cost any gas fees.',
+            `Wallet address:\n${walletAddress}`,
+            `Nonce:\n${uuid}`
+        ];
+        return messageChunks.join('\n\n');
     }
-    async function requestRandomSessionId(walletAddress) {
+    async function requestLoginSession(walletAddress) {
         let body = JSON.stringify({ walletAddress: walletAddress });
-        let response = await fetch(API_BASE_URL + '/requestRandomNumber', {
+        let response = await fetch(API_BASE_URL + '/requestLoginSession', {
             body: body,
             method: 'POST',
             credentials: 'include',
@@ -1270,15 +1261,21 @@ define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], fun
             }
         });
         let result = await response.json();
-        return result.result;
+        return result;
     }
+    ;
     async function login() {
+        var _a;
         const wallet = eth_wallet_5.Wallet.getClientInstance();
-        let randomSessionIdResult = await requestRandomSessionId(wallet.account.address);
-        let data = constructLoginTypedMessageData(wallet.chainId, randomSessionIdResult.uuid);
-        let signature = await wallet.signTypedDataV4(data);
+        let session = await requestLoginSession(wallet.account.address);
+        if (session.success && ((_a = session.data) === null || _a === void 0 ? void 0 : _a.account))
+            return { success: true };
+        let msg = constructPersonalSignMessage(wallet.address, session.data.nonce);
+        let signature = await wallet.signMessage(msg);
+        let chainId = await wallet.getChainId();
         let body = JSON.stringify({
-            uuid: randomSessionIdResult.uuid,
+            chainId: chainId,
+            uuid: session.data.nonce,
             signature: signature,
             walletAddress: wallet.address
         });
@@ -1295,6 +1292,7 @@ define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], fun
         return result;
     }
     exports.login = login;
+    ;
     async function logout() {
         let response = await fetch(API_BASE_URL + '/logout', {
             method: 'POST',
@@ -1479,6 +1477,33 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 this.mdConnect.title = "Switch wallet";
                 this.mdConnect.visible = true;
             };
+            this.login = async () => {
+                let requireLogin = network_1.getRequireLogin();
+                let isLoggedIn = false;
+                if (requireLogin) {
+                    try {
+                        const { success, error } = await utils_1.login();
+                        if (error || !success) {
+                            this.mdMainAlert.message = {
+                                status: 'error',
+                                content: (error === null || error === void 0 ? void 0 : error.message) || 'Login failed'
+                            };
+                            this.mdMainAlert.showModal();
+                        }
+                        else {
+                            isLoggedIn = true;
+                        }
+                    }
+                    catch (err) {
+                        this.mdMainAlert.message = {
+                            status: 'error',
+                            content: 'Login failed'
+                        };
+                        this.mdMainAlert.showModal();
+                    }
+                }
+                return { requireLogin, isLoggedIn };
+            };
             this.logout = async (target, event) => {
                 if (event)
                     event.stopPropagation();
@@ -1492,7 +1517,9 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             };
             this.connectToProviderFunc = async (walletPlugin) => {
                 if (eth_wallet_6.Wallet.isInstalled(walletPlugin)) {
-                    await network_2.connectWallet(walletPlugin);
+                    await network_2.connectWallet(walletPlugin, {
+                        'accountsChanged': this.login
+                    });
                 }
                 else {
                     let config = eth_wallet_6.WalletPluginConfig[walletPlugin];
@@ -1541,28 +1568,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             let wallet = eth_wallet_6.Wallet.getInstance();
             this.$eventBus.register(this, "connectWallet" /* ConnectWallet */, this.openConnectModal);
             this.$eventBus.register(this, "isWalletConnected" /* IsWalletConnected */, async (connected) => {
-                let requireLogin = network_1.getRequireLogin();
-                if (requireLogin) {
-                    try {
-                        const { success, error } = await utils_1.login();
-                        if (error || !success) {
-                            this.mdMainAlert.message = {
-                                status: 'error',
-                                content: (error === null || error === void 0 ? void 0 : error.message) || 'Login failed'
-                            };
-                            this.mdMainAlert.showModal();
-                            connected = false;
-                        }
-                    }
-                    catch (err) {
-                        this.mdMainAlert.message = {
-                            status: 'error',
-                            content: 'Login failed'
-                        };
-                        this.mdMainAlert.showModal();
-                        connected = false;
-                    }
-                }
                 if (connected) {
                     this.walletInfo.address = wallet.address;
                     this.walletInfo.balance = network_1.formatNumber((await wallet.balance).toFixed(), 2);
@@ -1686,8 +1691,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             }));
         }
         async initData() {
-            let accountsChangedEventHandler = async (account) => {
-            };
             let chainChangedEventHandler = async (hexChainId) => {
                 this.updateConnectedStatus(true);
             };
@@ -1701,7 +1704,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             }
             if (network_2.hasWallet() && isValidProvider) {
                 await network_2.connectWallet(selectedProvider, {
-                    'accountsChanged': accountsChangedEventHandler,
+                    'accountsChanged': this.login,
                     'chainChanged': chainChangedEventHandler
                 });
             }
