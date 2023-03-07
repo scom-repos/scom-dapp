@@ -1,6 +1,6 @@
 {
     "name": "@scom/dapp",
-    "version": "0.1.11",
+    "version": "0.1.12",
     "author": "https://ijs.network",
     "license": "MIT",
     "main": "dist/index.js",
