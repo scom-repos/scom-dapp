@@ -1691,23 +1691,23 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             }));
         }
         async initData() {
-            let chainChangedEventHandler = async (hexChainId) => {
-                this.updateConnectedStatus(true);
-            };
+            // let chainChangedEventHandler = async (hexChainId: number) => {
+            //   this.updateConnectedStatus(true);
+            // }
             let selectedProvider = localStorage.getItem('walletProvider');
             if (!selectedProvider && wallet_2.hasMetaMask()) {
                 selectedProvider = eth_wallet_6.WalletPlugin.MetaMask;
             }
-            const isValidProvider = Object.values(eth_wallet_6.WalletPlugin).includes(selectedProvider);
+            // const isValidProvider = Object.values(WalletPlugin).includes(selectedProvider);
             if (!eth_wallet_6.Wallet.getClientInstance().chainId) {
                 eth_wallet_6.Wallet.getClientInstance().chainId = network_2.getDefaultChainId();
             }
-            if (network_2.hasWallet() && isValidProvider) {
-                await network_2.connectWallet(selectedProvider, {
-                    'accountsChanged': this.login,
-                    'chainChanged': chainChangedEventHandler
-                });
-            }
+            // if (hasWallet() && isValidProvider) {
+            // 	await connectWallet(selectedProvider, {
+            // 		'accountsChanged': this.login,
+            // 		'chainChanged': chainChangedEventHandler
+            // 	});
+            // }
         }
         getMenuPath(url, params) {
             try {
