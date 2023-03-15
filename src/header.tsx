@@ -424,23 +424,23 @@ export class Header extends Module {
   }
 
   async initData() {
-    let chainChangedEventHandler = async (hexChainId: number) => {
-      this.updateConnectedStatus(true);
-    }
+    // let chainChangedEventHandler = async (hexChainId: number) => {
+    //   this.updateConnectedStatus(true);
+    // }
 		let selectedProvider = localStorage.getItem('walletProvider') as WalletPlugin;
 		if (!selectedProvider && hasMetaMask()) {
 			selectedProvider = WalletPlugin.MetaMask;
 		}
-		const isValidProvider = Object.values(WalletPlugin).includes(selectedProvider);
+		// const isValidProvider = Object.values(WalletPlugin).includes(selectedProvider);
 		if (!Wallet.getClientInstance().chainId) {
 			Wallet.getClientInstance().chainId = getDefaultChainId();
 		}
-		if (hasWallet() && isValidProvider) {
-			await connectWallet(selectedProvider, {
-				'accountsChanged': this.login,
-				'chainChanged': chainChangedEventHandler
-			});
-		}
+		// if (hasWallet() && isValidProvider) {
+		// 	await connectWallet(selectedProvider, {
+		// 		'accountsChanged': this.login,
+		// 		'chainChanged': chainChangedEventHandler
+		// 	});
+		// }
   }
 
   getMenuPath(url: string, params: any) {
