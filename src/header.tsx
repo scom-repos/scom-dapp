@@ -321,6 +321,7 @@ export class Header extends Module {
     this.mdWalletDetail.visible = false;
     await logoutWallet();
     if (getRequireLogin()) await logout();
+    document.cookie = 'scom__wallet=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
     this.updateConnectedStatus(false);
     this.updateList(false);
     this.mdAccount.visible = false;
@@ -424,23 +425,27 @@ export class Header extends Module {
   }
 
   async initData() {
-    // let chainChangedEventHandler = async (hexChainId: number) => {
-    //   this.updateConnectedStatus(true);
-    // }
+    let chainChangedEventHandler = async (hexChainId: number) => {
+      this.updateConnectedStatus(true);
+    }
 		let selectedProvider = localStorage.getItem('walletProvider') as WalletPlugin;
 		if (!selectedProvider && hasMetaMask()) {
 			selectedProvider = WalletPlugin.MetaMask;
 		}
-		// const isValidProvider = Object.values(WalletPlugin).includes(selectedProvider);
+		const isValidProvider = Object.values(WalletPlugin).includes(selectedProvider);
 		if (!Wallet.getClientInstance().chainId) {
 			Wallet.getClientInstance().chainId = getDefaultChainId();
 		}
-		// if (hasWallet() && isValidProvider) {
-		// 	await connectWallet(selectedProvider, {
-		// 		'accountsChanged': this.login,
-		// 		'chainChanged': chainChangedEventHandler
-		// 	});
-		// }
+    let isLoggedIn = !!document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("scom__wallet="))
+      ?.split("=")[1];
+		if (isLoggedIn && hasWallet() && isValidProvider) {
+			await connectWallet(selectedProvider, {
+				'accountsChanged': this.login,
+				'chainChanged': chainChangedEventHandler
+			});
+		}
   }
 
   getMenuPath(url: string, params: any) {

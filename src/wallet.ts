@@ -46,6 +46,7 @@ export async function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: 
       }
       if (connected) {
         localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.walletPlugin || '');
+        document.cookie = `scom__wallet=${Wallet.getClientInstance()?.clientSideProvider?.walletPlugin || ''}`;
       }
       application.EventBus.dispatch(EventId.IsWalletConnected, connected);
     },

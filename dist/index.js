@@ -353,7 +353,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@s
         }
         await wallet.connect(walletPlugin, {
             onAccountChanged: async (account) => {
-                var _a, _b;
+                var _a, _b, _c, _d;
                 let connected = !!account;
                 if (eventHandlers && eventHandlers.accountsChanged) {
                     let { requireLogin, isLoggedIn } = await eventHandlers.accountsChanged(account);
@@ -362,6 +362,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@s
                 }
                 if (connected) {
                     localStorage.setItem('walletProvider', ((_b = (_a = eth_wallet_3.Wallet.getClientInstance()) === null || _a === void 0 ? void 0 : _a.clientSideProvider) === null || _b === void 0 ? void 0 : _b.walletPlugin) || '');
+                    document.cookie = `scom__wallet=${((_d = (_c = eth_wallet_3.Wallet.getClientInstance()) === null || _c === void 0 ? void 0 : _c.clientSideProvider) === null || _d === void 0 ? void 0 : _d.walletPlugin) || ''}`;
                 }
                 components_3.application.EventBus.dispatch("isWalletConnected" /* IsWalletConnected */, connected);
             },
@@ -1511,6 +1512,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 await network_2.logoutWallet();
                 if (network_1.getRequireLogin())
                     await utils_1.logout();
+                document.cookie = 'scom__wallet=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
                 this.updateConnectedStatus(false);
                 this.updateList(false);
                 this.mdAccount.visible = false;
@@ -1691,23 +1693,27 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             }));
         }
         async initData() {
-            // let chainChangedEventHandler = async (hexChainId: number) => {
-            //   this.updateConnectedStatus(true);
-            // }
+            var _a;
+            let chainChangedEventHandler = async (hexChainId) => {
+                this.updateConnectedStatus(true);
+            };
             let selectedProvider = localStorage.getItem('walletProvider');
             if (!selectedProvider && wallet_2.hasMetaMask()) {
                 selectedProvider = eth_wallet_6.WalletPlugin.MetaMask;
             }
-            // const isValidProvider = Object.values(WalletPlugin).includes(selectedProvider);
+            const isValidProvider = Object.values(eth_wallet_6.WalletPlugin).includes(selectedProvider);
             if (!eth_wallet_6.Wallet.getClientInstance().chainId) {
                 eth_wallet_6.Wallet.getClientInstance().chainId = network_2.getDefaultChainId();
             }
-            // if (hasWallet() && isValidProvider) {
-            // 	await connectWallet(selectedProvider, {
-            // 		'accountsChanged': this.login,
-            // 		'chainChanged': chainChangedEventHandler
-            // 	});
-            // }
+            let isLoggedIn = !!((_a = document.cookie
+                .split("; ")
+                .find((row) => row.startsWith("scom__wallet="))) === null || _a === void 0 ? void 0 : _a.split("=")[1]);
+            if (isLoggedIn && network_2.hasWallet() && isValidProvider) {
+                await network_2.connectWallet(selectedProvider, {
+                    'accountsChanged': this.login,
+                    'chainChanged': chainChangedEventHandler
+                });
+            }
         }
         getMenuPath(url, params) {
             try {
