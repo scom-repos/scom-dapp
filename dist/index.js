@@ -1481,8 +1481,9 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.login = async () => {
                 let requireLogin = network_1.getRequireLogin();
                 let isLoggedIn = false;
-                if (requireLogin) {
+                if (!this.isLoginRequestSent && requireLogin) {
                     try {
+                        this.isLoginRequestSent = true;
                         const { success, error } = await utils_1.login();
                         if (error || !success) {
                             this.mdMainAlert.message = {
@@ -1502,6 +1503,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                         };
                         this.mdMainAlert.showModal();
                     }
+                    this.isLoginRequestSent = false;
                 }
                 return { requireLogin, isLoggedIn };
             };

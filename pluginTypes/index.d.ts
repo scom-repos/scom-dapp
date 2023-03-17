@@ -410,6 +410,7 @@ declare module "@scom/dapp/header.tsx" {
         private imgDesktopLogo;
         private imgMobileLogo;
         private supportedNetworks;
+        private isLoginRequestSent;
         private walletInfo;
         constructor(parent?: Container, options?: any);
         get symbol(): string;

@@ -104,6 +104,7 @@ export class Header extends Module {
   private imgDesktopLogo: Image;
   private imgMobileLogo: Image;
   private supportedNetworks: INetwork[] = [];
+  private isLoginRequestSent: Boolean;
   @observable()
   private walletInfo = {
     address: '',
@@ -293,8 +294,9 @@ export class Header extends Module {
   login = async (): Promise<{ requireLogin: boolean, isLoggedIn: boolean }> => {
     let requireLogin = getRequireLogin();
     let isLoggedIn = false;
-    if (requireLogin) {
+    if (!this.isLoginRequestSent && requireLogin) {
       try {
+        this.isLoginRequestSent = true;
         const { success, error } = await login();
         if (error || !success) {
           this.mdMainAlert.message = {
@@ -312,6 +314,7 @@ export class Header extends Module {
         };
         this.mdMainAlert.showModal();
       }
+      this.isLoginRequestSent = false;
     }
     return { requireLogin, isLoggedIn }
   }
