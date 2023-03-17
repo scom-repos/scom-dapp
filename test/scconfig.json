@@ -82,7 +82,9 @@
     "desktop": 1920
   },
   "header": {
-    "fixed": true
+    "fixed": true,
+    "hideNetworkButton": true,
+    "hideWalletBalance": true
   },
   "requireLogin": true
 }

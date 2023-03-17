@@ -19,7 +19,7 @@ import {
   Image
 } from '@ijstech/components';
 import { Wallet, WalletPlugin, WalletPluginConfig } from "@ijstech/eth-wallet";
-import { INetwork, EventId, formatNumber, truncateAddress, isWalletConnected, isValidEnv, isDefaultNetworkFromWallet, getRequireLogin } from './network';
+import { EventId, formatNumber, truncateAddress, isWalletConnected, isValidEnv, isDefaultNetworkFromWallet, getRequireLogin } from './network';
 import styleClass from './header.css';
 import Assets, { assets } from './assets';
 import {
@@ -38,29 +38,12 @@ import { getSupportedWallets, hasMetaMask } from './wallet';
 import { compile } from './pathToRegexp'
 import { login, logout } from './utils';
 import { Alert } from './alert';
+import { IMenu, INetwork } from './interface';
 
 const Theme = Styles.Theme.ThemeVars;
 
-interface IModuleMenu {
-  caption?: string;
-  module?: string;
-  url?: string;
-  params?: any;
-	env?: string;
-	networks?: number[];
-  isToExternal?: boolean;
-  img?: string;
-  menus?: IModuleMenu[];
-  isDisabled?: boolean;
-}
-interface ILogo {
-  desktop?: string;
-  mobile?: string;
-};
-
 export interface HeaderElement extends ControlElement {
-  logo?: ILogo;
-  menuItems?: IModuleMenu[];
+  menuItems?: IMenu[];
 }
 declare global {
   namespace JSX {
@@ -77,6 +60,7 @@ export class Header extends Module {
   private mdMobileMenu: Modal;
   private menuMobile: Menu;
   private menuDesktop: Menu;
+  private pnlNetwork: Panel;
   private btnNetwork: Button;
   private hsBalance: HStack;
   private lblBalance: Label;
@@ -93,10 +77,12 @@ export class Header extends Module {
   private gridWalletList: GridLayout;
   private gridNetworkGroup: GridLayout;
   private mdMainAlert: Alert;
+  private _hideNetworkButton: boolean;
+  private _hideWalletBalance: boolean;
 
   private $eventBus: IEventBus;
   private selectedNetwork: INetwork | undefined;
-  private _menuItems: IModuleMenu[];
+  private _menuItems: IMenu[];
   private networkMapper: Map<number, HStack>;
   private walletMapper: Map<WalletPlugin, HStack>;
   private currActiveNetworkId: number;
@@ -104,6 +90,7 @@ export class Header extends Module {
   private imgDesktopLogo: Image;
   private imgMobileLogo: Image;
   private supportedNetworks: INetwork[] = [];
+  private isLoginRequestSent: Boolean;
   @observable()
   private walletInfo = {
     address: '',
@@ -129,6 +116,24 @@ export class Header extends Module {
     const address = this.walletInfo.address;
     if (!address) return 'No address selected';
     return truncateAddress(address);
+  }
+
+  get hideNetworkButton(): boolean {
+    return this._hideNetworkButton;
+  }
+  
+  set hideNetworkButton(value: boolean) {
+    this._hideNetworkButton = value;
+    this.pnlNetwork.visible = !value;
+  }
+
+  get hideWalletBalance(): boolean {
+    return this._hideWalletBalance;
+  }
+
+  set hideWalletBalance(value: boolean) {
+    this._hideWalletBalance = value;
+    this.hsBalance.visible = !value;
   }
 
   registerEvent() {
@@ -228,7 +233,7 @@ export class Header extends Module {
       this.btnNetwork.caption = isDefaultNetworkFromWallet() ? "Unknown Network" : "Unsupported Network";
     }
     this.btnConnectWallet.visible = !isConnected;
-    this.hsBalance.visible = isConnected;
+    this.hsBalance.visible = !this._hideWalletBalance && isConnected;
     this.pnlWalletDetail.visible = isConnected;
   }
 
@@ -293,8 +298,9 @@ export class Header extends Module {
   login = async (): Promise<{ requireLogin: boolean, isLoggedIn: boolean }> => {
     let requireLogin = getRequireLogin();
     let isLoggedIn = false;
-    if (requireLogin) {
+    if (!this.isLoginRequestSent && requireLogin) {
       try {
+        this.isLoginRequestSent = true;
         const { success, error } = await login();
         if (error || !success) {
           this.mdMainAlert.message = {
@@ -312,6 +318,7 @@ export class Header extends Module {
         };
         this.mdMainAlert.showModal();
       }
+      this.isLoginRequestSent = false;
     }
     return { requireLogin, isLoggedIn }
   }
@@ -321,6 +328,7 @@ export class Header extends Module {
     this.mdWalletDetail.visible = false;
     await logoutWallet();
     if (getRequireLogin()) await logout();
+    document.cookie = 'scom__wallet=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
     this.updateConnectedStatus(false);
     this.updateList(false);
     this.mdAccount.visible = false;
@@ -424,23 +432,27 @@ export class Header extends Module {
   }
 
   async initData() {
-    // let chainChangedEventHandler = async (hexChainId: number) => {
-    //   this.updateConnectedStatus(true);
-    // }
+    let chainChangedEventHandler = async (hexChainId: number) => {
+      this.updateConnectedStatus(true);
+    }
 		let selectedProvider = localStorage.getItem('walletProvider') as WalletPlugin;
 		if (!selectedProvider && hasMetaMask()) {
 			selectedProvider = WalletPlugin.MetaMask;
 		}
-		// const isValidProvider = Object.values(WalletPlugin).includes(selectedProvider);
+		const isValidProvider = Object.values(WalletPlugin).includes(selectedProvider);
 		if (!Wallet.getClientInstance().chainId) {
 			Wallet.getClientInstance().chainId = getDefaultChainId();
 		}
-		// if (hasWallet() && isValidProvider) {
-		// 	await connectWallet(selectedProvider, {
-		// 		'accountsChanged': this.login,
-		// 		'chainChanged': chainChangedEventHandler
-		// 	});
-		// }
+    let isLoggedIn = !!document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("scom__wallet="))
+      ?.split("=")[1];
+		if (isLoggedIn && hasWallet() && isValidProvider) {
+			await connectWallet(selectedProvider, {
+				'accountsChanged': this.login,
+				'chainChanged': chainChangedEventHandler
+			});
+		}
   }
 
   getMenuPath(url: string, params: any) {
@@ -451,9 +463,9 @@ export class Header extends Module {
     return "";
   }
 
-  _getMenuData(list: IModuleMenu[], mode: string, validMenuItemsFn: (item: IModuleMenu) => boolean): IMenuItem[] {
+  _getMenuData(list: IMenu[], mode: string, validMenuItemsFn: (item: IMenu) => boolean): IMenuItem[] {
     const menuItems: IMenuItem[] = [];
-    list.filter(validMenuItemsFn).forEach((item: IModuleMenu, key: number) => {
+    list.filter(validMenuItemsFn).forEach((item: IMenu, key: number) => {
       const linkTarget = item.isToExternal ? '_blank' : '_self';
       const path = this.getMenuPath(item.url, item.params);
       const _menuItem: IMenuItem = {
@@ -473,14 +485,14 @@ export class Header extends Module {
     return menuItems;
   }
 
-  getMenuData(list: IModuleMenu[], mode: string): any {
+  getMenuData(list: IMenu[], mode: string): any {
     let chainId = this.selectedNetwork?.chainId || Wallet.getInstance().chainId;
-    let validMenuItemsFn: (item: IModuleMenu) => boolean;
+    let validMenuItemsFn: (item: IMenu) => boolean;
     if (chainId) {
-      validMenuItemsFn = (item: IModuleMenu) => !item.isDisabled && (!item.networks || item.networks.includes(chainId)) && isValidEnv(item.env);
+      validMenuItemsFn = (item: IMenu) => !item.isDisabled && (!item.networks || item.networks.includes(chainId)) && isValidEnv(item.env);
     }
     else {
-      validMenuItemsFn = (item: IModuleMenu) => !item.isDisabled && isValidEnv(item.env);
+      validMenuItemsFn = (item: IMenu) => !item.isDisabled && isValidEnv(item.env);
     }
     return this._getMenuData(list, mode, validMenuItemsFn);
   }
@@ -553,7 +565,7 @@ export class Header extends Module {
               <i-menu id="menuDesktop" width="100%" border={{ left: { color: Theme.divider, width: '1px', style: 'solid' } }}></i-menu>
             </i-hstack>
             <i-hstack verticalAlignment='center' horizontalAlignment='end'>
-              <i-panel>
+              <i-panel id="pnlNetwork">
                 <i-button
                   id="btnNetwork"
                   height={38}

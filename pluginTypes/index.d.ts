@@ -1,176 +1,4 @@
 /// <reference path="@ijstech/eth-wallet/index.d.ts" />
-/// <amd-module name="@scom/dapp/assets.ts" />
-declare module "@scom/dapp/assets.ts" {
-    type viewportType = "desktop" | "tablet" | "mobile";
-    interface ILogo {
-        header: string;
-        footer: string;
-    }
-    interface IBreakpoints {
-        mobile: number;
-        tablet: number;
-        desktop: number;
-    }
-    class Assets {
-        private static _instance;
-        private _breakpoints;
-        static get instance(): Assets;
-        get logo(): ILogo;
-        set breakpoints(value: IBreakpoints);
-        get breakpoints(): IBreakpoints;
-        get viewport(): viewportType;
-        private _getLogoPath;
-        private _getLogo;
-    }
-    export const assets: Assets;
-    function fullPath(path: string): string;
-    const _default: {
-        fonts: {
-            poppins: {
-                bold: string;
-                italic: string;
-                light: string;
-                medium: string;
-                regular: string;
-                thin: string;
-            };
-        };
-        img: {
-            network: {
-                bsc: string;
-                eth: string;
-                amio: string;
-                avax: string;
-                ftm: string;
-                polygon: string;
-            };
-            wallet: {
-                metamask: string;
-                trustwallet: string;
-                binanceChainWallet: string;
-                walletconnect: string;
-            };
-        };
-        fullPath: typeof fullPath;
-    };
-    export default _default;
-}
-/// <amd-module name="@scom/dapp/index.css.ts" />
-declare module "@scom/dapp/index.css.ts" {
-    const _default_1: string;
-    export default _default_1;
-}
-/// <amd-module name="@scom/dapp/helper.ts" />
-declare module "@scom/dapp/helper.ts" {
-    import { BigNumber } from "@ijstech/eth-wallet";
-    export const formatNumber: (value: any, decimals?: number) => string;
-    export const formatNumberWithSeparators: (value: number, precision?: number) => string;
-    export const limitDecimals: (value: any, decimals: number) => any;
-    export function getAPI(url: string, paramsObj?: any): Promise<any>;
-    export const toWeiInv: (n: string, unit?: number) => BigNumber;
-    export const abbreviateNum: (value: number) => string;
-    export const getParamsFromUrl: () => URLSearchParams;
-}
-/// <amd-module name="@scom/dapp/walletList.ts" />
-declare module "@scom/dapp/walletList.ts" {
-    import { WalletPlugin } from '@ijstech/eth-wallet';
-    export const walletList: ({
-        name: WalletPlugin;
-        displayName: string;
-        img: string;
-        iconFile?: undefined;
-    } | {
-        name: WalletPlugin;
-        displayName: string;
-        iconFile: string;
-        img?: undefined;
-    })[];
-}
-/// <amd-module name="@scom/dapp/wallet.ts" />
-declare module "@scom/dapp/wallet.ts" {
-    import { IWallet, WalletPlugin } from '@ijstech/eth-wallet';
-    export interface INetwork {
-        chainId: number;
-        name: string;
-        img?: string;
-        rpc?: string;
-        symbol?: string;
-        env?: string;
-        explorerName?: string;
-        explorerTxUrl?: string;
-        explorerAddressUrl?: string;
-        isDisabled?: boolean;
-    }
-    export const enum EventId {
-        ConnectWallet = "connectWallet",
-        IsWalletConnected = "isWalletConnected",
-        chainChanged = "chainChanged",
-        IsWalletDisconnected = "IsWalletDisconnected"
-    }
-    export function isWalletConnected(): boolean;
-    export function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: {
-        [key: string]: Function;
-    }): Promise<IWallet>;
-    export function switchNetwork(chainId: number): Promise<void>;
-    export function logoutWallet(): Promise<void>;
-    export const hasWallet: () => boolean;
-    export const hasMetaMask: () => boolean;
-    export const truncateAddress: (address: string) => string;
-    export const getSupportedWallets: () => ({
-        name: WalletPlugin;
-        displayName: string;
-        img: string;
-        iconFile?: undefined;
-    } | {
-        name: WalletPlugin;
-        displayName: string;
-        iconFile: string;
-        img?: undefined;
-    })[];
-    export const updateWallets: (options: any) => void;
-}
-/// <amd-module name="@scom/dapp/network.ts" />
-declare module "@scom/dapp/network.ts" {
-    import { Erc20, ISendTxEventsOptions } from '@ijstech/eth-wallet';
-    import { formatNumber } from "@scom/dapp/helper.ts";
-    import { INetwork, EventId } from "@scom/dapp/wallet.ts";
-    export { isWalletConnected, hasWallet, hasMetaMask, truncateAddress, switchNetwork, connectWallet, logoutWallet } from "@scom/dapp/wallet.ts";
-    export { INetwork, EventId, formatNumber };
-    export interface ITokenObject {
-        address?: string;
-        name: string;
-        decimals: number;
-        symbol: string;
-        status?: boolean | null;
-        logoURI?: string;
-        isCommon?: boolean | null;
-        balance?: string | number;
-        isNative?: boolean | null;
-    }
-    export const updateNetworks: (options: any) => void;
-    export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions): void;
-    export function getChainId(): number;
-    export function getWallet(): import("wallet").IWallet;
-    export function getWalletProvider(): string;
-    export function getErc20(address: string): Erc20;
-    export const getNetworkInfo: (chainId: number) => INetwork | undefined;
-    export const getNetworkList: () => INetwork[];
-    export const viewOnExplorerByTxHash: (chainId: number, txHash: string) => void;
-    export const viewOnExplorerByAddress: (chainId: number, address: string) => void;
-    export const getNetworkType: (chainId: number) => string;
-    export const getDefaultChainId: () => number;
-    export const getSiteSupportedNetworks: () => INetwork[];
-    export const isValidEnv: (env: string) => boolean;
-    export const getInfuraId: () => string;
-    export const getEnv: () => string;
-    export const isDefaultNetworkFromWallet: () => boolean;
-    export const getRequireLogin: () => boolean;
-}
-/// <amd-module name="@scom/dapp/header.css.ts" />
-declare module "@scom/dapp/header.css.ts" {
-    const _default_2: string;
-    export default _default_2;
-}
 /// <amd-module name="@scom/dapp/pathToRegexp.ts" />
 declare module "@scom/dapp/pathToRegexp.ts" {
     export interface ParseOptions {
@@ -301,6 +129,207 @@ declare module "@scom/dapp/pathToRegexp.ts" {
      */
     export function pathToRegexp(path: Path, keys?: Key[], options?: TokensToRegexpOptions & ParseOptions): RegExp;
 }
+/// <amd-module name="@scom/dapp/interface.ts" />
+declare module "@scom/dapp/interface.ts" {
+    import { MatchFunction } from "@scom/dapp/pathToRegexp.ts";
+    export interface IBreakpoints {
+        mobile: number;
+        tablet: number;
+        desktop: number;
+    }
+    export interface IMenu {
+        caption: string;
+        url: string;
+        module: string;
+        params?: any;
+        env?: string;
+        networks?: number[];
+        isToExternal?: boolean;
+        img?: string;
+        isDisabled?: boolean;
+        menus?: IMenu[];
+        regex?: MatchFunction;
+    }
+    export interface INetwork {
+        chainId: number;
+        name?: string;
+        img?: string;
+        rpc?: string;
+        symbol?: string;
+        env?: string;
+        explorerName?: string;
+        explorerTxUrl?: string;
+        explorerAddressUrl?: string;
+        isDisabled?: boolean;
+    }
+    export interface IHeaderFooter {
+        visible?: boolean;
+        fixed?: boolean;
+    }
+    export interface IHeader extends IHeaderFooter {
+        hideNetworkButton?: boolean;
+        hideWalletBalance?: boolean;
+    }
+    export interface IFooter extends IHeaderFooter {
+    }
+}
+/// <amd-module name="@scom/dapp/assets.ts" />
+declare module "@scom/dapp/assets.ts" {
+    import { IBreakpoints } from "@scom/dapp/interface.ts";
+    type viewportType = "desktop" | "tablet" | "mobile";
+    interface ILogo {
+        header: string;
+        footer: string;
+    }
+    class Assets {
+        private static _instance;
+        private _breakpoints;
+        static get instance(): Assets;
+        get logo(): ILogo;
+        set breakpoints(value: IBreakpoints);
+        get breakpoints(): IBreakpoints;
+        get viewport(): viewportType;
+        private _getLogoPath;
+        private _getLogo;
+    }
+    export const assets: Assets;
+    function fullPath(path: string): string;
+    const _default: {
+        fonts: {
+            poppins: {
+                bold: string;
+                italic: string;
+                light: string;
+                medium: string;
+                regular: string;
+                thin: string;
+            };
+        };
+        img: {
+            network: {
+                bsc: string;
+                eth: string;
+                amio: string;
+                avax: string;
+                ftm: string;
+                polygon: string;
+            };
+            wallet: {
+                metamask: string;
+                trustwallet: string;
+                binanceChainWallet: string;
+                walletconnect: string;
+            };
+        };
+        fullPath: typeof fullPath;
+    };
+    export default _default;
+}
+/// <amd-module name="@scom/dapp/index.css.ts" />
+declare module "@scom/dapp/index.css.ts" {
+    const _default_1: string;
+    export default _default_1;
+}
+/// <amd-module name="@scom/dapp/helper.ts" />
+declare module "@scom/dapp/helper.ts" {
+    import { BigNumber } from "@ijstech/eth-wallet";
+    export const formatNumber: (value: any, decimals?: number) => string;
+    export const formatNumberWithSeparators: (value: number, precision?: number) => string;
+    export const limitDecimals: (value: any, decimals: number) => any;
+    export function getAPI(url: string, paramsObj?: any): Promise<any>;
+    export const toWeiInv: (n: string, unit?: number) => BigNumber;
+    export const abbreviateNum: (value: number) => string;
+    export const getParamsFromUrl: () => URLSearchParams;
+}
+/// <amd-module name="@scom/dapp/walletList.ts" />
+declare module "@scom/dapp/walletList.ts" {
+    import { WalletPlugin } from '@ijstech/eth-wallet';
+    export const walletList: ({
+        name: WalletPlugin;
+        displayName: string;
+        img: string;
+        iconFile?: undefined;
+    } | {
+        name: WalletPlugin;
+        displayName: string;
+        iconFile: string;
+        img?: undefined;
+    })[];
+}
+/// <amd-module name="@scom/dapp/wallet.ts" />
+declare module "@scom/dapp/wallet.ts" {
+    import { IWallet, WalletPlugin } from '@ijstech/eth-wallet';
+    export const enum EventId {
+        ConnectWallet = "connectWallet",
+        IsWalletConnected = "isWalletConnected",
+        chainChanged = "chainChanged",
+        IsWalletDisconnected = "IsWalletDisconnected"
+    }
+    export function isWalletConnected(): boolean;
+    export function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: {
+        [key: string]: Function;
+    }): Promise<IWallet>;
+    export function switchNetwork(chainId: number): Promise<void>;
+    export function logoutWallet(): Promise<void>;
+    export const hasWallet: () => boolean;
+    export const hasMetaMask: () => boolean;
+    export const truncateAddress: (address: string) => string;
+    export const getSupportedWallets: () => ({
+        name: WalletPlugin;
+        displayName: string;
+        img: string;
+        iconFile?: undefined;
+    } | {
+        name: WalletPlugin;
+        displayName: string;
+        iconFile: string;
+        img?: undefined;
+    })[];
+    export const updateWallets: (options: any) => void;
+}
+/// <amd-module name="@scom/dapp/network.ts" />
+declare module "@scom/dapp/network.ts" {
+    import { Erc20, ISendTxEventsOptions } from '@ijstech/eth-wallet';
+    import { formatNumber } from "@scom/dapp/helper.ts";
+    import { INetwork } from "@scom/dapp/interface.ts";
+    import { EventId } from "@scom/dapp/wallet.ts";
+    export { isWalletConnected, hasWallet, hasMetaMask, truncateAddress, switchNetwork, connectWallet, logoutWallet } from "@scom/dapp/wallet.ts";
+    export { EventId, formatNumber };
+    export interface ITokenObject {
+        address?: string;
+        name: string;
+        decimals: number;
+        symbol: string;
+        status?: boolean | null;
+        logoURI?: string;
+        isCommon?: boolean | null;
+        balance?: string | number;
+        isNative?: boolean | null;
+    }
+    export const updateNetworks: (options: any) => void;
+    export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions): void;
+    export function getChainId(): number;
+    export function getWallet(): import("wallet").IWallet;
+    export function getWalletProvider(): string;
+    export function getErc20(address: string): Erc20;
+    export const getNetworkInfo: (chainId: number) => INetwork | undefined;
+    export const getNetworkList: () => INetwork[];
+    export const viewOnExplorerByTxHash: (chainId: number, txHash: string) => void;
+    export const viewOnExplorerByAddress: (chainId: number, address: string) => void;
+    export const getNetworkType: (chainId: number) => string;
+    export const getDefaultChainId: () => number;
+    export const getSiteSupportedNetworks: () => INetwork[];
+    export const isValidEnv: (env: string) => boolean;
+    export const getInfuraId: () => string;
+    export const getEnv: () => string;
+    export const isDefaultNetworkFromWallet: () => boolean;
+    export const getRequireLogin: () => boolean;
+}
+/// <amd-module name="@scom/dapp/header.css.ts" />
+declare module "@scom/dapp/header.css.ts" {
+    const _default_2: string;
+    export default _default_2;
+}
 /// <amd-module name="@scom/dapp/utils.ts" />
 declare module "@scom/dapp/utils.ts" {
     function login(): Promise<any>;
@@ -351,25 +380,9 @@ declare module "@scom/dapp/alert.tsx" {
 declare module "@scom/dapp/header.tsx" {
     import { Module, Control, ControlElement, Container, IMenuItem } from '@ijstech/components';
     import { WalletPlugin } from "@ijstech/eth-wallet";
-    interface IModuleMenu {
-        caption?: string;
-        module?: string;
-        url?: string;
-        params?: any;
-        env?: string;
-        networks?: number[];
-        isToExternal?: boolean;
-        img?: string;
-        menus?: IModuleMenu[];
-        isDisabled?: boolean;
-    }
-    interface ILogo {
-        desktop?: string;
-        mobile?: string;
-    }
+    import { IMenu } from "@scom/dapp/interface.ts";
     export interface HeaderElement extends ControlElement {
-        logo?: ILogo;
-        menuItems?: IModuleMenu[];
+        menuItems?: IMenu[];
     }
     global {
         namespace JSX {
@@ -384,6 +397,7 @@ declare module "@scom/dapp/header.tsx" {
         private mdMobileMenu;
         private menuMobile;
         private menuDesktop;
+        private pnlNetwork;
         private btnNetwork;
         private hsBalance;
         private lblBalance;
@@ -400,6 +414,8 @@ declare module "@scom/dapp/header.tsx" {
         private gridWalletList;
         private gridNetworkGroup;
         private mdMainAlert;
+        private _hideNetworkButton;
+        private _hideWalletBalance;
         private $eventBus;
         private selectedNetwork;
         private _menuItems;
@@ -410,10 +426,15 @@ declare module "@scom/dapp/header.tsx" {
         private imgDesktopLogo;
         private imgMobileLogo;
         private supportedNetworks;
+        private isLoginRequestSent;
         private walletInfo;
         constructor(parent?: Container, options?: any);
         get symbol(): string;
         get shortlyAddress(): string;
+        get hideNetworkButton(): boolean;
+        set hideNetworkButton(value: boolean);
+        get hideWalletBalance(): boolean;
+        set hideWalletBalance(value: boolean);
         registerEvent(): void;
         init(): void;
         connectedCallback(): void;
@@ -443,8 +464,8 @@ declare module "@scom/dapp/header.tsx" {
         renderNetworks(): void;
         initData(): Promise<void>;
         getMenuPath(url: string, params: any): string;
-        _getMenuData(list: IModuleMenu[], mode: string, validMenuItemsFn: (item: IModuleMenu) => boolean): IMenuItem[];
-        getMenuData(list: IModuleMenu[], mode: string): any;
+        _getMenuData(list: IMenu[], mode: string, validMenuItemsFn: (item: IMenu) => boolean): IMenuItem[];
+        getMenuData(list: IMenu[], mode: string): any;
         renderMobileMenu(): void;
         renderDesktopMenu(): void;
         toggleMenu(): void;
