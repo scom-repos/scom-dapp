@@ -1,4 +1,5 @@
 import { application, Styles } from '@ijstech/components';
+import { IBreakpoints } from './interface';
 const moduleDir = application.currentModuleDir;
 type themeType = "light" | "dark";
 type viewportType = "desktop" | "tablet" | "mobile";
@@ -6,11 +7,7 @@ interface ILogo {
     header: string;
     footer: string;
 }
-interface IBreakpoints {
-    mobile: number;
-    tablet: number;
-    desktop: number;
-}
+
 class Assets {
     private static _instance: Assets;
     private _breakpoints: IBreakpoints;

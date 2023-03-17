@@ -10,20 +10,9 @@ import { match, MatchFunction, compile } from './pathToRegexp'
 import { assets } from './assets';
 import { Header } from './header';
 import { Footer } from './footer';
+import { IBreakpoints, IFooter, IHeader, IMenu, INetwork } from './interface';
 Styles.Theme.applyTheme(Styles.Theme.darkTheme);
-interface IMenu {
-	caption: string;
-	url: string;
-	module: string;
-	params?: any;
-	env?: string;
-	networks?: number[];
-	isToExternal?: boolean;
-	img?: string;
-	isDisabled?: boolean;
-	menus?: IMenu[];
-	regex?: MatchFunction;
-};
+
 interface ISCConfig {
 	env: string;
 	moduleDir?: string;
@@ -37,21 +26,9 @@ interface ISCConfig {
 	wallet?: string[];
 	themes?: ITheme;
 	breakpoints?: IBreakpoints;
-	header?: IHeaderFooter;
-	footer?: IHeaderFooter;
+	header?: IHeader;
+	footer?: IFooter;
 	requireLogin?: boolean;
-};
-interface INetwork {
-	name?: string,
-	chainId: number,
-	img?: string,
-	rpc?: string,
-	symbol?: string,
-	env?: string,
-	explorerName?: string,
-	explorerTxUrl?: string,
-	explorerAddressUrl?: string,
-	isDisabled?: boolean,
 };
 interface IRoute {
 	url: string;
@@ -63,15 +40,6 @@ interface ITheme {
 	default: string;
 	dark?: Styles.Theme.ITheme;
 	light?: Styles.Theme.ITheme;
-}
-interface IBreakpoints {
-	mobile: number;
-	tablet: number;
-	desktop: number;
-}
-interface IHeaderFooter {
-	visible?: boolean,
-	fixed?: boolean
 }
 @customModule
 export default class MainLauncher extends Module {
@@ -204,6 +172,8 @@ export default class MainLauncher extends Module {
 				this.pnlScrollable.visible = true;
 			}
 		}
+		this.headerElm.hideNetworkButton = header.hideNetworkButton;
+		this.headerElm.hideWalletBalance = header.hideWalletBalance;
 	}
 	async render() {
 		return (
