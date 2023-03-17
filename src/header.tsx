@@ -124,7 +124,7 @@ export class Header extends Module {
   
   set hideNetworkButton(value: boolean) {
     this._hideNetworkButton = value;
-    this.pnlNetwork.visible = !value;
+    if (value) this.pnlNetwork.visible = false;
   }
 
   get hideWalletBalance(): boolean {
@@ -133,7 +133,7 @@ export class Header extends Module {
 
   set hideWalletBalance(value: boolean) {
     this._hideWalletBalance = value;
-    this.hsBalance.visible = !value;
+    if (value) this.hsBalance.visible = false;
   }
 
   registerEvent() {

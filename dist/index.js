@@ -1577,14 +1577,16 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         }
         set hideNetworkButton(value) {
             this._hideNetworkButton = value;
-            this.pnlNetwork.visible = !value;
+            if (value)
+                this.pnlNetwork.visible = false;
         }
         get hideWalletBalance() {
             return this._hideWalletBalance;
         }
         set hideWalletBalance(value) {
             this._hideWalletBalance = value;
-            this.hsBalance.visible = !value;
+            if (value)
+                this.hsBalance.visible = false;
         }
         registerEvent() {
             let wallet = eth_wallet_6.Wallet.getInstance();
