@@ -16,7 +16,8 @@ import {
   GridLayout,
   Container,
   IMenuItem,
-  Image
+  Image,
+  Switch
 } from '@ijstech/components';
 import { Wallet, WalletPlugin, WalletPluginConfig } from "@ijstech/eth-wallet";
 import { EventId, formatNumber, truncateAddress, isWalletConnected, isValidEnv, isDefaultNetworkFromWallet, getRequireLogin } from './network';
@@ -34,7 +35,7 @@ import {
   viewOnExplorerByAddress,
   getNetworkType
 } from './network';
-import { getSupportedWallets, hasMetaMask } from './wallet';
+import { getSupportedWallets, hasMetaMask, hasThemeButton } from './wallet';
 import { compile } from './pathToRegexp'
 import { login, logout } from './utils';
 import { Alert } from './alert';
@@ -77,6 +78,7 @@ export class Header extends Module {
   private gridWalletList: GridLayout;
   private gridNetworkGroup: GridLayout;
   private mdMainAlert: Alert;
+  private switchTheme: Switch;
   private _hideNetworkButton: boolean;
   private _hideWalletBalance: boolean;
 
@@ -511,6 +513,11 @@ export class Header extends Module {
     this.mdMobileMenu.visible = !this.mdMobileMenu.visible;
   }
 
+  onThemeChanged() {
+    const themeValues = this.switchTheme.checked ? Styles.Theme.darkTheme : Styles.Theme.defaultTheme
+    Styles.Theme.applyTheme(themeValues)
+  }
+
   render() {
     return (
       <i-hstack
@@ -565,6 +572,20 @@ export class Header extends Module {
               <i-menu id="menuDesktop" width="100%" border={{ left: { color: Theme.divider, width: '1px', style: 'solid' } }}></i-menu>
             </i-hstack>
             <i-hstack verticalAlignment='center' horizontalAlignment='end'>
+              <i-panel margin={{right: '0.5rem'}}>
+                <i-switch
+                  id="switchTheme"
+                  checkedText="Dark"
+                  uncheckedText="Light"
+                  checkedThumbColor={Theme.colors.primary.contrastText}
+                  uncheckedThumbColor={Theme.colors.primary.contrastText}
+                  checkedTrackColor={Theme.colors.primary.main}
+                  uncheckedTrackColor={Theme.colors.primary.main}
+                  checked={false}
+                  visible={hasThemeButton()}
+                  onChanged={this.onThemeChanged.bind(this)}
+                ></i-switch>
+              </i-panel>
               <i-panel id="pnlNetwork">
                 <i-button
                   id="btnNetwork"

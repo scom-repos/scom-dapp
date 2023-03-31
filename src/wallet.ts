@@ -93,11 +93,20 @@ export const getSupportedWallets = () => {
 }
 
 const state = {
-  wallets: []
+  wallets: [],
+  showThemeButton: false
 }
 
 export const updateWallets = (options: any) => {
   if (options.wallets) {
     state.wallets = options.wallets
   }
+}
+
+export const toggleThemeButton = (options: any) => {
+  state.showThemeButton = options?.showThemeButton ?? false
+}
+
+export const hasThemeButton = () => {
+  return state.showThemeButton
 }

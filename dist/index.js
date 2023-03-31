@@ -750,7 +750,7 @@ define("@scom/dapp/walletList.ts", ["require", "exports", "@ijstech/eth-wallet"]
 define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@scom/dapp/walletList.ts", "@ijstech/eth-wallet"], function (require, exports, components_3, walletList_1, eth_wallet_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.updateWallets = exports.getSupportedWallets = exports.truncateAddress = exports.hasMetaMask = exports.hasWallet = exports.logoutWallet = exports.switchNetwork = exports.connectWallet = exports.isWalletConnected = void 0;
+    exports.hasThemeButton = exports.toggleThemeButton = exports.updateWallets = exports.getSupportedWallets = exports.truncateAddress = exports.hasMetaMask = exports.hasWallet = exports.logoutWallet = exports.switchNetwork = exports.connectWallet = exports.isWalletConnected = void 0;
     ;
     function isWalletConnected() {
         const wallet = eth_wallet_3.Wallet.getClientInstance();
@@ -836,7 +836,8 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@s
     };
     exports.getSupportedWallets = getSupportedWallets;
     const state = {
-        wallets: []
+        wallets: [],
+        showThemeButton: false
     };
     const updateWallets = (options) => {
         if (options.wallets) {
@@ -844,6 +845,15 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@s
         }
     };
     exports.updateWallets = updateWallets;
+    const toggleThemeButton = (options) => {
+        var _a;
+        state.showThemeButton = (_a = options === null || options === void 0 ? void 0 : options.showThemeButton) !== null && _a !== void 0 ? _a : false;
+    };
+    exports.toggleThemeButton = toggleThemeButton;
+    const hasThemeButton = () => {
+        return state.showThemeButton;
+    };
+    exports.hasThemeButton = hasThemeButton;
 });
 define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@scom/dapp/helper.ts", "@scom/dapp/wallet.ts"], function (require, exports, eth_wallet_4, helper_1, wallet_1) {
     "use strict";
@@ -1789,6 +1799,10 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         toggleMenu() {
             this.mdMobileMenu.visible = !this.mdMobileMenu.visible;
         }
+        onThemeChanged() {
+            const themeValues = this.switchTheme.checked ? components_7.Styles.Theme.darkTheme : components_7.Styles.Theme.defaultTheme;
+            components_7.Styles.Theme.applyTheme(themeValues);
+        }
         render() {
             return (this.$render("i-hstack", { height: 60, padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, background: { color: Theme.background.paper }, verticalAlignment: "center" },
                 this.$render("i-grid-layout", { width: '100%', position: "relative", verticalAlignment: 'center', templateColumns: ["1fr", "auto"] },
@@ -1801,6 +1815,8 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                         this.$render("i-image", { id: "imgDesktopLogo", class: "header-logo", height: 40, margin: { right: '1.25rem' } }),
                         this.$render("i-menu", { id: "menuDesktop", width: "100%", border: { left: { color: Theme.divider, width: '1px', style: 'solid' } } })),
                     this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'end' },
+                        this.$render("i-panel", { margin: { right: '0.5rem' } },
+                            this.$render("i-switch", { id: "switchTheme", checkedText: "Dark", uncheckedText: "Light", checkedThumbColor: Theme.colors.primary.contrastText, uncheckedThumbColor: Theme.colors.primary.contrastText, checkedTrackColor: Theme.colors.primary.main, uncheckedTrackColor: Theme.colors.primary.main, checked: false, visible: wallet_2.hasThemeButton(), onChanged: this.onThemeChanged.bind(this) })),
                         this.$render("i-panel", { id: "pnlNetwork" },
                             this.$render("i-button", { id: "btnNetwork", height: 38, class: "btn-network", margin: { right: '0.5rem' }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, onClick: this.openNetworkModal, caption: "Unsupported Network" })),
                         this.$render("i-hstack", { id: "hsBalance", height: 38, visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: Theme.colors.primary.main }, border: { radius: 5 }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' } },
@@ -1949,6 +1965,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             assets_4.assets.breakpoints = this.options.breakpoints;
             network_3.updateNetworks(this.options);
             wallet_3.updateWallets(this.options);
+            wallet_3.toggleThemeButton(this.options);
             this.updateThemes(this.options.themes);
             super.init();
             this.updateLayout();
