@@ -175,6 +175,8 @@ export class Header extends Module {
     this.renderNetworks();
     this.updateConnectedStatus(isWalletConnected());
     this.initData();
+    const themeType = document.body.style.getPropertyValue('--theme')
+    this.switchTheme.checked = themeType === 'dark'
   }
 
   connectedCallback(): void {
@@ -516,6 +518,7 @@ export class Header extends Module {
   onThemeChanged() {
     const themeValues = this.switchTheme.checked ? Styles.Theme.darkTheme : Styles.Theme.defaultTheme
     Styles.Theme.applyTheme(themeValues)
+    document.body.style.setProperty('--theme', this.switchTheme.checked ? 'dark' : 'light')
   }
 
   render() {
@@ -581,7 +584,6 @@ export class Header extends Module {
                   uncheckedThumbColor={Theme.colors.primary.contrastText}
                   checkedTrackColor={Theme.colors.primary.main}
                   uncheckedTrackColor={Theme.colors.primary.main}
-                  checked={false}
                   visible={hasThemeButton()}
                   onChanged={this.onThemeChanged.bind(this)}
                 ></i-switch>

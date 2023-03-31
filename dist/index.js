@@ -1246,6 +1246,9 @@ define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"]
             },
             '.wallet-modal .modal': {
                 minWidth: 200
+            },
+            '#switchTheme .wrapper': {
+                width: 50
             }
         }
     });
@@ -1634,6 +1637,8 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.renderNetworks();
             this.updateConnectedStatus(network_1.isWalletConnected());
             this.initData();
+            const themeType = document.body.style.getPropertyValue('--theme');
+            this.switchTheme.checked = themeType === 'dark';
         }
         connectedCallback() {
             super.connectedCallback();
@@ -1802,6 +1807,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         onThemeChanged() {
             const themeValues = this.switchTheme.checked ? components_7.Styles.Theme.darkTheme : components_7.Styles.Theme.defaultTheme;
             components_7.Styles.Theme.applyTheme(themeValues);
+            document.body.style.setProperty('--theme', this.switchTheme.checked ? 'dark' : 'light');
         }
         render() {
             return (this.$render("i-hstack", { height: 60, padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, background: { color: Theme.background.paper }, verticalAlignment: "center" },
@@ -1816,7 +1822,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                         this.$render("i-menu", { id: "menuDesktop", width: "100%", border: { left: { color: Theme.divider, width: '1px', style: 'solid' } } })),
                     this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'end' },
                         this.$render("i-panel", { margin: { right: '0.5rem' } },
-                            this.$render("i-switch", { id: "switchTheme", checkedText: "Dark", uncheckedText: "Light", checkedThumbColor: Theme.colors.primary.contrastText, uncheckedThumbColor: Theme.colors.primary.contrastText, checkedTrackColor: Theme.colors.primary.main, uncheckedTrackColor: Theme.colors.primary.main, checked: false, visible: wallet_2.hasThemeButton(), onChanged: this.onThemeChanged.bind(this) })),
+                            this.$render("i-switch", { id: "switchTheme", checkedText: "Dark", uncheckedText: "Light", checkedThumbColor: Theme.colors.primary.contrastText, uncheckedThumbColor: Theme.colors.primary.contrastText, checkedTrackColor: Theme.colors.primary.main, uncheckedTrackColor: Theme.colors.primary.main, visible: wallet_2.hasThemeButton(), onChanged: this.onThemeChanged.bind(this) })),
                         this.$render("i-panel", { id: "pnlNetwork" },
                             this.$render("i-button", { id: "btnNetwork", height: 38, class: "btn-network", margin: { right: '0.5rem' }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, onClick: this.openNetworkModal, caption: "Unsupported Network" })),
                         this.$render("i-hstack", { id: "hsBalance", height: 38, visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: Theme.colors.primary.main }, border: { radius: 5 }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' } },
@@ -2046,6 +2052,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             }
             const theme = themes.default === 'light' ? components_10.Styles.Theme.defaultTheme : components_10.Styles.Theme.darkTheme;
             components_10.Styles.Theme.applyTheme(theme);
+            document.body.style.setProperty('--theme', themes.default);
         }
         updateLayout() {
             var _a, _b;

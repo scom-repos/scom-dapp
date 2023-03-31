@@ -154,6 +154,7 @@ export default class MainLauncher extends Module {
 		}
 		const theme = themes.default === 'light' ? Styles.Theme.defaultTheme : Styles.Theme.darkTheme;
 		Styles.Theme.applyTheme(theme);
+    document.body.style.setProperty('--theme', themes.default)
 	}
 	updateLayout() {
 		const header = this._options.header || {};
