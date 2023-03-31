@@ -9,7 +9,8 @@ export const enum EventId {
   ConnectWallet = 'connectWallet',
   IsWalletConnected = 'isWalletConnected',
   chainChanged = 'chainChanged',
-  IsWalletDisconnected = "IsWalletDisconnected"
+  IsWalletDisconnected = "IsWalletDisconnected",
+  themeChanged = "themeChanged"
 };
 
 export function isWalletConnected() {

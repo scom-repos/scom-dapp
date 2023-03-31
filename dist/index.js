@@ -1807,7 +1807,9 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         onThemeChanged() {
             const themeValues = this.switchTheme.checked ? components_7.Styles.Theme.darkTheme : components_7.Styles.Theme.defaultTheme;
             components_7.Styles.Theme.applyTheme(themeValues);
-            document.body.style.setProperty('--theme', this.switchTheme.checked ? 'dark' : 'light');
+            const themeType = this.switchTheme.checked ? 'dark' : 'light';
+            document.body.style.setProperty('--theme', themeType);
+            components_7.application.EventBus.dispatch("themeChanged" /* themeChanged */, themeType);
         }
         render() {
             return (this.$render("i-hstack", { height: 60, padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, background: { color: Theme.background.paper }, verticalAlignment: "center" },

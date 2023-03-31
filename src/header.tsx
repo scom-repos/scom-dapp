@@ -518,7 +518,9 @@ export class Header extends Module {
   onThemeChanged() {
     const themeValues = this.switchTheme.checked ? Styles.Theme.darkTheme : Styles.Theme.defaultTheme
     Styles.Theme.applyTheme(themeValues)
-    document.body.style.setProperty('--theme', this.switchTheme.checked ? 'dark' : 'light')
+    const themeType = this.switchTheme.checked ? 'dark' : 'light'
+    document.body.style.setProperty('--theme', themeType)
+    application.EventBus.dispatch(EventId.themeChanged, themeType);
   }
 
   render() {

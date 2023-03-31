@@ -263,7 +263,8 @@ declare module "@scom/dapp/wallet.ts" {
         ConnectWallet = "connectWallet",
         IsWalletConnected = "isWalletConnected",
         chainChanged = "chainChanged",
-        IsWalletDisconnected = "IsWalletDisconnected"
+        IsWalletDisconnected = "IsWalletDisconnected",
+        themeChanged = "themeChanged"
     }
     export function isWalletConnected(): boolean;
     export function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: {
