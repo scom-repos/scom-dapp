@@ -2,7 +2,7 @@ import { Module, Styles, Container, customModule, application, Panel } from '@ij
 import {} from '@ijstech/eth-contract';
 import styleClass from './index.css';
 import { updateNetworks } from './network';
-import { updateWallets } from './wallet';
+import { toggleThemeButton, updateWallets } from './wallet';
 export { Header } from './header';
 export { Footer } from './footer';
 export { Alert } from './alert';
@@ -69,6 +69,7 @@ export default class MainLauncher extends Module {
 		assets.breakpoints = this.options.breakpoints;
 		updateNetworks(this.options);
 		updateWallets(this.options);
+		toggleThemeButton(this.options)
 		this.updateThemes(this.options.themes)
 		super.init();
 		this.updateLayout();
@@ -153,6 +154,7 @@ export default class MainLauncher extends Module {
 		}
 		const theme = themes.default === 'light' ? Styles.Theme.defaultTheme : Styles.Theme.darkTheme;
 		Styles.Theme.applyTheme(theme);
+    document.body.style.setProperty('--theme', themes.default)
 	}
 	updateLayout() {
 		const header = this._options.header || {};

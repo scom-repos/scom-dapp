@@ -85,6 +85,9 @@ export default Styles.style({
     },
     '.wallet-modal .modal': {
       minWidth: 200
+    },
+    '#switchTheme .wrapper': {
+      width: 50
     }
   }
 })

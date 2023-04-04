@@ -263,7 +263,8 @@ declare module "@scom/dapp/wallet.ts" {
         ConnectWallet = "connectWallet",
         IsWalletConnected = "isWalletConnected",
         chainChanged = "chainChanged",
-        IsWalletDisconnected = "IsWalletDisconnected"
+        IsWalletDisconnected = "IsWalletDisconnected",
+        themeChanged = "themeChanged"
     }
     export function isWalletConnected(): boolean;
     export function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: {
@@ -286,6 +287,8 @@ declare module "@scom/dapp/wallet.ts" {
         img?: undefined;
     })[];
     export const updateWallets: (options: any) => void;
+    export const toggleThemeButton: (options: any) => void;
+    export const hasThemeButton: () => boolean;
 }
 /// <amd-module name="@scom/dapp/network.ts" />
 declare module "@scom/dapp/network.ts" {
@@ -414,6 +417,7 @@ declare module "@scom/dapp/header.tsx" {
         private gridWalletList;
         private gridNetworkGroup;
         private mdMainAlert;
+        private switchTheme;
         private _hideNetworkButton;
         private _hideWalletBalance;
         private $eventBus;
@@ -469,6 +473,7 @@ declare module "@scom/dapp/header.tsx" {
         renderMobileMenu(): void;
         renderDesktopMenu(): void;
         toggleMenu(): void;
+        onThemeChanged(): void;
         render(): any;
     }
 }
