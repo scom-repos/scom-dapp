@@ -9,7 +9,7 @@
     "dependencies": {
         "@ijstech/components": "^0.1.35",
         "@ijstech/eth-contract": "^0.1.14",
-        "@ijstech/eth-wallet": "^0.1.35"
+        "@ijstech/eth-wallet": "^0.1.51"
     },
     "devDependencies": {
         "@ijstech/compiler": "^0.1.22",

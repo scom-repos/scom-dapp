@@ -18,6 +18,7 @@
     }
   },
   "dependencies": {
+    "@ijstech/eth-wallet-web3modal": "*",
     "@scom/dapp": "*"
   },
   "menus": [
@@ -53,7 +54,8 @@
   ],
   "networks": "*",
   "wallets": [
-    "metamask"
+    "metamask",
+    "walletconnect"
   ],
   "themes": {
     "default": "dark",
@@ -86,5 +88,5 @@
     "hideNetworkButton": true,
     "hideWalletBalance": true
   },
-  "requireLogin": true
+  "requireLogin": false
 }

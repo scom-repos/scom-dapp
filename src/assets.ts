@@ -80,12 +80,6 @@ export default {
             avax: fullPath('img/network/avax.svg'),
             ftm: fullPath('img/network/ftm.svg'),
             polygon: fullPath('img/network/polygon.svg'),
-        },
-        wallet: {
-            metamask: fullPath('img/wallet/metamask.png'),
-            trustwallet: fullPath('img/wallet/trustwallet.svg'),
-            binanceChainWallet: fullPath('img/wallet/binance-chain-wallet.svg'),
-            walletconnect: fullPath('img/wallet/walletconnect.svg')
         }
     },
     fullPath

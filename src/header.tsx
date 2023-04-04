@@ -19,27 +19,26 @@ import {
   Image,
   Switch
 } from '@ijstech/components';
-import { Wallet, WalletPlugin, WalletPluginConfig } from "@ijstech/eth-wallet";
-import { EventId, formatNumber, truncateAddress, isWalletConnected, isValidEnv, isDefaultNetworkFromWallet, getRequireLogin } from './network';
+import { Wallet } from "@ijstech/eth-wallet";
 import styleClass from './header.css';
 import Assets, { assets } from './assets';
 import {
-  connectWallet,
-  logoutWallet,
-  switchNetwork,
-  hasWallet,
+  formatNumber, 
+  isValidEnv, 
+  isDefaultNetworkFromWallet, 
+  getRequireLogin,
   getNetworkInfo,
   getSiteSupportedNetworks,
   getWalletProvider,
   getDefaultChainId,
-  viewOnExplorerByAddress,
-  getNetworkType
+  viewOnExplorerByAddress
 } from './network';
-import { getSupportedWallets, hasMetaMask, hasThemeButton } from './wallet';
+import { connectWallet, logoutWallet, getSupportedWalletProviders, switchNetwork, truncateAddress, hasWallet, isWalletConnected, hasMetaMask, hasThemeButton, initWalletPlugins, WalletPlugin, getWalletPluginProvider } from './wallet';
 import { compile } from './pathToRegexp'
 import { login, logout } from './utils';
 import { Alert } from './alert';
 import { IMenu, INetwork } from './interface';
+import { EventId } from './constants';
 
 const Theme = Styles.Theme.ThemeVars;
 
@@ -86,9 +85,9 @@ export class Header extends Module {
   private selectedNetwork: INetwork | undefined;
   private _menuItems: IMenu[];
   private networkMapper: Map<number, HStack>;
-  private walletMapper: Map<WalletPlugin, HStack>;
+  private walletMapper: Map<string, HStack>;
   private currActiveNetworkId: number;
-  private currActiveWallet: WalletPlugin;
+  private currActiveWallet: string;
   private imgDesktopLogo: Image;
   private imgMobileLogo: Image;
   private supportedNetworks: INetwork[] = [];
@@ -255,10 +254,10 @@ export class Header extends Module {
       if (this.currActiveWallet && this.walletMapper.has(this.currActiveWallet)) {
         this.walletMapper.get(this.currActiveWallet).classList.remove('is-actived');
       }
-      if (connected && this.walletMapper.has(wallet.clientSideProvider?.walletPlugin)) {
-        this.walletMapper.get(wallet.clientSideProvider?.walletPlugin).classList.add('is-actived');
+      if (connected && this.walletMapper.has(wallet.clientSideProvider?.name)) {
+        this.walletMapper.get(wallet.clientSideProvider?.name).classList.add('is-actived');
       }
-      this.currActiveWallet = wallet.clientSideProvider?.walletPlugin;
+      this.currActiveWallet = wallet.clientSideProvider?.name;
     }
   }
 
@@ -348,16 +347,18 @@ export class Header extends Module {
     this.mdNetwork.visible = false;
   }
 
+  openLink(link: any) {
+    return window.open(link, '_blank');
+  };
+
   connectToProviderFunc = async (walletPlugin: WalletPlugin) => {
-    if (Wallet.isInstalled(walletPlugin)) {
-      await connectWallet(walletPlugin, {
-				'accountsChanged': this.login
-			});
+    const provider = getWalletPluginProvider(walletPlugin);
+    if (provider?.installed()) {
+      await connectWallet(walletPlugin);
     }
     else {
-      let config = WalletPluginConfig[walletPlugin];
-      let homepage = config && config.homepage ? config.homepage() : '';
-      window.open(homepage, '_blank');
+      let homepage = provider.homepage;
+      this.openLink(homepage);
     }
     this.mdConnect.visible = false;
   }
@@ -367,8 +368,8 @@ export class Header extends Module {
   }
 
   isWalletActive(walletPlugin) {
-    const provider = walletPlugin.toLowerCase();
-    return Wallet.isInstalled(walletPlugin) && Wallet.getClientInstance().clientSideProvider?.walletPlugin === provider;
+    const provider = getWalletPluginProvider(walletPlugin);
+    return provider ? provider.installed() && Wallet.getClientInstance().clientSideProvider?.name === walletPlugin : false;
   }
 
   isNetworkActive(chainId: number) {
@@ -376,9 +377,12 @@ export class Header extends Module {
   }
 
   renderWalletList = () => {
+    initWalletPlugins({
+      'accountsChanged': this.login
+    });
     this.gridWalletList.clearInnerHTML();
     this.walletMapper = new Map();
-    const walletList  = getSupportedWallets();
+    const walletList  = getSupportedWalletProviders();
     walletList.forEach((wallet) => {
       const isActive = this.isWalletActive(wallet.name);
       if (isActive) this.currActiveWallet = wallet.name;
@@ -391,7 +395,7 @@ export class Header extends Module {
           border={{ radius: 10 }} position="relative"
           padding={{ top: '0.5rem', bottom: '0.5rem', left: '0.5rem', right: '0.5rem' }}
           horizontalAlignment="space-between"
-          onClick={() => this.connectToProviderFunc(wallet.name)}
+          onClick={() => this.connectToProviderFunc(wallet.name as WalletPlugin)}
         >
           <i-label
             caption={wallet.displayName}
@@ -399,7 +403,7 @@ export class Header extends Module {
             wordBreak="break-word"
             font={{ size: '.875rem', bold: true, color: Theme.colors.primary.dark }}
           />
-          <i-image width={34} height="auto" url={Assets.img.wallet[wallet.img] || application.assets(wallet.img)} />
+          <i-image width={34} height="auto" url={wallet.image} />
         </i-hstack>
       );
       this.walletMapper.set(wallet.name, hsWallet);

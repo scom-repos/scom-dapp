@@ -117,7 +117,7 @@ declare module "@scom/dapp/wallet.ts" {
     export const hasWallet: () => boolean;
     export const hasMetaMask: () => boolean;
     export const truncateAddress: (address: string) => string;
-    export const getSupportedWallets: () => ({
+    export const getSupportedWalletProviders: () => ({
         name: WalletPlugin;
         displayName: string;
         img: string;

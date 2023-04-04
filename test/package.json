@@ -6,12 +6,13 @@
     },
     "dependencies": {
         "@ijstech/components": "^0.1.35",
-        "@ijstech/eth-wallet": "^0.1.35"
+        "@ijstech/eth-wallet": "^0.1.51"
     },
     "devDependencies": {
         "@ijstech/cli": "^0.1.28",
         "@ijstech/compiler": "^0.1.22",
-        "@scom/dapp": "file:./ref"
+        "@scom/dapp": "file:./ref",
+        "@ijstech/eth-wallet-web3modal": "^0.1.15"
     },
     "scripts": {
         "cp:dapp": "rm -rf ref && mkdir ref && cp ../package.json ref/package.json && cp -r ../dist ref/dist && cp -r ../types ref/types",

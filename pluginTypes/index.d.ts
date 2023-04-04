@@ -214,12 +214,6 @@ declare module "@scom/dapp/assets.ts" {
                 ftm: string;
                 polygon: string;
             };
-            wallet: {
-                metamask: string;
-                trustwallet: string;
-                binanceChainWallet: string;
-                walletconnect: string;
-            };
         };
         fullPath: typeof fullPath;
     };
@@ -241,63 +235,12 @@ declare module "@scom/dapp/helper.ts" {
     export const abbreviateNum: (value: number) => string;
     export const getParamsFromUrl: () => URLSearchParams;
 }
-/// <amd-module name="@scom/dapp/walletList.ts" />
-declare module "@scom/dapp/walletList.ts" {
-    import { WalletPlugin } from '@ijstech/eth-wallet';
-    export const walletList: ({
-        name: WalletPlugin;
-        displayName: string;
-        img: string;
-        iconFile?: undefined;
-    } | {
-        name: WalletPlugin;
-        displayName: string;
-        iconFile: string;
-        img?: undefined;
-    })[];
-}
-/// <amd-module name="@scom/dapp/wallet.ts" />
-declare module "@scom/dapp/wallet.ts" {
-    import { IWallet, WalletPlugin } from '@ijstech/eth-wallet';
-    export const enum EventId {
-        ConnectWallet = "connectWallet",
-        IsWalletConnected = "isWalletConnected",
-        chainChanged = "chainChanged",
-        IsWalletDisconnected = "IsWalletDisconnected",
-        themeChanged = "themeChanged"
-    }
-    export function isWalletConnected(): boolean;
-    export function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: {
-        [key: string]: Function;
-    }): Promise<IWallet>;
-    export function switchNetwork(chainId: number): Promise<void>;
-    export function logoutWallet(): Promise<void>;
-    export const hasWallet: () => boolean;
-    export const hasMetaMask: () => boolean;
-    export const truncateAddress: (address: string) => string;
-    export const getSupportedWallets: () => ({
-        name: WalletPlugin;
-        displayName: string;
-        img: string;
-        iconFile?: undefined;
-    } | {
-        name: WalletPlugin;
-        displayName: string;
-        iconFile: string;
-        img?: undefined;
-    })[];
-    export const updateWallets: (options: any) => void;
-    export const toggleThemeButton: (options: any) => void;
-    export const hasThemeButton: () => boolean;
-}
 /// <amd-module name="@scom/dapp/network.ts" />
 declare module "@scom/dapp/network.ts" {
     import { Erc20, ISendTxEventsOptions } from '@ijstech/eth-wallet';
     import { formatNumber } from "@scom/dapp/helper.ts";
     import { INetwork } from "@scom/dapp/interface.ts";
-    import { EventId } from "@scom/dapp/wallet.ts";
-    export { isWalletConnected, hasWallet, hasMetaMask, truncateAddress, switchNetwork, connectWallet, logoutWallet } from "@scom/dapp/wallet.ts";
-    export { EventId, formatNumber };
+    export { formatNumber };
     export interface ITokenObject {
         address?: string;
         name: string;
@@ -327,6 +270,48 @@ declare module "@scom/dapp/network.ts" {
     export const getEnv: () => string;
     export const isDefaultNetworkFromWallet: () => boolean;
     export const getRequireLogin: () => boolean;
+}
+/// <amd-module name="@scom/dapp/constants.ts" />
+declare module "@scom/dapp/constants.ts" {
+    export const enum EventId {
+        ConnectWallet = "connectWallet",
+        IsWalletConnected = "isWalletConnected",
+        chainChanged = "chainChanged",
+        IsWalletDisconnected = "IsWalletDisconnected",
+        themeChanged = "themeChanged"
+    }
+}
+/// <amd-module name="@scom/dapp/wallet.ts" />
+declare module "@scom/dapp/wallet.ts" {
+    import { IClientProviderOptions, IClientSideProvider, IClientSideProviderEvents, IWallet, Wallet } from '@ijstech/eth-wallet';
+    export enum WalletPlugin {
+        MetaMask = "metamask",
+        WalletConnect = "walletconnect"
+    }
+    export type WalletPluginItemType = {
+        provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => IClientSideProvider;
+    };
+    export type WalletPluginConfigType = Record<WalletPlugin, WalletPluginItemType>;
+    export const WalletPluginConfig: WalletPluginConfigType;
+    export function initWalletPlugins(eventHandlers?: {
+        [key: string]: Function;
+    }): void;
+    export function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: {
+        [key: string]: Function;
+    }): Promise<IWallet>;
+    export function logoutWallet(): Promise<void>;
+    export const truncateAddress: (address: string) => string;
+    export const getSupportedWalletProviders: () => IClientSideProvider[];
+    export function isWalletConnected(): boolean;
+    export const hasWallet: () => boolean;
+    export const hasMetaMask: () => boolean;
+    export function switchNetwork(chainId: number): Promise<void>;
+    export const updateWallets: (options: any) => void;
+    export const toggleThemeButton: (options: any) => void;
+    export const hasThemeButton: () => boolean;
+    export const setWalletPluginProvider: (walletPlugin: WalletPlugin, wallet: IClientSideProvider) => void;
+    export const getWalletPluginMap: () => Record<WalletPlugin, IClientSideProvider>;
+    export const getWalletPluginProvider: (walletPlugin: WalletPlugin) => IClientSideProvider;
 }
 /// <amd-module name="@scom/dapp/header.css.ts" />
 declare module "@scom/dapp/header.css.ts" {
@@ -382,7 +367,7 @@ declare module "@scom/dapp/alert.tsx" {
 /// <amd-module name="@scom/dapp/header.tsx" />
 declare module "@scom/dapp/header.tsx" {
     import { Module, Control, ControlElement, Container, IMenuItem } from '@ijstech/components';
-    import { WalletPlugin } from "@ijstech/eth-wallet";
+    import { WalletPlugin } from "@scom/dapp/wallet.ts";
     import { IMenu } from "@scom/dapp/interface.ts";
     export interface HeaderElement extends ControlElement {
         menuItems?: IMenu[];
@@ -460,6 +445,7 @@ declare module "@scom/dapp/header.tsx" {
         logout: (target: Control, event: Event) => Promise<void>;
         viewOnExplorerByAddress(): void;
         switchNetwork(chainId: number): Promise<void>;
+        openLink(link: any): Window;
         connectToProviderFunc: (walletPlugin: WalletPlugin) => Promise<void>;
         copyWalletAddress: () => void;
         isWalletActive(walletPlugin: any): boolean;
