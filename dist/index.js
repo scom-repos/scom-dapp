@@ -2098,12 +2098,12 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             this.headerElm.hideWalletBalance = header.hideWalletBalance;
         }
         async render() {
-            var _a, _b, _c, _d, _e, _f;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
             return (this.$render("i-vstack", { height: "inherit" },
-                this.$render("main-header", { id: "headerElm", menuItems: this.menuItems, height: "auto", width: "100%" }),
+                this.$render("main-header", { id: "headerElm", menuItems: this.menuItems, height: "auto", width: "100%", customStyles: (_c = (_b = (_a = this._options) === null || _a === void 0 ? void 0 : _a.header) === null || _b === void 0 ? void 0 : _b.customStyles) !== null && _c !== void 0 ? _c : {} }),
                 this.$render("i-vstack", { id: "pnlScrollable", visible: false, stack: { grow: "1" }, overflow: { y: 'auto' } }),
                 this.$render("i-panel", { id: "pnlMain", stack: { grow: "1" } }),
-                this.$render("main-footer", { id: "footerElm", stack: { shrink: '0' }, class: 'footer', height: "auto", width: "100%", copyrightInfo: this._options.copyrightInfo, version: this._options.version, hasLogo: (_c = (_b = (_a = this._options) === null || _a === void 0 ? void 0 : _a.footer) === null || _b === void 0 ? void 0 : _b.hasLogo) !== null && _c !== void 0 ? _c : true, customStyles: (_f = (_e = (_d = this._options) === null || _d === void 0 ? void 0 : _d.footer) === null || _e === void 0 ? void 0 : _e.customStyles) !== null && _f !== void 0 ? _f : {} })));
+                this.$render("main-footer", { id: "footerElm", stack: { shrink: '0' }, class: 'footer', height: "auto", width: "100%", copyrightInfo: this._options.copyrightInfo, version: this._options.version, hasLogo: (_f = (_e = (_d = this._options) === null || _d === void 0 ? void 0 : _d.footer) === null || _e === void 0 ? void 0 : _e.hasLogo) !== null && _f !== void 0 ? _f : true, customStyles: (_j = (_h = (_g = this._options) === null || _g === void 0 ? void 0 : _g.footer) === null || _h === void 0 ? void 0 : _h.customStyles) !== null && _j !== void 0 ? _j : {} })));
         }
         ;
     };
