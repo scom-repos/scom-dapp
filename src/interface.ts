@@ -35,7 +35,10 @@ export interface INetwork {
 
 export interface IHeaderFooter {
 	visible?: boolean,
-	fixed?: boolean}
+	fixed?: boolean,
+	hasLogo?: boolean,
+	customStyles?: any;
+}
 
 export interface IHeader extends IHeaderFooter {
 	hideNetworkButton?: boolean;

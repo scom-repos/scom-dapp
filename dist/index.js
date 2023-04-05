@@ -431,8 +431,9 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
             return this._instance;
         }
         get logo() {
+            const themeType = document.body.style.getPropertyValue('--theme');
             let currentTheme = components_1.Styles.Theme.currentTheme;
-            let theme = currentTheme === components_1.Styles.Theme.defaultTheme ? "light" : "dark";
+            let theme = themeType || (currentTheme === components_1.Styles.Theme.defaultTheme ? "light" : "dark");
             let _logo = this._getLogo(this.viewport, theme);
             return _logo;
         }
@@ -462,7 +463,6 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
                     path = asset[viewport];
                 }
                 else if (asset[theme]) {
-                    4;
                     path = asset[theme];
                 }
             }
@@ -1639,6 +1639,12 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.initData();
             const themeType = document.body.style.getPropertyValue('--theme');
             this.switchTheme.checked = themeType === 'dark';
+            try {
+                const customStyleAttr = this.getAttribute('customStyles', true);
+                const customStyle = components_7.Styles.style(customStyleAttr);
+                customStyle && this.classList.add(customStyle);
+            }
+            catch (_a) { }
         }
         connectedCallback() {
             super.connectedCallback();
@@ -1810,6 +1816,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             const themeType = this.switchTheme.checked ? 'dark' : 'light';
             document.body.style.setProperty('--theme', themeType);
             components_7.application.EventBus.dispatch("themeChanged" /* themeChanged */, themeType);
+            this.controlMenuDisplay();
         }
         render() {
             return (this.$render("i-hstack", { height: 60, padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, background: { color: Theme.background.paper }, verticalAlignment: "center" },
@@ -1893,6 +1900,8 @@ define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@
     let Footer = class Footer extends components_9.Module {
         init() {
             super.init();
+            const hasLogo = this.getAttribute("hasLogo", true, true);
+            this.imgLogo.visible = hasLogo;
             this.updateLogo = this.updateLogo.bind(this);
             this.updateLogo();
             const version = this.getAttribute("version", true, "");
@@ -1900,8 +1909,13 @@ define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@
             this.lblVersion.visible = !!version;
             const copyright = this.getAttribute('copyrightInfo', true, "");
             this.lblCopyright.caption = version ? copyright + " |" : copyright;
-            ;
             this.lblCopyright.visible = !!copyright;
+            try {
+                const customStyleAttr = this.getAttribute('customStyles', true);
+                const customStyle = components_9.Styles.style(customStyleAttr);
+                customStyle && this.classList.add(customStyle);
+            }
+            catch (_a) { }
         }
         connectedCallback() {
             super.connectedCallback();
@@ -1919,11 +1933,14 @@ define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@
         render() {
             return (this.$render("i-panel", { height: 105, padding: { top: '1rem', bottom: '1rem', right: '2rem', left: '2rem' }, background: { color: components_9.Styles.Theme.ThemeVars.background.main } },
                 this.$render("i-hstack", { horizontalAlignment: "space-between", verticalAlignment: "center", width: "100%" },
-                    this.$render("i-vstack", { gap: "0.5rem", width: "100%" },
-                        this.$render("i-hstack", { padding: { bottom: '0.5rem' }, border: { bottom: { width: 1, style: 'solid', color: Theme.divider } }, verticalAlignment: "center", gap: 8 },
+                    this.$render("i-vstack", { gap: "0.5rem", width: "100%", class: "footer-content" },
+                        this.$render("i-hstack", { padding: { bottom: '0.5rem' }, border: { bottom: { width: 1, style: 'solid', color: Theme.divider } }, verticalAlignment: "center", gap: 8, class: "footer-content_logo" },
                             this.$render("i-image", { id: "imgLogo", class: footer_css_1.logoStyle, height: 40 }),
-                            this.$render("i-label", { id: "lblPoweredBy", caption: 'Powered by Secure Compute', font: { bold: true } })),
-                        this.$render("i-hstack", { gap: 4, verticalAlignment: "center", wrap: "wrap" },
+                            this.$render("i-hstack", { id: "lblPoweredBy", gap: 4, class: "power-by" },
+                                this.$render("i-label", { caption: 'Powered by', class: "lb-power" }),
+                                this.$render("i-label", { caption: 'Secure', font: { bold: true, transform: 'uppercase' }, class: "lb-secure" }),
+                                this.$render("i-label", { caption: 'Compute', font: { bold: true, transform: 'uppercase' }, class: "lb-compute" }))),
+                        this.$render("i-hstack", { gap: 4, verticalAlignment: "center", wrap: "wrap", class: "footer-content_copyright" },
                             this.$render("i-label", { id: "lblCopyright", font: { color: Theme.text.secondary, size: '0.875em' } }),
                             this.$render("i-label", { id: "lblVersion", font: { color: Theme.text.secondary, size: '0.875em' } }))))));
         }
@@ -2081,11 +2098,12 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             this.headerElm.hideWalletBalance = header.hideWalletBalance;
         }
         async render() {
+            var _a, _b, _c, _d, _e, _f;
             return (this.$render("i-vstack", { height: "inherit" },
                 this.$render("main-header", { id: "headerElm", menuItems: this.menuItems, height: "auto", width: "100%" }),
                 this.$render("i-vstack", { id: "pnlScrollable", visible: false, stack: { grow: "1" }, overflow: { y: 'auto' } }),
                 this.$render("i-panel", { id: "pnlMain", stack: { grow: "1" } }),
-                this.$render("main-footer", { id: "footerElm", stack: { shrink: '0' }, class: 'footer', height: "auto", width: "100%", copyrightInfo: this._options.copyrightInfo, version: this._options.version })));
+                this.$render("main-footer", { id: "footerElm", stack: { shrink: '0' }, class: 'footer', height: "auto", width: "100%", copyrightInfo: this._options.copyrightInfo, version: this._options.version, hasLogo: (_c = (_b = (_a = this._options) === null || _a === void 0 ? void 0 : _a.footer) === null || _b === void 0 ? void 0 : _b.hasLogo) !== null && _c !== void 0 ? _c : true, customStyles: (_f = (_e = (_d = this._options) === null || _d === void 0 ? void 0 : _d.footer) === null || _e === void 0 ? void 0 : _e.customStyles) !== null && _f !== void 0 ? _f : {} })));
         }
         ;
     };

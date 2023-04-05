@@ -16,8 +16,9 @@ class Assets {
         return this._instance
     }
     get logo(): ILogo {
+        const themeType = document.body.style.getPropertyValue('--theme') as themeType;
         let currentTheme = Styles.Theme.currentTheme;
-        let theme: themeType = currentTheme === Styles.Theme.defaultTheme ? "light" : "dark";
+        let theme: themeType = themeType || (currentTheme === Styles.Theme.defaultTheme ? "light" : "dark");
         let _logo: ILogo = this._getLogo(this.viewport, theme);
         return _logo;
     }
@@ -43,7 +44,7 @@ class Assets {
                 path = asset[viewport][theme]
             } else if (typeof asset[viewport] === 'string') {
                 path = asset[viewport]
-            } else if (asset[theme]) {4
+            } else if (asset[theme]) {
                 path = asset[theme]
             }
         } else if (typeof asset === 'string') {

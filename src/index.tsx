@@ -191,6 +191,8 @@ export default class MainLauncher extends Module {
 					width="100%"
 					copyrightInfo={this._options.copyrightInfo}
 					version={this._options.version}
+					hasLogo={this._options?.footer?.hasLogo ?? true}
+					customStyles={this._options?.footer?.customStyles ?? {}}
 				></main-footer>
 			</i-vstack>
 		)
