@@ -1007,23 +1007,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
     (function (WalletPlugin) {
         WalletPlugin["MetaMask"] = "metamask";
         WalletPlugin["WalletConnect"] = "walletconnect";
-        // Coin98 = 'coin98',
-        // TrustWallet = 'trustwallet',
-        // BinanceChainWallet = 'binancechainwallet',
-        // ONTOWallet = 'onto',
-        // BitKeepWallet = 'bitkeepwallet',
-        // FrontierWallet = 'frontierwallet',
     })(WalletPlugin = exports.WalletPlugin || (exports.WalletPlugin = {}));
-    // const WalletPluginPackageMap = {
-    //   [WalletPlugin.MetaMask]: '@scom/eth-wallet',
-    //   [WalletPlugin.WalletConnect]: '@scom/eth-wallet',
-    //   [WalletPlugin.Coin98]: '@scom/scom-coin98-wallet',
-    //   [WalletPlugin.TrustWallet]: '@scom/scom-trust-wallet',
-    //   [WalletPlugin.BinanceChainWallet]: '@scom/scom-binance-chain-wallet',
-    //   [WalletPlugin.ONTOWallet]: '@scom/scom-onto-wallet',
-    //   [WalletPlugin.BitKeepWallet]: '@scom/scom-bitkeep-wallet',
-    //   [WalletPlugin.FrontierWallet]: '@scom/scom-frontier-wallet',
-    // }
     const state = {
         wallets: [],
         showThemeButton: false,
