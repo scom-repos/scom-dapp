@@ -1002,7 +1002,7 @@ define("@scom/dapp/constants.ts", ["require", "exports"], function (require, exp
 define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/dapp/network.ts"], function (require, exports, components_3, eth_wallet_3, network_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getWalletPluginProvider = exports.getWalletPluginMap = exports.setWalletPluginProvider = exports.hasThemeButton = exports.toggleThemeButton = exports.updateWallets = exports.switchNetwork = exports.hasMetaMask = exports.hasWallet = exports.isWalletConnected = exports.getSupportedWalletProviders = exports.truncateAddress = exports.logoutWallet = exports.connectWallet = exports.initWalletPlugins = exports.WalletPluginConfig = exports.WalletPlugin = void 0;
+    exports.getWalletPluginProvider = exports.getWalletPluginMap = exports.setWalletPluginProvider = exports.hasThemeButton = exports.toggleThemeButton = exports.updateWallets = exports.switchNetwork = exports.hasMetaMask = exports.hasWallet = exports.isWalletConnected = exports.getSupportedWalletProviders = exports.truncateAddress = exports.logoutWallet = exports.connectWallet = exports.initWalletPlugins = exports.WalletPlugin = void 0;
     var WalletPlugin;
     (function (WalletPlugin) {
         WalletPlugin["MetaMask"] = "metamask";
@@ -1014,54 +1014,36 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         // BitKeepWallet = 'bitkeepwallet',
         // FrontierWallet = 'frontierwallet',
     })(WalletPlugin = exports.WalletPlugin || (exports.WalletPlugin = {}));
+    // const WalletPluginPackageMap = {
+    //   [WalletPlugin.MetaMask]: '@scom/eth-wallet',
+    //   [WalletPlugin.WalletConnect]: '@scom/eth-wallet',
+    //   [WalletPlugin.Coin98]: '@scom/scom-coin98-wallet',
+    //   [WalletPlugin.TrustWallet]: '@scom/scom-trust-wallet',
+    //   [WalletPlugin.BinanceChainWallet]: '@scom/scom-binance-chain-wallet',
+    //   [WalletPlugin.ONTOWallet]: '@scom/scom-onto-wallet',
+    //   [WalletPlugin.BitKeepWallet]: '@scom/scom-bitkeep-wallet',
+    //   [WalletPlugin.FrontierWallet]: '@scom/scom-frontier-wallet',
+    // }
     const state = {
         wallets: [],
         showThemeButton: false,
         walletPluginMap: {}
     };
-    exports.WalletPluginConfig = {
-        [WalletPlugin.MetaMask]: {
-            provider: (wallet, events, options) => {
+    async function getWalletPluginConfigProvider(wallet, pluginName, packageName, events, options) {
+        switch (pluginName) {
+            case WalletPlugin.MetaMask:
                 return new eth_wallet_3.MetaMaskProvider(wallet, events, options);
-            }
-        },
-        // [WalletPlugin.Coin98]: {
-        //   provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
-        //     return new Coin98Provider(wallet, events, options);
-        //   }
-        // },
-        // [WalletPlugin.TrustWallet]: {
-        //   provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
-        //     return new TrustWalletProvider(wallet, events, options);
-        //   }
-        // },
-        // [WalletPlugin.BinanceChainWallet]: {
-        //   provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
-        //     return new BinanceChainWalletProvider(wallet, events, options);
-        //   }
-        // },
-        // [WalletPlugin.ONTOWallet]: {
-        //   provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
-        //     return new ONTOWalletProvider(wallet, events, options);
-        //   }
-        // },
-        // [WalletPlugin.BitKeepWallet]: {
-        //   provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
-        //     return new BitKeepWalletProvider(wallet, events, options);
-        //   }
-        // },
-        // [WalletPlugin.FrontierWallet]: {
-        //   provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
-        //     return new FrontierWalletProvider(wallet, events, options);
-        //   },
-        // },
-        [WalletPlugin.WalletConnect]: {
-            provider: (wallet, events, options) => {
+            case WalletPlugin.WalletConnect:
                 return new eth_wallet_3.Web3ModalProvider(wallet, events, options);
+            default: {
+                if (packageName) {
+                    const provider = await components_3.application.loadPackage(packageName, '*');
+                    return new provider(wallet, events, options);
+                }
             }
         }
-    };
-    function initWalletPlugins(eventHandlers) {
+    }
+    async function initWalletPlugins(eventHandlers) {
         let wallet = eth_wallet_3.Wallet.getClientInstance();
         const events = {
             onAccountChanged: async (account) => {
@@ -1093,8 +1075,8 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
             if (rpc)
                 rpcs[network.chainId] = rpc;
         }
-        const supportedPluginNames = Object.keys(exports.WalletPluginConfig).filter(pluginName => state.wallets.includes(pluginName));
-        for (let pluginName of supportedPluginNames) {
+        for (let walletPlugin of state.wallets) {
+            let pluginName = walletPlugin.name;
             let providerOptions;
             if (pluginName == WalletPlugin.WalletConnect) {
                 providerOptions = {
@@ -1113,8 +1095,12 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
                     useDefaultProvider: true
                 };
             }
-            let provider = exports.WalletPluginConfig[pluginName].provider(wallet, events, providerOptions);
-            exports.setWalletPluginProvider(pluginName, provider);
+            let provider = await getWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, events, providerOptions);
+            exports.setWalletPluginProvider(pluginName, {
+                name: pluginName,
+                packageName: walletPlugin.packageName,
+                provider
+            });
         }
     }
     exports.initWalletPlugins = initWalletPlugins;
@@ -1146,7 +1132,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
     exports.truncateAddress = truncateAddress;
     const getSupportedWalletProviders = () => {
         const walletPluginMap = exports.getWalletPluginMap();
-        return Object.keys(walletPluginMap).filter(pluginName => state.wallets.includes(pluginName)).map(pluginName => walletPluginMap[pluginName]);
+        return state.wallets.map(v => walletPluginMap[v.name].provider);
     };
     exports.getSupportedWalletProviders = getSupportedWalletProviders;
     function isWalletConnected() {
@@ -1158,7 +1144,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         let hasWallet = false;
         const walletPluginMap = exports.getWalletPluginMap();
         for (let pluginName in walletPluginMap) {
-            const provider = walletPluginMap[pluginName];
+            const provider = walletPluginMap[pluginName].provider;
             if (provider.installed()) {
                 hasWallet = true;
                 break;
@@ -1199,16 +1185,16 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         return state.showThemeButton;
     };
     exports.hasThemeButton = hasThemeButton;
-    const setWalletPluginProvider = (walletPlugin, wallet) => {
-        state.walletPluginMap[walletPlugin] = wallet;
+    const setWalletPluginProvider = (name, wallet) => {
+        state.walletPluginMap[name] = wallet;
     };
     exports.setWalletPluginProvider = setWalletPluginProvider;
     const getWalletPluginMap = () => {
         return state.walletPluginMap;
     };
     exports.getWalletPluginMap = getWalletPluginMap;
-    const getWalletPluginProvider = (walletPlugin) => {
-        return state.walletPluginMap[walletPlugin];
+    const getWalletPluginProvider = (name) => {
+        return state.walletPluginMap[name].provider;
     };
     exports.getWalletPluginProvider = getWalletPluginProvider;
 });
@@ -1604,8 +1590,8 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.copyWalletAddress = () => {
                 components_7.application.copyToClipboard(this.walletInfo.address || "");
             };
-            this.renderWalletList = () => {
-                wallet_1.initWalletPlugins({
+            this.renderWalletList = async () => {
+                await wallet_1.initWalletPlugins({
                     'accountsChanged': this.login
                 });
                 this.gridWalletList.clearInnerHTML();
@@ -1680,7 +1666,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 this.onChainChanged(chainId);
             });
         }
-        init() {
+        async init() {
             this.classList.add(header_css_1.default);
             this.selectedNetwork = network_2.getNetworkInfo(network_2.getDefaultChainId());
             super.init();
@@ -1688,7 +1674,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.renderMobileMenu();
             this.renderDesktopMenu();
             this.controlMenuDisplay();
-            this.renderWalletList();
+            await this.renderWalletList();
             this.renderNetworks();
             this.updateConnectedStatus(wallet_1.isWalletConnected());
             this.initData();
@@ -1797,14 +1783,13 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             if (!selectedProvider && wallet_1.hasMetaMask()) {
                 selectedProvider = wallet_1.WalletPlugin.MetaMask;
             }
-            const isValidProvider = Object.values(wallet_1.WalletPlugin).includes(selectedProvider);
             if (!eth_wallet_5.Wallet.getClientInstance().chainId) {
                 eth_wallet_5.Wallet.getClientInstance().chainId = network_2.getDefaultChainId();
             }
             let isLoggedIn = !!((_a = document.cookie
                 .split("; ")
                 .find((row) => row.startsWith("scom__wallet="))) === null || _a === void 0 ? void 0 : _a.split("=")[1]);
-            if (isLoggedIn && wallet_1.hasWallet() && isValidProvider) {
+            if (isLoggedIn && wallet_1.hasWallet()) {
                 await wallet_1.connectWallet(selectedProvider, {
                     'accountsChanged': this.login,
                     'chainChanged': chainChangedEventHandler

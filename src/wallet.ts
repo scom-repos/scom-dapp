@@ -8,70 +8,42 @@ import { getInfuraId, getSiteSupportedNetworks } from './network';
 export enum WalletPlugin {
   MetaMask = 'metamask',
   WalletConnect = 'walletconnect',
-  // Coin98 = 'coin98',
-  // TrustWallet = 'trustwallet',
-  // BinanceChainWallet = 'binancechainwallet',
-  // ONTOWallet = 'onto',
-  // BitKeepWallet = 'bitkeepwallet',
-  // FrontierWallet = 'frontierwallet',
+}
+
+export interface IWalletPlugin {
+  name: string;
+  packageName?: string;
+  provider: IClientSideProvider;
 }
 
 const state = {
-  wallets: [],
+  wallets: [] as IWalletPlugin[],
   showThemeButton: false,
-  walletPluginMap: {} as Record<WalletPlugin, IClientSideProvider>
+  walletPluginMap: {} as Record<string, IWalletPlugin>
 }
 
-export type WalletPluginItemType = {
-  provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => IClientSideProvider;
-}
-
-export type WalletPluginConfigType = Record<WalletPlugin, WalletPluginItemType>;
-
-export const WalletPluginConfig: WalletPluginConfigType = {
-  [WalletPlugin.MetaMask]: {
-    provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
+async function getWalletPluginConfigProvider(
+  wallet: Wallet, 
+  pluginName: string, 
+  packageName?: string,
+  events?: IClientSideProviderEvents, 
+  options?: IClientProviderOptions
+) {
+  switch (pluginName) {
+    case WalletPlugin.MetaMask:
       return new MetaMaskProvider(wallet, events, options);
-    }
-  },
-  // [WalletPlugin.Coin98]: {
-  //   provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
-  //     return new Coin98Provider(wallet, events, options);
-  //   }
-  // },
-  // [WalletPlugin.TrustWallet]: {
-  //   provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
-  //     return new TrustWalletProvider(wallet, events, options);
-  //   }
-  // },
-  // [WalletPlugin.BinanceChainWallet]: {
-  //   provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
-  //     return new BinanceChainWalletProvider(wallet, events, options);
-  //   }
-  // },
-  // [WalletPlugin.ONTOWallet]: {
-  //   provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
-  //     return new ONTOWalletProvider(wallet, events, options);
-  //   }
-  // },
-  // [WalletPlugin.BitKeepWallet]: {
-  //   provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
-  //     return new BitKeepWalletProvider(wallet, events, options);
-  //   }
-  // },
-  // [WalletPlugin.FrontierWallet]: {
-  //   provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
-  //     return new FrontierWalletProvider(wallet, events, options);
-  //   },
-  // },
-  [WalletPlugin.WalletConnect]: {
-    provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => {
+    case WalletPlugin.WalletConnect:
       return new Web3ModalProvider(wallet, events, options);
+    default: {
+      if (packageName) {
+        const provider: any = await application.loadPackage(packageName, '*');
+        return new provider(wallet, events, options);
+      }
     }
   }
-}
+} 
 
-export function initWalletPlugins(eventHandlers?: { [key: string]: Function }) {
+export async function initWalletPlugins(eventHandlers?: { [key: string]: Function }) {
   let wallet: any = Wallet.getClientInstance();
   const events = {
     onAccountChanged: async (account: string) => {
@@ -102,8 +74,8 @@ export function initWalletPlugins(eventHandlers?: { [key: string]: Function }) {
     if (rpc) rpcs[network.chainId] = rpc;
   }
 
-  const supportedPluginNames = Object.keys(WalletPluginConfig).filter(pluginName => state.wallets.includes(pluginName))
-  for (let pluginName of supportedPluginNames) {
+  for (let walletPlugin of state.wallets) {
+    let pluginName = walletPlugin.name;
     let providerOptions;
     if (pluginName == WalletPlugin.WalletConnect) {
       providerOptions = {
@@ -122,12 +94,16 @@ export function initWalletPlugins(eventHandlers?: { [key: string]: Function }) {
         useDefaultProvider: true
       }
     }
-    let provider = WalletPluginConfig[pluginName as WalletPlugin].provider(wallet, events, providerOptions);
-    setWalletPluginProvider(pluginName as WalletPlugin, provider);
+    let provider = await getWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, events, providerOptions);
+    setWalletPluginProvider(pluginName, {
+      name: pluginName,
+      packageName: walletPlugin.packageName,
+      provider
+    });
   }
 }
 
-export async function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: { [key: string]: Function }):Promise<IWallet> {
+export async function connectWallet(walletPlugin: string, eventHandlers?: { [key: string]: Function }):Promise<IWallet> {
   // let walletProvider = localStorage.getItem('walletProvider') || '';
   let wallet = Wallet.getClientInstance();
   if (!wallet.chainId) {
@@ -152,9 +128,9 @@ export const truncateAddress = (address: string) => {
   return address.substring(0, 6) + '...' + address.substring(address.length - 4);
 }
 
-export const getSupportedWalletProviders = () => {
+export const getSupportedWalletProviders = (): IClientSideProvider[] => {
   const walletPluginMap = getWalletPluginMap();
-  return Object.keys(walletPluginMap).filter(pluginName => state.wallets.includes(pluginName)).map(pluginName => walletPluginMap[pluginName as WalletPlugin]);
+  return state.wallets.map(v => walletPluginMap[v.name].provider);
 }
 
 export function isWalletConnected() {
@@ -166,7 +142,7 @@ export const hasWallet = function () {
   let hasWallet = false;
   const walletPluginMap = getWalletPluginMap();
   for (let pluginName in walletPluginMap) {
-    const provider = walletPluginMap[pluginName];
+    const provider = walletPluginMap[pluginName].provider;
     if (provider.installed()) {
       hasWallet = true;
       break;
@@ -205,14 +181,14 @@ export const hasThemeButton = () => {
   return state.showThemeButton
 }
 
-export const setWalletPluginProvider = (walletPlugin: WalletPlugin, wallet: IClientSideProvider) => {
-  state.walletPluginMap[walletPlugin] = wallet;
+export const setWalletPluginProvider = (name: string, wallet: IWalletPlugin) => {
+  state.walletPluginMap[name] = wallet;
 }
 
 export const getWalletPluginMap = () => {
   return state.walletPluginMap;
 }
 
-export const getWalletPluginProvider = (walletPlugin: WalletPlugin) => {
-  return state.walletPluginMap[walletPlugin];
+export const getWalletPluginProvider = (name: string) => {
+  return state.walletPluginMap[name].provider;
 }

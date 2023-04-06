@@ -283,20 +283,20 @@ declare module "@scom/dapp/constants.ts" {
 }
 /// <amd-module name="@scom/dapp/wallet.ts" />
 declare module "@scom/dapp/wallet.ts" {
-    import { IClientProviderOptions, IClientSideProvider, IClientSideProviderEvents, IWallet, Wallet } from '@ijstech/eth-wallet';
+    import { IClientSideProvider, IWallet } from '@ijstech/eth-wallet';
     export enum WalletPlugin {
         MetaMask = "metamask",
         WalletConnect = "walletconnect"
     }
-    export type WalletPluginItemType = {
-        provider: (wallet: Wallet, events?: IClientSideProviderEvents, options?: IClientProviderOptions) => IClientSideProvider;
-    };
-    export type WalletPluginConfigType = Record<WalletPlugin, WalletPluginItemType>;
-    export const WalletPluginConfig: WalletPluginConfigType;
+    export interface IWalletPlugin {
+        name: string;
+        packageName?: string;
+        provider: IClientSideProvider;
+    }
     export function initWalletPlugins(eventHandlers?: {
         [key: string]: Function;
-    }): void;
-    export function connectWallet(walletPlugin: WalletPlugin, eventHandlers?: {
+    }): Promise<void>;
+    export function connectWallet(walletPlugin: string, eventHandlers?: {
         [key: string]: Function;
     }): Promise<IWallet>;
     export function logoutWallet(): Promise<void>;
@@ -309,9 +309,9 @@ declare module "@scom/dapp/wallet.ts" {
     export const updateWallets: (options: any) => void;
     export const toggleThemeButton: (options: any) => void;
     export const hasThemeButton: () => boolean;
-    export const setWalletPluginProvider: (walletPlugin: WalletPlugin, wallet: IClientSideProvider) => void;
-    export const getWalletPluginMap: () => Record<WalletPlugin, IClientSideProvider>;
-    export const getWalletPluginProvider: (walletPlugin: WalletPlugin) => IClientSideProvider;
+    export const setWalletPluginProvider: (name: string, wallet: IWalletPlugin) => void;
+    export const getWalletPluginMap: () => Record<string, IWalletPlugin>;
+    export const getWalletPluginProvider: (name: string) => IClientSideProvider;
 }
 /// <amd-module name="@scom/dapp/header.css.ts" />
 declare module "@scom/dapp/header.css.ts" {
@@ -367,7 +367,6 @@ declare module "@scom/dapp/alert.tsx" {
 /// <amd-module name="@scom/dapp/header.tsx" />
 declare module "@scom/dapp/header.tsx" {
     import { Module, Control, ControlElement, Container, IMenuItem } from '@ijstech/components';
-    import { WalletPlugin } from "@scom/dapp/wallet.ts";
     import { IMenu } from "@scom/dapp/interface.ts";
     export interface HeaderElement extends ControlElement {
         menuItems?: IMenu[];
@@ -425,7 +424,7 @@ declare module "@scom/dapp/header.tsx" {
         get hideWalletBalance(): boolean;
         set hideWalletBalance(value: boolean);
         registerEvent(): void;
-        init(): void;
+        init(): Promise<void>;
         connectedCallback(): void;
         disconnectCallback(): void;
         controlMenuDisplay(): void;
@@ -446,11 +445,11 @@ declare module "@scom/dapp/header.tsx" {
         viewOnExplorerByAddress(): void;
         switchNetwork(chainId: number): Promise<void>;
         openLink(link: any): Window;
-        connectToProviderFunc: (walletPlugin: WalletPlugin) => Promise<void>;
+        connectToProviderFunc: (walletPlugin: string) => Promise<void>;
         copyWalletAddress: () => void;
         isWalletActive(walletPlugin: any): boolean;
         isNetworkActive(chainId: number): boolean;
-        renderWalletList: () => void;
+        renderWalletList: () => Promise<void>;
         renderNetworks(): void;
         initData(): Promise<void>;
         getMenuPath(url: string, params: any): string;

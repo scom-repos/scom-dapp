@@ -162,7 +162,7 @@ export class Header extends Module {
     })
   }
 
-  init() {
+  async init() {
     this.classList.add(styleClass);
     this.selectedNetwork = getNetworkInfo(getDefaultChainId());
     super.init();
@@ -170,7 +170,7 @@ export class Header extends Module {
     this.renderMobileMenu();
     this.renderDesktopMenu();
     this.controlMenuDisplay();
-    this.renderWalletList();
+    await this.renderWalletList();
     this.renderNetworks();
     this.updateConnectedStatus(isWalletConnected());
     this.initData();
@@ -351,7 +351,7 @@ export class Header extends Module {
     return window.open(link, '_blank');
   };
 
-  connectToProviderFunc = async (walletPlugin: WalletPlugin) => {
+  connectToProviderFunc = async (walletPlugin: string) => {
     const provider = getWalletPluginProvider(walletPlugin);
     if (provider?.installed()) {
       await connectWallet(walletPlugin);
@@ -376,8 +376,8 @@ export class Header extends Module {
     return Wallet.getInstance().chainId === chainId;
   }
 
-  renderWalletList = () => {
-    initWalletPlugins({
+  renderWalletList = async () => {
+    await initWalletPlugins({
       'accountsChanged': this.login
     });
     this.gridWalletList.clearInnerHTML();
@@ -395,7 +395,7 @@ export class Header extends Module {
           border={{ radius: 10 }} position="relative"
           padding={{ top: '0.5rem', bottom: '0.5rem', left: '0.5rem', right: '0.5rem' }}
           horizontalAlignment="space-between"
-          onClick={() => this.connectToProviderFunc(wallet.name as WalletPlugin)}
+          onClick={() => this.connectToProviderFunc(wallet.name)}
         >
           <i-label
             caption={wallet.displayName}
@@ -443,11 +443,10 @@ export class Header extends Module {
     let chainChangedEventHandler = async (hexChainId: number) => {
       this.updateConnectedStatus(true);
     }
-		let selectedProvider = localStorage.getItem('walletProvider') as WalletPlugin;
+		let selectedProvider = localStorage.getItem('walletProvider');
 		if (!selectedProvider && hasMetaMask()) {
 			selectedProvider = WalletPlugin.MetaMask;
 		}
-		const isValidProvider = Object.values(WalletPlugin).includes(selectedProvider);
 		if (!Wallet.getClientInstance().chainId) {
 			Wallet.getClientInstance().chainId = getDefaultChainId();
 		}
@@ -455,7 +454,7 @@ export class Header extends Module {
       .split("; ")
       .find((row) => row.startsWith("scom__wallet="))
       ?.split("=")[1];
-		if (isLoggedIn && hasWallet() && isValidProvider) {
+		if (isLoggedIn && hasWallet()) {
 			await connectWallet(selectedProvider, {
 				'accountsChanged': this.login,
 				'chainChanged': chainChangedEventHandler
