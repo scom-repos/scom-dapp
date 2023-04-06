@@ -1,9 +1,7 @@
 import { Erc20, Wallet, ISendTxEventsOptions, BigNumber } from '@ijstech/eth-wallet';
 import { formatNumber } from './helper';
 import { INetwork } from './interface';
-import { EventId } from './wallet';
-export { isWalletConnected, hasWallet, hasMetaMask, truncateAddress, switchNetwork, connectWallet, logoutWallet } from './wallet';
-export { EventId, formatNumber };
+export { formatNumber };
 
 export interface ITokenObject {
   address?: string;
