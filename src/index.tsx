@@ -180,7 +180,7 @@ export default class MainLauncher extends Module {
 	async render() {
 		return (
 			<i-vstack height="inherit">
-				<main-header id="headerElm" menuItems={this.menuItems} height="auto" width="100%"></main-header>
+				<main-header id="headerElm" menuItems={this.menuItems} height="auto" width="100%" customStyles={this._options?.header?.customStyles ?? {}}></main-header>
 				<i-vstack id="pnlScrollable" visible={false} stack={{ grow: "1" }} overflow={{ y: 'auto' }}></i-vstack>
 				<i-panel id="pnlMain" stack={{ grow: "1" }} ></i-panel>
 				<main-footer
@@ -191,6 +191,8 @@ export default class MainLauncher extends Module {
 					width="100%"
 					copyrightInfo={this._options.copyrightInfo}
 					version={this._options.version}
+					hasLogo={this._options?.footer?.hasLogo ?? true}
+					customStyles={this._options?.footer?.customStyles ?? {}}
 				></main-footer>
 			</i-vstack>
 		)

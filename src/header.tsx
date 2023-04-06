@@ -45,6 +45,7 @@ const Theme = Styles.Theme.ThemeVars;
 
 export interface HeaderElement extends ControlElement {
   menuItems?: IMenu[];
+  customStyles?: any;
 }
 declare global {
   namespace JSX {
@@ -177,6 +178,11 @@ export class Header extends Module {
     this.initData();
     const themeType = document.body.style.getPropertyValue('--theme')
     this.switchTheme.checked = themeType === 'dark'
+    try {
+      const customStyleAttr = this.getAttribute('customStyles', true);
+      const customStyle = Styles.style(customStyleAttr)
+      customStyle && this.classList.add(customStyle)
+    } catch {}
   }
 
   connectedCallback(): void {
@@ -521,6 +527,7 @@ export class Header extends Module {
     const themeType = this.switchTheme.checked ? 'dark' : 'light'
     document.body.style.setProperty('--theme', themeType)
     application.EventBus.dispatch(EventId.themeChanged, themeType);
+    this.controlMenuDisplay();
   }
 
   render() {

@@ -165,6 +165,8 @@ declare module "@scom/dapp/interface.ts" {
     export interface IHeaderFooter {
         visible?: boolean;
         fixed?: boolean;
+        hasLogo?: boolean;
+        customStyles?: any;
     }
     export interface IHeader extends IHeaderFooter {
         hideNetworkButton?: boolean;
@@ -386,6 +388,7 @@ declare module "@scom/dapp/header.tsx" {
     import { IMenu } from "@scom/dapp/interface.ts";
     export interface HeaderElement extends ControlElement {
         menuItems?: IMenu[];
+        customStyles?: any;
     }
     global {
         namespace JSX {
@@ -488,6 +491,8 @@ declare module "@scom/dapp/footer.tsx" {
         logo?: string;
         copyrightInfo?: string;
         version?: string;
+        hasLogo?: boolean;
+        customStyles?: any;
     }
     global {
         namespace JSX {
