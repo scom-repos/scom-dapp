@@ -377,8 +377,12 @@ export class Header extends Module {
   }
 
   renderWalletList = async () => {
+    let chainChangedEventHandler = async (hexChainId: number) => {
+      this.updateConnectedStatus(true);
+    }
     await initWalletPlugins({
-      'accountsChanged': this.login
+      'accountsChanged': this.login,
+      'chainChanged': chainChangedEventHandler
     });
     this.gridWalletList.clearInnerHTML();
     this.walletMapper = new Map();
@@ -440,9 +444,6 @@ export class Header extends Module {
   }
 
   async initData() {
-    let chainChangedEventHandler = async (hexChainId: number) => {
-      this.updateConnectedStatus(true);
-    }
 		let selectedProvider = localStorage.getItem('walletProvider');
 		if (!selectedProvider && hasMetaMask()) {
 			selectedProvider = WalletPlugin.MetaMask;
@@ -455,10 +456,7 @@ export class Header extends Module {
       .find((row) => row.startsWith("scom__wallet="))
       ?.split("=")[1];
 		if (isLoggedIn && hasWallet()) {
-			await connectWallet(selectedProvider, {
-				'accountsChanged': this.login,
-				'chainChanged': chainChangedEventHandler
-			});
+			await connectWallet(selectedProvider);
 		}
   }
 

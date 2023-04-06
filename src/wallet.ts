@@ -103,7 +103,7 @@ export async function initWalletPlugins(eventHandlers?: { [key: string]: Functio
   }
 }
 
-export async function connectWallet(walletPlugin: string, eventHandlers?: { [key: string]: Function }):Promise<IWallet> {
+export async function connectWallet(walletPlugin: string):Promise<IWallet> {
   // let walletProvider = localStorage.getItem('walletProvider') || '';
   let wallet = Wallet.getClientInstance();
   if (!wallet.chainId) {
