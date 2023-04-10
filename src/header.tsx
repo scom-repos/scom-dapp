@@ -167,6 +167,11 @@ export class Header extends Module {
     this.classList.add(styleClass);
     this.selectedNetwork = getNetworkInfo(getDefaultChainId());
     super.init();
+    try {
+      const customStyleAttr = this.getAttribute('customStyles', true);
+      const customStyle = Styles.style(customStyleAttr)
+      customStyle && this.classList.add(customStyle)
+    } catch {}
     this._menuItems = this.getAttribute("menuItems", true, []);
     this.renderMobileMenu();
     this.renderDesktopMenu();
@@ -177,11 +182,6 @@ export class Header extends Module {
     this.initData();
     const themeType = document.body.style.getPropertyValue('--theme')
     this.switchTheme.checked = themeType === 'dark'
-    try {
-      const customStyleAttr = this.getAttribute('customStyles', true);
-      const customStyle = Styles.style(customStyleAttr)
-      customStyle && this.classList.add(customStyle)
-    } catch {}
   }
 
   connectedCallback(): void {
@@ -534,7 +534,7 @@ export class Header extends Module {
   render() {
     return (
       <i-hstack
-        height={60}
+        height={60} position="relative"
         padding={{ top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }}
         background={{ color: Theme.background.paper }}
         verticalAlignment="center"
@@ -801,6 +801,12 @@ export class Header extends Module {
           </i-vstack>
         </i-modal>
         <main-alert id="mdMainAlert"></main-alert>
+        <i-hstack
+          position='absolute'
+          width="100%" top="100%" left="0px"
+          border={{bottom: {style: 'solid', width: '1px', color: '#fff'}}}
+          class="custom-bd"
+        ></i-hstack>
       </i-hstack>
     )
   }

@@ -1088,7 +1088,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         }
     }
     exports.initWalletPlugins = initWalletPlugins;
-    async function connectWallet(walletPlugin, eventHandlers) {
+    async function connectWallet(walletPlugin) {
         // let walletProvider = localStorage.getItem('walletProvider') || '';
         let wallet = eth_wallet_3.Wallet.getClientInstance();
         if (!wallet.chainId) {
@@ -1575,8 +1575,12 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 components_7.application.copyToClipboard(this.walletInfo.address || "");
             };
             this.renderWalletList = async () => {
+                let chainChangedEventHandler = async (hexChainId) => {
+                    this.updateConnectedStatus(true);
+                };
                 await wallet_1.initWalletPlugins({
-                    'accountsChanged': this.login
+                    'accountsChanged': this.login,
+                    'chainChanged': chainChangedEventHandler
                 });
                 this.gridWalletList.clearInnerHTML();
                 this.walletMapper = new Map();
@@ -1654,6 +1658,12 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.classList.add(header_css_1.default);
             this.selectedNetwork = network_2.getNetworkInfo(network_2.getDefaultChainId());
             super.init();
+            try {
+                const customStyleAttr = this.getAttribute('customStyles', true);
+                const customStyle = components_7.Styles.style(customStyleAttr);
+                customStyle && this.classList.add(customStyle);
+            }
+            catch (_a) { }
             this._menuItems = this.getAttribute("menuItems", true, []);
             this.renderMobileMenu();
             this.renderDesktopMenu();
@@ -1664,12 +1674,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.initData();
             const themeType = document.body.style.getPropertyValue('--theme');
             this.switchTheme.checked = themeType === 'dark';
-            try {
-                const customStyleAttr = this.getAttribute('customStyles', true);
-                const customStyle = components_7.Styles.style(customStyleAttr);
-                customStyle && this.classList.add(customStyle);
-            }
-            catch (_a) { }
         }
         connectedCallback() {
             super.connectedCallback();
@@ -1766,9 +1770,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         }
         async initData() {
             var _a;
-            let chainChangedEventHandler = async (hexChainId) => {
-                this.updateConnectedStatus(true);
-            };
             let selectedProvider = localStorage.getItem('walletProvider');
             if (!selectedProvider && wallet_1.hasMetaMask()) {
                 selectedProvider = wallet_1.WalletPlugin.MetaMask;
@@ -1780,10 +1781,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 .split("; ")
                 .find((row) => row.startsWith("scom__wallet="))) === null || _a === void 0 ? void 0 : _a.split("=")[1]);
             if (isLoggedIn && wallet_1.hasWallet()) {
-                await wallet_1.connectWallet(selectedProvider, {
-                    'accountsChanged': this.login,
-                    'chainChanged': chainChangedEventHandler
-                });
+                await wallet_1.connectWallet(selectedProvider);
             }
         }
         getMenuPath(url, params) {
@@ -1847,7 +1845,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.controlMenuDisplay();
         }
         render() {
-            return (this.$render("i-hstack", { height: 60, padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, background: { color: Theme.background.paper }, verticalAlignment: "center" },
+            return (this.$render("i-hstack", { height: 60, position: "relative", padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, background: { color: Theme.background.paper }, verticalAlignment: "center" },
                 this.$render("i-grid-layout", { width: '100%', position: "relative", verticalAlignment: 'center', templateColumns: ["1fr", "auto"] },
                     this.$render("i-hstack", { id: "hsMobileMenu", verticalAlignment: "center", width: "max-content", visible: false },
                         this.$render("i-icon", { id: "hamburger", class: 'pointer', name: "bars", width: "20px", height: "20px", display: "inline-block", margin: { right: 5 }, fill: Theme.text.primary, onClick: this.toggleMenu }),
@@ -1895,7 +1893,8 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                             this.$render("i-hstack", { id: "hsViewAccount", class: "pointer", verticalAlignment: "center", onClick: this.viewOnExplorerByAddress.bind(this) },
                                 this.$render("i-icon", { name: "external-link-alt", width: "16", height: "16", fill: Theme.text.secondary, display: "inline-block" }),
                                 this.$render("i-label", { caption: "View on Explorer", margin: { left: "0.5rem" }, font: { size: "0.875rem", bold: true } }))))),
-                this.$render("main-alert", { id: "mdMainAlert" })));
+                this.$render("main-alert", { id: "mdMainAlert" }),
+                this.$render("i-hstack", { position: 'absolute', width: "100%", top: "100%", left: "0px", border: { bottom: { style: 'solid', width: '1px', color: '#fff' } }, class: "custom-bd" })));
         }
     };
     __decorate([
