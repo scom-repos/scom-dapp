@@ -804,7 +804,6 @@ export class Header extends Module {
         <i-hstack
           position='absolute'
           width="100%" top="100%" left="0px"
-          border={{bottom: {style: 'solid', width: '1px', color: '#fff'}}}
           class="custom-bd"
         ></i-hstack>
       </i-hstack>
