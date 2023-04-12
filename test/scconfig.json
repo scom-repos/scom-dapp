@@ -53,9 +53,13 @@
       "module": "@modules/module3"
     }
   ],
+  "defaultChainId": 43113,
   "networks": [
     {
       "chainId": 43113
+    },
+    {
+      "chainId": 97
     }
   ],
   "wallets": [
@@ -64,6 +68,10 @@
     },
     {
       "name": "walletconnect"
+    },
+    {
+      "name": "coin98",
+      "packageName": "@scom/scom-coin98-wallet"
     }
   ],
   "themes": {

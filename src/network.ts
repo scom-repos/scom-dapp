@@ -1,4 +1,4 @@
-import { Erc20, Wallet, ISendTxEventsOptions, BigNumber } from '@ijstech/eth-wallet';
+import { Erc20, Wallet, ISendTxEventsOptions, INetwork } from '@ijstech/eth-wallet';
 import { formatNumber } from './helper';
 
 export { formatNumber };
@@ -72,8 +72,8 @@ const state = {
 }
 const setNetworkList = (networkList: IExtendedNetwork[] | "*", infuraId?: string) => {
   state.networkMap = {};
-  const defaultNetworkList = getNetworkList();
-  const defaultNetworkMap = defaultNetworkList.reduce((acc, cur) => {
+  const defaultNetworkList: INetwork[] = getNetworkList();
+  const defaultNetworkMap: Record<number, INetwork> = defaultNetworkList.reduce((acc, cur) => {
     acc[cur.chainId] = cur;
     return acc;
   }, {});
@@ -92,16 +92,18 @@ const setNetworkList = (networkList: IExtendedNetwork[] | "*", infuraId?: string
         ...networkInfo,
         symbol: networkInfo.nativeCurrency?.symbol || "",
         explorerTxUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}tx/` : "",
-        explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : "",
-        isDisabled: true
+        explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : ""
       }
     }
-    return;
   }
-  if (Array.isArray(networkList)) {
+  else if (Array.isArray(networkList)) {
     const networksMap = defaultNetworkMap;
+    Object.values(defaultNetworkMap).forEach(network => {
+      state.networkMap[network.chainId] = { ...network, isDisabled: true };
+    })
     for (let network of networkList) {
       const networkInfo = networksMap[network.chainId];
+      const explorerUrl = networkInfo.blockExplorerUrls && networkInfo.blockExplorerUrls.length ? networkInfo.blockExplorerUrls[0] : "";
       if (infuraId && network.rpcUrls && network.rpcUrls.length > 0) {
         for (let i = 0; i < network.rpcUrls.length; i++) {
           networkInfo.rpcUrls[i] = network.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
@@ -110,6 +112,9 @@ const setNetworkList = (networkList: IExtendedNetwork[] | "*", infuraId?: string
       state.networkMap[network.chainId] = {
         ...networkInfo,
         ...network,
+        symbol: networkInfo.nativeCurrency?.symbol || "",
+        explorerTxUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}tx/` : "",
+        explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : "",
         isDisabled: false
       }
     }
