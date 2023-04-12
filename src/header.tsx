@@ -33,12 +33,12 @@ import {
   getDefaultChainId,
   viewOnExplorerByAddress
 } from './network';
-import { connectWallet, logoutWallet, getSupportedWalletProviders, switchNetwork, truncateAddress, hasWallet, isWalletConnected, hasMetaMask, hasThemeButton, initWalletPlugins, WalletPlugin, getWalletPluginProvider } from './wallet';
+import { getSupportedWalletProviders, switchNetwork, truncateAddress, hasWallet, isWalletConnected, hasMetaMask, hasThemeButton, initWalletPlugins, WalletPlugin, getWalletPluginProvider, logoutWallet, connectWallet } from './wallet';
 import { compile } from './pathToRegexp'
 import { login, logout } from './utils';
 import { Alert } from './alert';
-import { IMenu, INetwork } from './interface';
 import { EventId } from './constants';
+import { IMenu, IExtendedNetwork } from './interface';
 
 const Theme = Styles.Theme.ThemeVars;
 
@@ -83,7 +83,7 @@ export class Header extends Module {
   private _hideWalletBalance: boolean;
 
   private $eventBus: IEventBus;
-  private selectedNetwork: INetwork | undefined;
+  private selectedNetwork: IExtendedNetwork | undefined;
   private _menuItems: IMenu[];
   private networkMapper: Map<number, HStack>;
   private walletMapper: Map<string, HStack>;
@@ -91,7 +91,7 @@ export class Header extends Module {
   private currActiveWallet: string;
   private imgDesktopLogo: Image;
   private imgMobileLogo: Image;
-  private supportedNetworks: INetwork[] = [];
+  private supportedNetworks: IExtendedNetwork[] = [];
   private isLoginRequestSent: Boolean;
   @observable()
   private walletInfo = {
@@ -234,9 +234,9 @@ export class Header extends Module {
     }
     const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network === this.selectedNetwork) !== -1;
     if (isSupportedNetwork) {
-      const img = this.selectedNetwork?.img ? Assets.img.network[this.selectedNetwork.img] || application.assets(this.selectedNetwork.img) : undefined;
+      const img = this.selectedNetwork?.image ? this.selectedNetwork.image : undefined;
       this.btnNetwork.icon = img ? <i-icon width={26} height={26} image={{ url: img }} ></i-icon> : undefined;
-      this.btnNetwork.caption = this.selectedNetwork?.name??"";
+      this.btnNetwork.caption = this.selectedNetwork?.chainName??"";
     } else {
       this.btnNetwork.icon = undefined;
       this.btnNetwork.caption = isDefaultNetworkFromWallet() ? "Unknown Network" : "Unsupported Network";
@@ -426,7 +426,7 @@ export class Header extends Module {
     this.networkMapper = new Map();
     this.supportedNetworks = getSiteSupportedNetworks();
     this.gridNetworkGroup.append(...this.supportedNetworks.map((network) => {
-      const img = network.img ? <i-image url={Assets.img.network[network.img] || application.assets(network.img)} width={34} height={34} /> : [];
+      const img = network.image ? <i-image url={network.image} width={34} height={34} /> : [];
       const isActive = this.isNetworkActive(network.chainId);
       if (isActive) this.currActiveNetworkId = network.chainId;
       const hsNetwork = (
@@ -440,7 +440,7 @@ export class Header extends Module {
         >
           <i-hstack margin={{ left: '1rem' }} verticalAlignment="center" gap={12}>
             {img}
-            <i-label caption={network.name} wordBreak="break-word" font={{ size: '.875rem', bold: true, color: Theme.colors.primary.dark }} />
+            <i-label caption={network.chainName} wordBreak="break-word" font={{ size: '.875rem', bold: true, color: Theme.colors.primary.dark }} />
           </i-hstack>
         </i-hstack>
       );

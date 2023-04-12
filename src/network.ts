@@ -1,7 +1,9 @@
 import { Erc20, Wallet, ISendTxEventsOptions, BigNumber } from '@ijstech/eth-wallet';
 import { formatNumber } from './helper';
-import { INetwork } from './interface';
+
 export { formatNumber };
+import { IExtendedNetwork } from './interface';
+import getNetworkList from '@scom/scom-network-list';
 
 export interface ITokenObject {
   address?: string;
@@ -14,123 +16,7 @@ export interface ITokenObject {
   balance?: string | number;
   isNative?: boolean | null;
 };
-const networks: INetwork[] = [
-  {
-    name: "Ethereum",
-    chainId: 1,
-    img: "eth",
-    rpc: "https://mainnet.infura.io/v3/{InfuraId}",
-    symbol: "ETH",
-    env: "mainnet",
-    explorerName: "Etherscan",
-    explorerTxUrl: "https://etherscan.io/tx/",
-    explorerAddressUrl: "https://etherscan.io/address/"
-  },
-  {
-    name: "Kovan Test Network",
-    chainId: 42,
-    img: "eth",
-    rpc: "https://kovan.infura.io/v3/{InfuraId}",
-    symbol: "ETH",
-    env: "testnet",
-    explorerName: "Etherscan",
-    explorerTxUrl: "https://kovan.etherscan.io/tx/",
-    explorerAddressUrl: "https://kovan.etherscan.io/address/"
-  },
-  {
-    name: "Binance Smart Chain",
-    chainId: 56,
-    img: "bsc",
-    rpc: "https://bsc-dataseed.binance.org/",
-    symbol: "BNB",
-    env: "mainnet",
-    explorerName: "BSCScan",
-    explorerTxUrl: "https://bscscan.com/tx/",
-    explorerAddressUrl: "https://bscscan.com/address/"
-  },
-  {
-    name: "Polygon",
-    chainId: 137,
-    img: "polygon",
-    symbol: "MATIC",
-    env: "mainnet",
-    explorerName: "PolygonScan",
-    explorerTxUrl: "https://polygonscan.com/tx/",
-    explorerAddressUrl: "https://polygonscan.com/address/"
-  },
-  {
-    name: "Fantom Opera",
-    chainId: 250,
-    img: "ftm",
-    rpc: "https://rpc.ftm.tools/",
-    symbol: "FTM",
-    env: "mainnet",
-    explorerName: "FTMScan",
-    explorerTxUrl: "https://ftmscan.com/tx/",
-    explorerAddressUrl: "https://ftmscan.com/address/"
-  },
-  {
-    name: "BSC Testnet",
-    chainId: 97,
-    img: "bsc",
-    rpc: "https://data-seed-prebsc-1-s1.binance.org:8545/",
-    symbol: "BNB",
-    env: "testnet",
-    explorerName: "BSCScan",
-    explorerTxUrl: "https://testnet.bscscan.com/tx/",
-    explorerAddressUrl: "https://testnet.bscscan.com/address/"
-  },
-  {
-    name: "Amino Testnet",
-    chainId: 31337,
-    img: "amio",
-    symbol: "ACT",
-    env: "testnet"
-  },
-  {
-    name: "Avalanche FUJI C-Chain",
-    chainId: 43113,
-    img: "avax",
-    rpc: "https://api.avax-test.network/ext/bc/C/rpc",
-    symbol: "AVAX",
-    env: "testnet",
-    explorerName: "SnowTrace",
-    explorerTxUrl: "https://testnet.snowtrace.io/tx/",
-    explorerAddressUrl: "https://testnet.snowtrace.io/address/"
-  },
-  {
-    name: "Mumbai",
-    chainId: 80001,
-    img: "polygon",
-    rpc: "https://matic-mumbai.chainstacklabs.com",
-    symbol: "MATIC",
-    env: "testnet",
-    explorerName: "PolygonScan",
-    explorerTxUrl: "https://mumbai.polygonscan.com/tx/",
-    explorerAddressUrl: "https://mumbai.polygonscan.com/address/"
-  },
-  {
-    name: "Fantom Testnet",
-    chainId: 4002,
-    img: "ftm",
-    rpc: "https://rpc.testnet.fantom.network/",
-    symbol: "FTM",
-    env: "testnet",
-    explorerName: "FTMScan",
-    explorerTxUrl: "https://testnet.ftmscan.com/tx/",
-    explorerAddressUrl: "https://testnet.ftmscan.com/address/"
-  },
-  {
-    name: "AminoX Testnet",
-    chainId: 13370,
-    img: "amio",
-    symbol: "ACT",
-    env: "testnet",
-    explorerName: "AminoX Explorer",
-    explorerTxUrl: "https://aminoxtestnet.blockscout.alphacarbon.network/tx/",
-    explorerAddressUrl: "https://aminoxtestnet.blockscout.alphacarbon.network/address/"
-  }
-];
+
 export const updateNetworks = (options: any) => {
   if (options.env) {
     setEnv(options.env);
@@ -177,54 +63,61 @@ export function getErc20(address: string) {
   return new Erc20(wallet, address);
 };
 const state = {
-  networkMap: {} as { [key: number]: INetwork },
+  networkMap: {} as { [key: number]: IExtendedNetwork },
   defaultChainId: 0,
   infuraId: "",
   env: "",
   defaultNetworkFromWallet: false,
   requireLogin: false
 }
-const setNetworkList = (networkList: INetwork[] | "*", infuraId?: string) => {
+const setNetworkList = (networkList: IExtendedNetwork[] | "*", infuraId?: string) => {
   state.networkMap = {};
+  const defaultNetworkList = getNetworkList();
+  const defaultNetworkMap = defaultNetworkList.reduce((acc, cur) => {
+    acc[cur.chainId] = cur;
+    return acc;
+  }, {});
   state.defaultNetworkFromWallet = networkList === "*";
   if (state.defaultNetworkFromWallet) {
-    const wallet: Wallet = getWallet() as Wallet;
-    const networksMap = wallet.networksMap;
+    const networksMap = defaultNetworkMap;
     for (const chainId in networksMap) {
       const networkInfo = networksMap[chainId];
-      const rpc = networkInfo.rpcUrls && networkInfo.rpcUrls.length ? networkInfo.rpcUrls[0] : "";
       const explorerUrl = networkInfo.blockExplorerUrls && networkInfo.blockExplorerUrls.length ? networkInfo.blockExplorerUrls[0] : "";
+      if (state.infuraId && networkInfo.rpcUrls && networkInfo.rpcUrls.length > 0) {
+        for (let i = 0; i < networkInfo.rpcUrls.length; i++) {
+          networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
+        }
+      }
       state.networkMap[networkInfo.chainId] =  {
-        chainId: networkInfo.chainId,
-        name: networkInfo.chainName,
-        rpc: state.infuraId && rpc ? rpc.replace(/{InfuraId}/g, state.infuraId) : rpc,
+        ...networkInfo,
         symbol: networkInfo.nativeCurrency?.symbol || "",
         explorerTxUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}tx/` : "",
         explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : "",
+        isDisabled: true
       }
     }
     return;
   }
-  networks.forEach(network => {
-    const rpc = infuraId && network.rpc ? network.rpc.replace(/{InfuraId}/g, infuraId) : network.rpc;
-    state.networkMap[network.chainId] = { ...network, isDisabled: true, rpc };
-  })
   if (Array.isArray(networkList)) {
+    const networksMap = defaultNetworkMap;
     for (let network of networkList) {
-      if (infuraId && network.rpc) {
-        network.rpc = network.rpc.replace(/{InfuraId}/g, infuraId);
+      const networkInfo = networksMap[network.chainId];
+      if (infuraId && network.rpcUrls && network.rpcUrls.length > 0) {
+        for (let i = 0; i < network.rpcUrls.length; i++) {
+          networkInfo.rpcUrls[i] = network.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
+        }
       }
-      Object.assign(state.networkMap[network.chainId], { isDisabled: false, ...network });
+      state.networkMap[network.chainId] = {
+        ...networkInfo,
+        ...network,
+        isDisabled: false
+      }
     }
   }
 }
 
-export const getNetworkInfo = (chainId: number): INetwork | undefined => {
+export const getNetworkInfo = (chainId: number): IExtendedNetwork | undefined => {
   return state.networkMap[chainId];
-}
-
-export const getNetworkList = () => {
-  return Object.values(state.networkMap);
 }
 
 export const viewOnExplorerByTxHash = (chainId: number, txHash: string) => {

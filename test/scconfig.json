@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@ijstech/eth-wallet-web3modal": "*",
+    "@scom/scom-coin98-wallet": "*",
     "@scom/dapp": "*"
   },
   "menus": [
@@ -52,10 +53,18 @@
       "module": "@modules/module3"
     }
   ],
-  "networks": "*",
+  "networks": [
+    {
+      "chainId": 43113
+    }
+  ],
   "wallets": [
-    "metamask",
-    "walletconnect"
+    {
+      "name": "metamask"
+    },
+    {
+      "name": "walletconnect"
+    }
   ],
   "themes": {
     "default": "dark",
@@ -85,8 +94,11 @@
   },
   "header": {
     "fixed": true,
-    "hideNetworkButton": true,
-    "hideWalletBalance": true
+    "hideNetworkButton": false,
+    "hideWalletBalance": false
   },
-  "requireLogin": false
+  "requireLogin": false,
+  "footer": {
+    "hasLogo": false
+  }
 }

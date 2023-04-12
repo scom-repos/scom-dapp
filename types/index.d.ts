@@ -90,7 +90,7 @@ declare module "@scom/dapp/walletList.ts" {
 /// <amd-module name="@scom/dapp/wallet.ts" />
 declare module "@scom/dapp/wallet.ts" {
     import { IWallet, WalletPlugin } from '@ijstech/eth-wallet';
-    export interface INetwork {
+    export interface IExtendedNetwork {
         chainId: number;
         name: string;
         img?: string;
@@ -134,9 +134,9 @@ declare module "@scom/dapp/wallet.ts" {
 declare module "@scom/dapp/network.ts" {
     import { Erc20, Wallet, ISendTxEventsOptions } from '@ijstech/eth-wallet';
     import { formatDate, formatNumber } from "@scom/dapp/helper.ts";
-    import { INetwork, EventId } from "@scom/dapp/wallet.ts";
+    import { IExtendedNetwork, EventId } from "@scom/dapp/wallet.ts";
     export { isWalletConnected, hasWallet, hasMetaMask, truncateAddress, switchNetwork, connectWallet, logoutWallet } from "@scom/dapp/wallet.ts";
-    export { INetwork, EventId, formatDate, formatNumber };
+    export { IExtendedNetwork, EventId, formatDate, formatNumber };
     export interface ITokenObject {
         address?: string;
         name: string;
@@ -154,13 +154,13 @@ declare module "@scom/dapp/network.ts" {
     export function getWallet(): Wallet;
     export function getWalletProvider(): string;
     export function getErc20(address: string): Erc20;
-    export const getNetworkInfo: (chainId: number) => INetwork | undefined;
-    export const getNetworkList: () => INetwork[];
+    export const getNetworkInfo: (chainId: number) => IExtendedNetwork | undefined;
+    export const getNetworkList: () => IExtendedNetwork[];
     export const viewOnExplorerByTxHash: (chainId: number, txHash: string) => void;
     export const viewOnExplorerByAddress: (chainId: number, address: string) => void;
     export const getNetworkType: (chainId: number) => string;
     export const getDefaultChainId: () => number;
-    export const getSiteSupportedNetworks: () => INetwork[];
+    export const getSiteSupportedNetworks: () => IExtendedNetwork[];
     export const isValidEnv: (env: string) => boolean;
     export const getInfuraId: () => string;
     export const getEnv: () => string;

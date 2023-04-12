@@ -698,129 +698,12 @@ define("@scom/dapp/helper.ts", ["require", "exports", "@ijstech/eth-wallet"], fu
     };
     exports.getParamsFromUrl = getParamsFromUrl;
 });
-define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@scom/dapp/helper.ts"], function (require, exports, eth_wallet_2, helper_1) {
+define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@scom/dapp/helper.ts", "@scom/scom-network-list"], function (require, exports, eth_wallet_2, helper_1, scom_network_list_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getRequireLogin = exports.isDefaultNetworkFromWallet = exports.getEnv = exports.getInfuraId = exports.isValidEnv = exports.getSiteSupportedNetworks = exports.getDefaultChainId = exports.getNetworkType = exports.viewOnExplorerByAddress = exports.viewOnExplorerByTxHash = exports.getNetworkList = exports.getNetworkInfo = exports.getErc20 = exports.getWalletProvider = exports.getWallet = exports.getChainId = exports.registerSendTxEvents = exports.updateNetworks = exports.formatNumber = void 0;
+    exports.getRequireLogin = exports.isDefaultNetworkFromWallet = exports.getEnv = exports.getInfuraId = exports.isValidEnv = exports.getSiteSupportedNetworks = exports.getDefaultChainId = exports.getNetworkType = exports.viewOnExplorerByAddress = exports.viewOnExplorerByTxHash = exports.getNetworkInfo = exports.getErc20 = exports.getWalletProvider = exports.getWallet = exports.getChainId = exports.registerSendTxEvents = exports.updateNetworks = exports.formatNumber = void 0;
     Object.defineProperty(exports, "formatNumber", { enumerable: true, get: function () { return helper_1.formatNumber; } });
     ;
-    const networks = [
-        {
-            name: "Ethereum",
-            chainId: 1,
-            img: "eth",
-            rpc: "https://mainnet.infura.io/v3/{InfuraId}",
-            symbol: "ETH",
-            env: "mainnet",
-            explorerName: "Etherscan",
-            explorerTxUrl: "https://etherscan.io/tx/",
-            explorerAddressUrl: "https://etherscan.io/address/"
-        },
-        {
-            name: "Kovan Test Network",
-            chainId: 42,
-            img: "eth",
-            rpc: "https://kovan.infura.io/v3/{InfuraId}",
-            symbol: "ETH",
-            env: "testnet",
-            explorerName: "Etherscan",
-            explorerTxUrl: "https://kovan.etherscan.io/tx/",
-            explorerAddressUrl: "https://kovan.etherscan.io/address/"
-        },
-        {
-            name: "Binance Smart Chain",
-            chainId: 56,
-            img: "bsc",
-            rpc: "https://bsc-dataseed.binance.org/",
-            symbol: "BNB",
-            env: "mainnet",
-            explorerName: "BSCScan",
-            explorerTxUrl: "https://bscscan.com/tx/",
-            explorerAddressUrl: "https://bscscan.com/address/"
-        },
-        {
-            name: "Polygon",
-            chainId: 137,
-            img: "polygon",
-            symbol: "MATIC",
-            env: "mainnet",
-            explorerName: "PolygonScan",
-            explorerTxUrl: "https://polygonscan.com/tx/",
-            explorerAddressUrl: "https://polygonscan.com/address/"
-        },
-        {
-            name: "Fantom Opera",
-            chainId: 250,
-            img: "ftm",
-            rpc: "https://rpc.ftm.tools/",
-            symbol: "FTM",
-            env: "mainnet",
-            explorerName: "FTMScan",
-            explorerTxUrl: "https://ftmscan.com/tx/",
-            explorerAddressUrl: "https://ftmscan.com/address/"
-        },
-        {
-            name: "BSC Testnet",
-            chainId: 97,
-            img: "bsc",
-            rpc: "https://data-seed-prebsc-1-s1.binance.org:8545/",
-            symbol: "BNB",
-            env: "testnet",
-            explorerName: "BSCScan",
-            explorerTxUrl: "https://testnet.bscscan.com/tx/",
-            explorerAddressUrl: "https://testnet.bscscan.com/address/"
-        },
-        {
-            name: "Amino Testnet",
-            chainId: 31337,
-            img: "amio",
-            symbol: "ACT",
-            env: "testnet"
-        },
-        {
-            name: "Avalanche FUJI C-Chain",
-            chainId: 43113,
-            img: "avax",
-            rpc: "https://api.avax-test.network/ext/bc/C/rpc",
-            symbol: "AVAX",
-            env: "testnet",
-            explorerName: "SnowTrace",
-            explorerTxUrl: "https://testnet.snowtrace.io/tx/",
-            explorerAddressUrl: "https://testnet.snowtrace.io/address/"
-        },
-        {
-            name: "Mumbai",
-            chainId: 80001,
-            img: "polygon",
-            rpc: "https://matic-mumbai.chainstacklabs.com",
-            symbol: "MATIC",
-            env: "testnet",
-            explorerName: "PolygonScan",
-            explorerTxUrl: "https://mumbai.polygonscan.com/tx/",
-            explorerAddressUrl: "https://mumbai.polygonscan.com/address/"
-        },
-        {
-            name: "Fantom Testnet",
-            chainId: 4002,
-            img: "ftm",
-            rpc: "https://rpc.testnet.fantom.network/",
-            symbol: "FTM",
-            env: "testnet",
-            explorerName: "FTMScan",
-            explorerTxUrl: "https://testnet.ftmscan.com/tx/",
-            explorerAddressUrl: "https://testnet.ftmscan.com/address/"
-        },
-        {
-            name: "AminoX Testnet",
-            chainId: 13370,
-            img: "amio",
-            symbol: "ACT",
-            env: "testnet",
-            explorerName: "AminoX Explorer",
-            explorerTxUrl: "https://aminoxtestnet.blockscout.alphacarbon.network/tx/",
-            explorerAddressUrl: "https://aminoxtestnet.blockscout.alphacarbon.network/address/"
-        }
-    ];
     const updateNetworks = (options) => {
         if (options.env) {
             setEnv(options.env);
@@ -888,35 +771,36 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
     const setNetworkList = (networkList, infuraId) => {
         var _a;
         state.networkMap = {};
+        const defaultNetworkList = scom_network_list_1.default();
+        const defaultNetworkMap = defaultNetworkList.reduce((acc, cur) => {
+            acc[cur.chainId] = cur;
+            return acc;
+        }, {});
         state.defaultNetworkFromWallet = networkList === "*";
         if (state.defaultNetworkFromWallet) {
-            const wallet = getWallet();
-            const networksMap = wallet.networksMap;
+            const networksMap = defaultNetworkMap;
             for (const chainId in networksMap) {
                 const networkInfo = networksMap[chainId];
-                const rpc = networkInfo.rpcUrls && networkInfo.rpcUrls.length ? networkInfo.rpcUrls[0] : "";
                 const explorerUrl = networkInfo.blockExplorerUrls && networkInfo.blockExplorerUrls.length ? networkInfo.blockExplorerUrls[0] : "";
-                state.networkMap[networkInfo.chainId] = {
-                    chainId: networkInfo.chainId,
-                    name: networkInfo.chainName,
-                    rpc: state.infuraId && rpc ? rpc.replace(/{InfuraId}/g, state.infuraId) : rpc,
-                    symbol: ((_a = networkInfo.nativeCurrency) === null || _a === void 0 ? void 0 : _a.symbol) || "",
-                    explorerTxUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}tx/` : "",
-                    explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : "",
-                };
+                if (state.infuraId && networkInfo.rpcUrls && networkInfo.rpcUrls.length > 0) {
+                    for (let i = 0; i < networkInfo.rpcUrls.length; i++) {
+                        networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
+                    }
+                }
+                state.networkMap[networkInfo.chainId] = Object.assign(Object.assign({}, networkInfo), { symbol: ((_a = networkInfo.nativeCurrency) === null || _a === void 0 ? void 0 : _a.symbol) || "", explorerTxUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}tx/` : "", explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : "", isDisabled: true });
             }
             return;
         }
-        networks.forEach(network => {
-            const rpc = infuraId && network.rpc ? network.rpc.replace(/{InfuraId}/g, infuraId) : network.rpc;
-            state.networkMap[network.chainId] = Object.assign(Object.assign({}, network), { isDisabled: true, rpc });
-        });
         if (Array.isArray(networkList)) {
+            const networksMap = defaultNetworkMap;
             for (let network of networkList) {
-                if (infuraId && network.rpc) {
-                    network.rpc = network.rpc.replace(/{InfuraId}/g, infuraId);
+                const networkInfo = networksMap[network.chainId];
+                if (infuraId && network.rpcUrls && network.rpcUrls.length > 0) {
+                    for (let i = 0; i < network.rpcUrls.length; i++) {
+                        networkInfo.rpcUrls[i] = network.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
+                    }
                 }
-                Object.assign(state.networkMap[network.chainId], Object.assign({ isDisabled: false }, network));
+                state.networkMap[network.chainId] = Object.assign(Object.assign(Object.assign({}, networkInfo), network), { isDisabled: false });
             }
         }
     };
@@ -924,10 +808,6 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         return state.networkMap[chainId];
     };
     exports.getNetworkInfo = getNetworkInfo;
-    const getNetworkList = () => {
-        return Object.values(state.networkMap);
-    };
-    exports.getNetworkList = getNetworkList;
     const viewOnExplorerByTxHash = (chainId, txHash) => {
         let network = exports.getNetworkInfo(chainId);
         if (network && network.explorerTxUrl) {
@@ -1055,7 +935,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         let networkList = network_1.getSiteSupportedNetworks();
         const rpcs = {};
         for (const network of networkList) {
-            let rpc = network.rpc;
+            let rpc = network.rpcUrls[0];
             if (rpc)
                 rpcs[network.chainId] = rpc;
         }
@@ -1088,7 +968,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         }
     }
     exports.initWalletPlugins = initWalletPlugins;
-    async function connectWallet(walletPlugin, eventHandlers) {
+    async function connectWallet(walletPlugin) {
         // let walletProvider = localStorage.getItem('walletProvider') || '';
         let wallet = eth_wallet_3.Wallet.getClientInstance();
         if (!wallet.chainId) {
@@ -1484,9 +1364,9 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 }
                 const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network === this.selectedNetwork) !== -1;
                 if (isSupportedNetwork) {
-                    const img = ((_a = this.selectedNetwork) === null || _a === void 0 ? void 0 : _a.img) ? assets_2.default.img.network[this.selectedNetwork.img] || components_7.application.assets(this.selectedNetwork.img) : undefined;
+                    const img = ((_a = this.selectedNetwork) === null || _a === void 0 ? void 0 : _a.image) ? this.selectedNetwork.image : undefined;
                     this.btnNetwork.icon = img ? this.$render("i-icon", { width: 26, height: 26, image: { url: img } }) : undefined;
-                    this.btnNetwork.caption = (_c = (_b = this.selectedNetwork) === null || _b === void 0 ? void 0 : _b.name) !== null && _c !== void 0 ? _c : "";
+                    this.btnNetwork.caption = (_c = (_b = this.selectedNetwork) === null || _b === void 0 ? void 0 : _b.chainName) !== null && _c !== void 0 ? _c : "";
                 }
                 else {
                     this.btnNetwork.icon = undefined;
@@ -1575,8 +1455,12 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 components_7.application.copyToClipboard(this.walletInfo.address || "");
             };
             this.renderWalletList = async () => {
+                let chainChangedEventHandler = async (hexChainId) => {
+                    this.updateConnectedStatus(true);
+                };
                 await wallet_1.initWalletPlugins({
-                    'accountsChanged': this.login
+                    'accountsChanged': this.login,
+                    'chainChanged': chainChangedEventHandler
                 });
                 this.gridWalletList.clearInnerHTML();
                 this.walletMapper = new Map();
@@ -1752,23 +1636,20 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.networkMapper = new Map();
             this.supportedNetworks = network_2.getSiteSupportedNetworks();
             this.gridNetworkGroup.append(...this.supportedNetworks.map((network) => {
-                const img = network.img ? this.$render("i-image", { url: assets_2.default.img.network[network.img] || components_7.application.assets(network.img), width: 34, height: 34 }) : [];
+                const img = network.image ? this.$render("i-image", { url: network.image, width: 34, height: 34 }) : [];
                 const isActive = this.isNetworkActive(network.chainId);
                 if (isActive)
                     this.currActiveNetworkId = network.chainId;
                 const hsNetwork = (this.$render("i-hstack", { onClick: () => this.switchNetwork(network.chainId), background: { color: Theme.colors.secondary.light }, border: { radius: 10 }, position: "relative", class: isActive ? 'is-actived list-item' : 'list-item', padding: { top: '0.65rem', bottom: '0.65rem', left: '0.5rem', right: '0.5rem' } },
                     this.$render("i-hstack", { margin: { left: '1rem' }, verticalAlignment: "center", gap: 12 },
                         img,
-                        this.$render("i-label", { caption: network.name, wordBreak: "break-word", font: { size: '.875rem', bold: true, color: Theme.colors.primary.dark } }))));
+                        this.$render("i-label", { caption: network.chainName, wordBreak: "break-word", font: { size: '.875rem', bold: true, color: Theme.colors.primary.dark } }))));
                 this.networkMapper.set(network.chainId, hsNetwork);
                 return hsNetwork;
             }));
         }
         async initData() {
             var _a;
-            let chainChangedEventHandler = async (hexChainId) => {
-                this.updateConnectedStatus(true);
-            };
             let selectedProvider = localStorage.getItem('walletProvider');
             if (!selectedProvider && wallet_1.hasMetaMask()) {
                 selectedProvider = wallet_1.WalletPlugin.MetaMask;
@@ -1780,10 +1661,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 .split("; ")
                 .find((row) => row.startsWith("scom__wallet="))) === null || _a === void 0 ? void 0 : _a.split("=")[1]);
             if (isLoggedIn && wallet_1.hasWallet()) {
-                await wallet_1.connectWallet(selectedProvider, {
-                    'accountsChanged': this.login,
-                    'chainChanged': chainChangedEventHandler
-                });
+                await wallet_1.connectWallet(selectedProvider);
             }
         }
         getMenuPath(url, params) {
