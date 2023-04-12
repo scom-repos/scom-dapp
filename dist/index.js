@@ -493,16 +493,6 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
                 thin: fullPath('fonts/poppins/PoppinsThin.ttf'),
             }
         },
-        img: {
-            network: {
-                bsc: fullPath('img/network/bsc.svg'),
-                eth: fullPath('img/network/eth.svg'),
-                amio: fullPath('img/network/amio.svg'),
-                avax: fullPath('img/network/avax.svg'),
-                ftm: fullPath('img/network/ftm.svg'),
-                polygon: fullPath('img/network/polygon.svg'),
-            }
-        },
         fullPath
     };
 });

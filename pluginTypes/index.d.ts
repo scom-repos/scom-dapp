@@ -204,16 +204,6 @@ declare module "@scom/dapp/assets.ts" {
                 thin: string;
             };
         };
-        img: {
-            network: {
-                bsc: string;
-                eth: string;
-                amio: string;
-                avax: string;
-                ftm: string;
-                polygon: string;
-            };
-        };
         fullPath: typeof fullPath;
     };
     export default _default;
