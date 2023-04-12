@@ -1,9 +1,10 @@
 import { MatchFunction } from "./pathToRegexp";
+import { INetwork } from '@ijstech/eth-wallet';
 
 export interface IBreakpoints {
-  mobile: number;
-  tablet: number;
-  desktop: number;
+	mobile: number;
+	tablet: number;
+	desktop: number;
 }
 
 export interface IMenu {
@@ -20,17 +21,13 @@ export interface IMenu {
 	regex?: MatchFunction;
 };
 
-export interface INetwork {
-  chainId: number;
-  name?: string;
-  img?: string;
-  rpc?: string;
+export interface IExtendedNetwork extends INetwork {
 	symbol?: string;
 	env?: string;
-  explorerName?: string;
-  explorerTxUrl?: string;
-  explorerAddressUrl?: string;
-  isDisabled?: boolean;
+	explorerName?: string;
+	explorerTxUrl?: string;
+	explorerAddressUrl?: string;
+	isDisabled?: boolean;
 };
 
 export interface IHeaderFooter {

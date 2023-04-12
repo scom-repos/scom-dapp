@@ -10,7 +10,7 @@ import { match, MatchFunction, compile } from './pathToRegexp'
 import { assets } from './assets';
 import { Header } from './header';
 import { Footer } from './footer';
-import { IBreakpoints, IFooter, IHeader, IMenu, INetwork } from './interface';
+import { IBreakpoints, IFooter, IHeader, IMenu, IExtendedNetwork } from './interface';
 Styles.Theme.applyTheme(Styles.Theme.darkTheme);
 
 interface ISCConfig {
@@ -20,7 +20,7 @@ interface ISCConfig {
 	dependencies?: { [name: string]: string };
 	menus: IMenu[];
 	routes: IRoute[];
-	networks?: INetwork[] | "*";
+	networks?: IExtendedNetwork[] | "*";
 	copyrightInfo: string;
 	version?: string;
 	wallet?: string[];

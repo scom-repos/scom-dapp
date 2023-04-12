@@ -1,9 +1,10 @@
 import {
   application
 } from '@ijstech/components';
-import {IClientProviderOptions, IClientSideProvider, IClientSideProviderEvents, IWallet, MetaMaskProvider, Wallet, Web3ModalProvider } from '@ijstech/eth-wallet';
+import {IClientProviderOptions, IClientSideProvider, IClientSideProviderEvents,  MetaMaskProvider, Wallet, Web3ModalProvider } from '@ijstech/eth-wallet';
 import { EventId } from './constants';
 import { getInfuraId, getSiteSupportedNetworks } from './network';
+import { IWallet } from '@ijstech/eth-wallet';
 
 export enum WalletPlugin {
   MetaMask = 'metamask',
@@ -70,7 +71,7 @@ export async function initWalletPlugins(eventHandlers?: { [key: string]: Functio
   let networkList = getSiteSupportedNetworks();
   const rpcs: { [chainId: number]: string } = {}
   for (const network of networkList) {
-    let rpc = network.rpc
+    let rpc = network.rpcUrls[0];
     if (rpc) rpcs[network.chainId] = rpc;
   }
 
