@@ -50,6 +50,9 @@ export default class MainLauncher extends Module {
 	private headerElm: Header;
 	private footerElm: Footer;
 	private pnlScrollable: Panel;
+	private customHeaderStyles: any;
+	private customFooterStyles: any;
+	private hasFooterLogo: boolean;
 
 	constructor(parent?: Container, options?: any) {
 		super(parent, options);
@@ -71,6 +74,9 @@ export default class MainLauncher extends Module {
 		updateWallets(this.options);
 		toggleThemeButton(this.options)
 		this.updateThemes(this.options.themes)
+		this.customHeaderStyles = this._options?.header?.customStyles ?? {};
+		this.customFooterStyles = this._options?.footer?.customStyles ?? {};
+		this.hasFooterLogo = this._options?.footer?.hasLogo ?? true;
 		super.init();
 		this.updateLayout();
 	};
@@ -184,7 +190,7 @@ export default class MainLauncher extends Module {
 					id="headerElm"
 					menuItems={this.menuItems}
 					height="auto" width="100%"
-					customStyles={this._options?.header?.customStyles ?? {}}
+					customStyles={this.customHeaderStyles}
 				></main-header>
 				<i-vstack id="pnlScrollable" visible={false} stack={{ grow: "1" }} overflow={{ y: 'auto' }}></i-vstack>
 				<i-panel id="pnlMain" stack={{ grow: "1" }} ></i-panel>
@@ -196,8 +202,8 @@ export default class MainLauncher extends Module {
 					width="100%"
 					copyrightInfo={this._options.copyrightInfo}
 					version={this._options.version}
-					hasLogo={this._options?.footer?.hasLogo ?? true}
-					customStyles={this._options?.footer?.customStyles ?? {}}
+					hasLogo={this.hasFooterLogo}
+					customStyles={this.customFooterStyles}
 				></main-footer>
 			</i-vstack>
 		)
