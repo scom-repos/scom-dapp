@@ -509,13 +509,13 @@ define("@scom/dapp/index.css.ts", ["require", "exports", "@ijstech/components", 
     components_2.Styles.Theme.darkTheme.colors.secondary.main = '#B8B8B8';
     components_2.Styles.Theme.darkTheme.text.primary = '#fff';
     components_2.Styles.Theme.darkTheme.text.secondary = '#939393';
-    components_2.Styles.Theme.darkTheme.typography.fontFamily = 'Poppins';
+    // Styles.Theme.darkTheme.typography.fontFamily = 'Poppins';
     components_2.Styles.Theme.darkTheme.colors.warning.dark = '#f57c00';
     components_2.Styles.Theme.darkTheme.colors.warning.light = '#F6C958';
     components_2.Styles.Theme.darkTheme.colors.warning.main = '#ffa726';
     components_2.Styles.Theme.darkTheme.colors.error.light = '#FD7C6B';
     components_2.Styles.Theme.darkTheme.divider = '#EBEBEB';
-    components_2.Styles.Theme.darkTheme.typography.fontSize = '16px';
+    // Styles.Theme.darkTheme.typography.fontSize = '16px';
     components_2.Styles.Theme.darkTheme.background.modal = '#fff';
     const Theme = components_2.Styles.Theme.ThemeVars;
     exports.default = components_2.Styles.style({
