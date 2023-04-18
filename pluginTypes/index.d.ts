@@ -501,6 +501,9 @@ declare module "@scom/dapp" {
         private headerElm;
         private footerElm;
         private pnlScrollable;
+        private customHeaderStyles;
+        private customFooterStyles;
+        private hasFooterLogo;
         constructor(parent?: Container, options?: any);
         init(): Promise<void>;
         hideCurrentModule(): void;
