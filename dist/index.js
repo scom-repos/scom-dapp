@@ -710,6 +710,12 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         if (options.requireLogin) {
             setRequireLogin(options.requireLogin);
         }
+        const clientWalletConfig = {
+            defaultChainId: state.defaultChainId,
+            networks: Object.values(state.networkMap),
+            infuraId: state.infuraId,
+        };
+        eth_wallet_2.Wallet.getClientInstance().initClientWallet(clientWalletConfig);
     };
     exports.updateNetworks = updateNetworks;
     function registerSendTxEvents(sendTxEventHandlers) {
