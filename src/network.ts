@@ -1,4 +1,4 @@
-import { Erc20, Wallet, ISendTxEventsOptions, INetwork } from '@ijstech/eth-wallet';
+import { Erc20, Wallet, ISendTxEventsOptions, INetwork, IClientWalletConfig } from '@ijstech/eth-wallet';
 import { formatNumber } from './helper';
 
 export { formatNumber };
@@ -33,6 +33,13 @@ export const updateNetworks = (options: any) => {
   if (options.requireLogin) {
     setRequireLogin(options.requireLogin);
   }
+  
+  const clientWalletConfig: IClientWalletConfig = {
+    defaultChainId: state.defaultChainId,
+    networks: Object.values(state.networkMap),
+    infuraId: state.infuraId,
+  }
+  Wallet.getClientInstance().initClientWallet(clientWalletConfig);
 };
 export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions) {
   const wallet = Wallet.getClientInstance();
