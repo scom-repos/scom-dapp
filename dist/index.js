@@ -509,13 +509,13 @@ define("@scom/dapp/index.css.ts", ["require", "exports", "@ijstech/components", 
     components_2.Styles.Theme.darkTheme.colors.secondary.main = '#B8B8B8';
     components_2.Styles.Theme.darkTheme.text.primary = '#fff';
     components_2.Styles.Theme.darkTheme.text.secondary = '#939393';
-    components_2.Styles.Theme.darkTheme.typography.fontFamily = 'Poppins';
+    // Styles.Theme.darkTheme.typography.fontFamily = 'Poppins';
     components_2.Styles.Theme.darkTheme.colors.warning.dark = '#f57c00';
     components_2.Styles.Theme.darkTheme.colors.warning.light = '#F6C958';
     components_2.Styles.Theme.darkTheme.colors.warning.main = '#ffa726';
     components_2.Styles.Theme.darkTheme.colors.error.light = '#FD7C6B';
     components_2.Styles.Theme.darkTheme.divider = '#EBEBEB';
-    components_2.Styles.Theme.darkTheme.typography.fontSize = '16px';
+    // Styles.Theme.darkTheme.typography.fontSize = '16px';
     components_2.Styles.Theme.darkTheme.background.modal = '#fff';
     const Theme = components_2.Styles.Theme.ThemeVars;
     exports.default = components_2.Styles.style({
@@ -1887,6 +1887,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
         }
         ;
         async init() {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
             window.onhashchange = this.handleHashChange.bind(this);
             this.menuItems = this.options.menus || [];
             assets_4.assets.breakpoints = this.options.breakpoints;
@@ -1894,6 +1895,9 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             wallet_2.updateWallets(this.options);
             wallet_2.toggleThemeButton(this.options);
             this.updateThemes(this.options.themes);
+            this.customHeaderStyles = (_c = (_b = (_a = this._options) === null || _a === void 0 ? void 0 : _a.header) === null || _b === void 0 ? void 0 : _b.customStyles) !== null && _c !== void 0 ? _c : {};
+            this.customFooterStyles = (_f = (_e = (_d = this._options) === null || _d === void 0 ? void 0 : _d.footer) === null || _e === void 0 ? void 0 : _e.customStyles) !== null && _f !== void 0 ? _f : {};
+            this.hasFooterLogo = (_j = (_h = (_g = this._options) === null || _g === void 0 ? void 0 : _g.footer) === null || _h === void 0 ? void 0 : _h.hasLogo) !== null && _j !== void 0 ? _j : true;
             super.init();
             this.updateLayout();
         }
@@ -2000,12 +2004,11 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             this.headerElm.hideWalletBalance = header.hideWalletBalance;
         }
         async render() {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j;
             return (this.$render("i-vstack", { height: "inherit" },
-                this.$render("main-header", { id: "headerElm", menuItems: this.menuItems, height: "auto", width: "100%", customStyles: (_c = (_b = (_a = this._options) === null || _a === void 0 ? void 0 : _a.header) === null || _b === void 0 ? void 0 : _b.customStyles) !== null && _c !== void 0 ? _c : {} }),
+                this.$render("main-header", { id: "headerElm", menuItems: this.menuItems, height: "auto", width: "100%", customStyles: this.customHeaderStyles }),
                 this.$render("i-vstack", { id: "pnlScrollable", visible: false, stack: { grow: "1" }, overflow: { y: 'auto' } }),
                 this.$render("i-panel", { id: "pnlMain", stack: { grow: "1" } }),
-                this.$render("main-footer", { id: "footerElm", stack: { shrink: '0' }, class: 'footer', height: "auto", width: "100%", copyrightInfo: this._options.copyrightInfo, version: this._options.version, hasLogo: (_f = (_e = (_d = this._options) === null || _d === void 0 ? void 0 : _d.footer) === null || _e === void 0 ? void 0 : _e.hasLogo) !== null && _f !== void 0 ? _f : true, customStyles: (_j = (_h = (_g = this._options) === null || _g === void 0 ? void 0 : _g.footer) === null || _h === void 0 ? void 0 : _h.customStyles) !== null && _j !== void 0 ? _j : {} })));
+                this.$render("main-footer", { id: "footerElm", stack: { shrink: '0' }, class: 'footer', height: "auto", width: "100%", copyrightInfo: this._options.copyrightInfo, version: this._options.version, hasLogo: this.hasFooterLogo, customStyles: this.customFooterStyles })));
         }
         ;
     };
