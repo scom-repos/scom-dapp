@@ -688,7 +688,7 @@ define("@scom/dapp/helper.ts", ["require", "exports", "@ijstech/eth-wallet"], fu
     };
     exports.getParamsFromUrl = getParamsFromUrl;
 });
-define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@scom/dapp/helper.ts", "@scom/scom-network-list"], function (require, exports, eth_wallet_2, helper_1, scom_network_list_1) {
+define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@scom/dapp/helper.ts", "@scom/scom-network-list", "@scom/scom-multicall"], function (require, exports, eth_wallet_2, helper_1, scom_network_list_1, scom_multicall_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getRequireLogin = exports.isDefaultNetworkFromWallet = exports.getEnv = exports.getInfuraId = exports.isValidEnv = exports.getSiteSupportedNetworks = exports.getDefaultChainId = exports.getNetworkType = exports.viewOnExplorerByAddress = exports.viewOnExplorerByTxHash = exports.getNetworkInfo = exports.getErc20 = exports.getWalletProvider = exports.getWallet = exports.getChainId = exports.registerSendTxEvents = exports.updateNetworks = exports.formatNumber = void 0;
@@ -714,6 +714,7 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
             defaultChainId: state.defaultChainId,
             networks: Object.values(state.networkMap),
             infuraId: state.infuraId,
+            multicalls: scom_multicall_1.getMulticallInfoList()
         };
         eth_wallet_2.Wallet.getClientInstance().initClientWallet(clientWalletConfig);
     };
