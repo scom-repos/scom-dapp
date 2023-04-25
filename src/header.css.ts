@@ -86,8 +86,30 @@ export default Styles.style({
     '.wallet-modal .modal': {
       minWidth: 200
     },
-    '#switchTheme .wrapper': {
-      width: 50
+    '.custom-switch .wrapper': {
+      borderRadius: 40,
+      boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.15)',
+      $nest: {
+        '.switch-base': {
+          background: Theme.background.gradient
+        },
+        '.track::before': {
+          fontSize: 18,
+          color: Theme.text.primary
+        },
+        '.track::after': {
+          transform: 'translateY(-50%) rotate(-30deg)',
+          fontSize: 18,
+          color: '#fff'
+        },
+        '.track': {
+          background: 'linear-gradient(0deg, #252A48, #252A48), #8994A3',
+          color: 'transparent'
+        },
+        '.switch-base.checked +.track': {
+          background: Theme.background.main
+        }
+      }
     }
   }
 })

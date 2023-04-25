@@ -181,7 +181,7 @@ export class Header extends Module {
     this.updateConnectedStatus(isWalletConnected());
     this.initData();
     const themeType = document.body.style.getPropertyValue('--theme')
-    this.switchTheme.checked = themeType === 'dark'
+    this.switchTheme.checked = themeType === 'light'
   }
 
   connectedCallback(): void {
@@ -523,9 +523,9 @@ export class Header extends Module {
   }
 
   onThemeChanged() {
-    const themeValues = this.switchTheme.checked ? Styles.Theme.darkTheme : Styles.Theme.defaultTheme
+    const themeValues = this.switchTheme.checked ? Styles.Theme.defaultTheme : Styles.Theme.darkTheme;
     Styles.Theme.applyTheme(themeValues)
-    const themeType = this.switchTheme.checked ? 'dark' : 'light'
+    const themeType = this.switchTheme.checked ? 'light' : 'dark';
     document.body.style.setProperty('--theme', themeType)
     application.EventBus.dispatch(EventId.themeChanged, themeType);
     this.controlMenuDisplay();
@@ -588,13 +588,11 @@ export class Header extends Module {
               <i-panel margin={{right: '0.5rem'}}>
                 <i-switch
                   id="switchTheme"
-                  checkedText="Dark"
-                  uncheckedText="Light"
-                  checkedThumbColor={Theme.colors.primary.contrastText}
-                  uncheckedThumbColor={Theme.colors.primary.contrastText}
-                  checkedTrackColor={Theme.colors.primary.main}
-                  uncheckedTrackColor={Theme.colors.primary.main}
-                  visible={hasThemeButton()}
+                  checkedText='☼'
+                  uncheckedText='☾'
+                  checkedThumbColor={"transparent"}
+                  uncheckedThumbColor={"transparent"}
+                  class="custom-switch"
                   onChanged={this.onThemeChanged.bind(this)}
                 ></i-switch>
               </i-panel>
