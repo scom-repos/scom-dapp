@@ -1146,8 +1146,30 @@ define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"]
             '.wallet-modal .modal': {
                 minWidth: 200
             },
-            '#switchTheme .wrapper': {
-                width: 50
+            '.custom-switch .wrapper': {
+                borderRadius: 40,
+                boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.15)',
+                $nest: {
+                    '.switch-base': {
+                        background: Theme.background.gradient
+                    },
+                    '.track::before': {
+                        fontSize: 18,
+                        color: Theme.text.primary
+                    },
+                    '.track::after': {
+                        transform: 'translateY(-50%) rotate(-30deg)',
+                        fontSize: 18,
+                        color: '#fff'
+                    },
+                    '.track': {
+                        background: 'linear-gradient(0deg, #252A48, #252A48), #8994A3',
+                        color: 'transparent'
+                    },
+                    '.switch-base.checked +.track': {
+                        background: Theme.background.main
+                    }
+                }
             }
         }
     });
@@ -1548,7 +1570,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.updateConnectedStatus(wallet_1.isWalletConnected());
             this.initData();
             const themeType = document.body.style.getPropertyValue('--theme');
-            this.switchTheme.checked = themeType === 'dark';
+            this.switchTheme.checked = themeType === 'light';
         }
         connectedCallback() {
             super.connectedCallback();
@@ -1712,9 +1734,9 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.mdMobileMenu.visible = !this.mdMobileMenu.visible;
         }
         onThemeChanged() {
-            const themeValues = this.switchTheme.checked ? components_7.Styles.Theme.darkTheme : components_7.Styles.Theme.defaultTheme;
+            const themeValues = this.switchTheme.checked ? components_7.Styles.Theme.defaultTheme : components_7.Styles.Theme.darkTheme;
             components_7.Styles.Theme.applyTheme(themeValues);
-            const themeType = this.switchTheme.checked ? 'dark' : 'light';
+            const themeType = this.switchTheme.checked ? 'light' : 'dark';
             document.body.style.setProperty('--theme', themeType);
             components_7.application.EventBus.dispatch("themeChanged" /* themeChanged */, themeType);
             this.controlMenuDisplay();
@@ -1732,7 +1754,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                         this.$render("i-menu", { id: "menuDesktop", width: "100%", border: { left: { color: Theme.divider, width: '1px', style: 'solid' } } })),
                     this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'end' },
                         this.$render("i-panel", { margin: { right: '0.5rem' } },
-                            this.$render("i-switch", { id: "switchTheme", checkedText: "Dark", uncheckedText: "Light", checkedThumbColor: Theme.colors.primary.contrastText, uncheckedThumbColor: Theme.colors.primary.contrastText, checkedTrackColor: Theme.colors.primary.main, uncheckedTrackColor: Theme.colors.primary.main, visible: wallet_1.hasThemeButton(), onChanged: this.onThemeChanged.bind(this) })),
+                            this.$render("i-switch", { id: "switchTheme", checkedText: '\u263C', uncheckedText: '\u263E', checkedThumbColor: "transparent", uncheckedThumbColor: "transparent", class: "custom-switch", onChanged: this.onThemeChanged.bind(this) })),
                         this.$render("i-panel", { id: "pnlNetwork" },
                             this.$render("i-button", { id: "btnNetwork", height: 38, class: "btn-network", margin: { right: '0.5rem' }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, onClick: this.openNetworkModal, caption: "Unsupported Network" })),
                         this.$render("i-hstack", { id: "hsBalance", height: 38, visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: Theme.colors.primary.main }, border: { radius: 5 }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' } },
