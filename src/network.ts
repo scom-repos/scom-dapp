@@ -4,6 +4,7 @@ import { formatNumber } from './helper';
 export { formatNumber };
 import { IExtendedNetwork } from './interface';
 import getNetworkList from '@scom/scom-network-list';
+import {getMulticallInfoList} from '@scom/scom-multicall';
 
 export interface ITokenObject {
   address?: string;
@@ -38,6 +39,7 @@ export const updateNetworks = (options: any) => {
     defaultChainId: state.defaultChainId,
     networks: Object.values(state.networkMap),
     infuraId: state.infuraId,
+    multicalls: getMulticallInfoList()
   }
   Wallet.getClientInstance().initClientWallet(clientWalletConfig);
 };

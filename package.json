@@ -9,8 +9,9 @@
     "dependencies": {
         "@ijstech/components": "^0.1.35",
         "@ijstech/eth-contract": "^0.1.14",
-        "@ijstech/eth-wallet": "^0.1.52",
-        "@scom/scom-network-list": "^0.1.0"
+        "@ijstech/eth-wallet": "^0.1.55",
+        "@scom/scom-network-list": "^0.1.0",
+        "@scom/scom-multicall": "^0.1.0"
     },
     "devDependencies": {
         "@ijstech/compiler": "^0.1.22",
