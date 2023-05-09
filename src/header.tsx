@@ -31,7 +31,9 @@ import {
   getSiteSupportedNetworks,
   getWalletProvider,
   getDefaultChainId,
-  viewOnExplorerByAddress
+  viewOnExplorerByAddress,
+  setIsLoggedIn,
+  getIsLoggedIn
 } from './network';
 import { getSupportedWalletProviders, switchNetwork, truncateAddress, hasWallet, isWalletConnected, hasMetaMask, hasThemeButton, initWalletPlugins, WalletPlugin, getWalletPluginProvider, logoutWallet, connectWallet } from './wallet';
 import { compile } from './pathToRegexp'
@@ -329,6 +331,7 @@ export class Header extends Module {
       }
       this.isLoginRequestSent = false;
     }
+    setIsLoggedIn(isLoggedIn);
     return { requireLogin, isLoggedIn }
   }
 
@@ -337,6 +340,9 @@ export class Header extends Module {
     this.mdWalletDetail.visible = false;
     await logoutWallet();
     if (getRequireLogin()) await logout();
+    setIsLoggedIn(false);
+    this.renderMobileMenu();
+    this.renderDesktopMenu();
     document.cookie = 'scom__wallet=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
     this.updateConnectedStatus(false);
     this.updateList(false);
@@ -497,13 +503,14 @@ export class Header extends Module {
   }
 
   getMenuData(list: IMenu[], mode: string): any {
+    let isLoggedIn = (item: IMenu) => !item.isLoginRequired || getIsLoggedIn();
     let chainId = this.selectedNetwork?.chainId || Wallet.getInstance().chainId;
     let validMenuItemsFn: (item: IMenu) => boolean;
     if (chainId) {
-      validMenuItemsFn = (item: IMenu) => !item.isDisabled && (!item.networks || item.networks.includes(chainId)) && isValidEnv(item.env);
+      validMenuItemsFn = (item: IMenu) => isLoggedIn(item) && !item.isDisabled && (!item.networks || item.networks.includes(chainId)) && isValidEnv(item.env);
     }
     else {
-      validMenuItemsFn = (item: IMenu) => !item.isDisabled && isValidEnv(item.env);
+      validMenuItemsFn = (item: IMenu) => isLoggedIn(item) && !item.isDisabled && isValidEnv(item.env);
     }
     return this._getMenuData(list, mode, validMenuItemsFn);
   }

@@ -150,6 +150,7 @@ declare module "@scom/dapp/interface.ts" {
         isDisabled?: boolean;
         menus?: IMenu[];
         regex?: MatchFunction;
+        isLoginRequired?: boolean;
     }
     export interface IExtendedNetwork extends INetwork {
         symbol?: string;
@@ -258,6 +259,8 @@ declare module "@scom/dapp/network.ts" {
     export const getEnv: () => string;
     export const isDefaultNetworkFromWallet: () => boolean;
     export const getRequireLogin: () => boolean;
+    export const setIsLoggedIn: (value: boolean) => void;
+    export const getIsLoggedIn: () => boolean;
 }
 /// <amd-module name="@scom/dapp/constants.ts" />
 declare module "@scom/dapp/constants.ts" {

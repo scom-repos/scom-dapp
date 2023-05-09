@@ -19,6 +19,7 @@ export interface IMenu {
 	isDisabled?: boolean;
 	menus?: IMenu[];
 	regex?: MatchFunction;
+	isLoginRequired?: boolean;
 };
 
 export interface IExtendedNetwork extends INetwork {
