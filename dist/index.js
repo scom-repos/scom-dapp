@@ -691,7 +691,7 @@ define("@scom/dapp/helper.ts", ["require", "exports", "@ijstech/eth-wallet"], fu
 define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@scom/dapp/helper.ts", "@scom/scom-network-list", "@scom/scom-multicall"], function (require, exports, eth_wallet_2, helper_1, scom_network_list_1, scom_multicall_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getRequireLogin = exports.isDefaultNetworkFromWallet = exports.getEnv = exports.getInfuraId = exports.isValidEnv = exports.getSiteSupportedNetworks = exports.getDefaultChainId = exports.getNetworkType = exports.viewOnExplorerByAddress = exports.viewOnExplorerByTxHash = exports.getNetworkInfo = exports.getErc20 = exports.getWalletProvider = exports.getWallet = exports.getChainId = exports.registerSendTxEvents = exports.updateNetworks = exports.formatNumber = void 0;
+    exports.getIsLoggedIn = exports.setIsLoggedIn = exports.getRequireLogin = exports.isDefaultNetworkFromWallet = exports.getEnv = exports.getInfuraId = exports.isValidEnv = exports.getSiteSupportedNetworks = exports.getDefaultChainId = exports.getNetworkType = exports.viewOnExplorerByAddress = exports.viewOnExplorerByTxHash = exports.getNetworkInfo = exports.getErc20 = exports.getWalletProvider = exports.getWallet = exports.getChainId = exports.registerSendTxEvents = exports.updateNetworks = exports.formatNumber = void 0;
     Object.defineProperty(exports, "formatNumber", { enumerable: true, get: function () { return helper_1.formatNumber; } });
     ;
     const updateNetworks = (options) => {
@@ -763,7 +763,8 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         infuraId: "",
         env: "",
         defaultNetworkFromWallet: false,
-        requireLogin: false
+        requireLogin: false,
+        isLoggedIn: false,
     };
     const setNetworkList = (networkList, infuraId) => {
         var _a, _b;
@@ -873,6 +874,14 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         return state.requireLogin;
     };
     exports.getRequireLogin = getRequireLogin;
+    const setIsLoggedIn = (value) => {
+        state.isLoggedIn = value;
+    };
+    exports.setIsLoggedIn = setIsLoggedIn;
+    const getIsLoggedIn = () => {
+        return state.isLoggedIn;
+    };
+    exports.getIsLoggedIn = getIsLoggedIn;
 });
 define("@scom/dapp/constants.ts", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -1444,6 +1453,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                     }
                     this.isLoginRequestSent = false;
                 }
+                network_2.setIsLoggedIn(isLoggedIn);
                 return { requireLogin, isLoggedIn };
             };
             this.logout = async (target, event) => {
@@ -1453,6 +1463,9 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 await wallet_1.logoutWallet();
                 if (network_2.getRequireLogin())
                     await utils_1.logout();
+                network_2.setIsLoggedIn(false);
+                this.renderMobileMenu();
+                this.renderDesktopMenu();
                 document.cookie = 'scom__wallet=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
                 this.updateConnectedStatus(false);
                 this.updateList(false);
@@ -1713,13 +1726,14 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         }
         getMenuData(list, mode) {
             var _a;
+            let isLoggedIn = (item) => !item.isLoginRequired || network_2.getIsLoggedIn();
             let chainId = ((_a = this.selectedNetwork) === null || _a === void 0 ? void 0 : _a.chainId) || eth_wallet_5.Wallet.getInstance().chainId;
             let validMenuItemsFn;
             if (chainId) {
-                validMenuItemsFn = (item) => !item.isDisabled && (!item.networks || item.networks.includes(chainId)) && network_2.isValidEnv(item.env);
+                validMenuItemsFn = (item) => isLoggedIn(item) && !item.isDisabled && (!item.networks || item.networks.includes(chainId)) && network_2.isValidEnv(item.env);
             }
             else {
-                validMenuItemsFn = (item) => !item.isDisabled && network_2.isValidEnv(item.env);
+                validMenuItemsFn = (item) => isLoggedIn(item) && !item.isDisabled && network_2.isValidEnv(item.env);
             }
             return this._getMenuData(list, mode, validMenuItemsFn);
         }

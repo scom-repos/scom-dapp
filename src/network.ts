@@ -77,7 +77,8 @@ const state = {
   infuraId: "",
   env: "",
   defaultNetworkFromWallet: false,
-  requireLogin: false
+  requireLogin: false,
+  isLoggedIn: false,
 }
 const setNetworkList = (networkList: IExtendedNetwork[] | "*", infuraId?: string) => {
   state.networkMap = {};
@@ -202,4 +203,12 @@ const setRequireLogin = (value: boolean) => {
 
 export const getRequireLogin = () => {
   return state.requireLogin;
+}
+
+export const setIsLoggedIn = (value: boolean) => {
+  state.isLoggedIn = value
+}
+
+export const getIsLoggedIn = () => {
+  return state.isLoggedIn;
 }
