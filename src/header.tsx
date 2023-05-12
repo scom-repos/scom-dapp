@@ -600,6 +600,7 @@ export class Header extends Module {
                   checkedThumbColor={"transparent"}
                   uncheckedThumbColor={"transparent"}
                   class="custom-switch"
+                  visible={hasThemeButton()}
                   onChanged={this.onThemeChanged.bind(this)}
                 ></i-switch>
               </i-panel>
