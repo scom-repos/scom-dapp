@@ -1769,7 +1769,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                         this.$render("i-menu", { id: "menuDesktop", width: "100%", border: { left: { color: Theme.divider, width: '1px', style: 'solid' } } })),
                     this.$render("i-hstack", { verticalAlignment: 'center', horizontalAlignment: 'end' },
                         this.$render("i-panel", { margin: { right: '0.5rem' } },
-                            this.$render("i-switch", { id: "switchTheme", checkedText: '\u263C', uncheckedText: '\u263E', checkedThumbColor: "transparent", uncheckedThumbColor: "transparent", class: "custom-switch", onChanged: this.onThemeChanged.bind(this) })),
+                            this.$render("i-switch", { id: "switchTheme", checkedText: '\u263C', uncheckedText: '\u263E', checkedThumbColor: "transparent", uncheckedThumbColor: "transparent", class: "custom-switch", visible: wallet_1.hasThemeButton(), onChanged: this.onThemeChanged.bind(this) })),
                         this.$render("i-panel", { id: "pnlNetwork" },
                             this.$render("i-button", { id: "btnNetwork", height: 38, class: "btn-network", margin: { right: '0.5rem' }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, onClick: this.openNetworkModal, caption: "Unsupported Network" })),
                         this.$render("i-hstack", { id: "hsBalance", height: 38, visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: Theme.colors.primary.main }, border: { radius: 5 }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' } },
