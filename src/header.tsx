@@ -140,25 +140,37 @@ export class Header extends Module {
     if (value) this.hsBalance.visible = false;
   }
 
+  async doActionOnWalletConnected(connected: boolean) {
+    let wallet = Wallet.getInstance();
+    if (connected) {
+      this.walletInfo.address = wallet.address;
+      this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
+      this.walletInfo.networkId = wallet.chainId;
+    }
+    this.selectedNetwork = getNetworkInfo(wallet.chainId);
+    this.updateConnectedStatus(connected);
+    this.updateList(connected);
+    this.renderMobileMenu();
+    this.renderDesktopMenu();
+  }
+
   registerEvent() {
     let wallet = Wallet.getInstance();
     this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
     this.$eventBus.register(this, EventId.IsWalletConnected, async (connected: boolean) => {
-      if (connected) {
-        this.walletInfo.address = wallet.address;
-        this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
-        this.walletInfo.networkId = wallet.chainId;
-      }
-      this.selectedNetwork = getNetworkInfo(wallet.chainId);
-      this.updateConnectedStatus(connected);
-      this.updateList(connected);
-      this.renderMobileMenu();
-      this.renderDesktopMenu();
+      const requireLogin = getRequireLogin();
+      if (requireLogin) return;
+      this.doActionOnWalletConnected(connected);
     })
     this.$eventBus.register(this, EventId.IsWalletDisconnected, async (connected: boolean) => {
-      this.selectedNetwork = getNetworkInfo(wallet.chainId);
-      this.updateConnectedStatus(connected);
-      this.updateList(connected);
+      const requireLogin = getRequireLogin();
+      if (requireLogin) return;
+      this.doActionOnWalletConnected(connected);
+    })
+    this.$eventBus.register(this, EventId.IsAccountLoggedIn, async (loggedIn: boolean) => {
+      const requireLogin = getRequireLogin();
+      if (!requireLogin) return;
+      this.doActionOnWalletConnected(loggedIn);
     })
     this.$eventBus.register(this, EventId.chainChanged, async (chainId: number) => {
       this.onChainChanged(chainId);

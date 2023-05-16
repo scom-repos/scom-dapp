@@ -267,6 +267,7 @@ declare module "@scom/dapp/constants.ts" {
     export const enum EventId {
         ConnectWallet = "connectWallet",
         IsWalletConnected = "isWalletConnected",
+        IsAccountLoggedIn = "isAccountLoggedIn",
         chainChanged = "chainChanged",
         IsWalletDisconnected = "IsWalletDisconnected",
         themeChanged = "themeChanged"
@@ -414,6 +415,7 @@ declare module "@scom/dapp/header.tsx" {
         set hideNetworkButton(value: boolean);
         get hideWalletBalance(): boolean;
         set hideWalletBalance(value: boolean);
+        doActionOnWalletConnected(connected: boolean): Promise<void>;
         registerEvent(): void;
         init(): Promise<void>;
         connectedCallback(): void;
