@@ -32,7 +32,6 @@ import {
   getWalletProvider,
   getDefaultChainId,
   viewOnExplorerByAddress,
-  setIsLoggedIn,
   getIsLoggedIn
 } from './network';
 import { getSupportedWalletProviders, switchNetwork, truncateAddress, hasWallet, isWalletConnected, hasMetaMask, hasThemeButton, initWalletPlugins, WalletPlugin, getWalletPluginProvider, logoutWallet, connectWallet } from './wallet';
@@ -343,21 +342,18 @@ export class Header extends Module {
       }
       this.isLoginRequestSent = false;
     }
-    setIsLoggedIn(isLoggedIn);
     return { requireLogin, isLoggedIn }
   }
 
   logout = async (target: Control, event: Event) => {
     if (event) event.stopPropagation();
     this.mdWalletDetail.visible = false;
+    if (getRequireLogin())  {
+      await logout();
+      document.cookie = 'scom__wallet=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+      application.EventBus.dispatch(EventId.IsAccountLoggedIn, false);
+    }
     await logoutWallet();
-    if (getRequireLogin()) await logout();
-    setIsLoggedIn(false);
-    this.renderMobileMenu();
-    this.renderDesktopMenu();
-    document.cookie = 'scom__wallet=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-    this.updateConnectedStatus(false);
-    this.updateList(false);
     this.mdAccount.visible = false;
   }
 
@@ -475,10 +471,7 @@ export class Header extends Module {
 		if (!Wallet.getClientInstance().chainId) {
 			Wallet.getClientInstance().chainId = getDefaultChainId();
 		}
-    let isLoggedIn = !!document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("scom__wallet="))
-      ?.split("=")[1];
+    let isLoggedIn = getIsLoggedIn();
 		if (isLoggedIn && hasWallet()) {
 			await connectWallet(selectedProvider);
 		}

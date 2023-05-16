@@ -123,7 +123,6 @@ export async function logoutWallet() {
   const wallet = Wallet.getClientInstance();
   await wallet.disconnect();
   localStorage.setItem('walletProvider', '');
-  application.EventBus.dispatch(EventId.IsAccountLoggedIn, false);
   application.EventBus.dispatch(EventId.IsWalletDisconnected, false);
 }
 

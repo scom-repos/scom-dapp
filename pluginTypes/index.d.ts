@@ -259,7 +259,6 @@ declare module "@scom/dapp/network.ts" {
     export const getEnv: () => string;
     export const isDefaultNetworkFromWallet: () => boolean;
     export const getRequireLogin: () => boolean;
-    export const setIsLoggedIn: (value: boolean) => void;
     export const getIsLoggedIn: () => boolean;
 }
 /// <amd-module name="@scom/dapp/constants.ts" />
