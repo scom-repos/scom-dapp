@@ -205,10 +205,9 @@ export const getRequireLogin = () => {
   return state.requireLogin;
 }
 
-export const setIsLoggedIn = (value: boolean) => {
-  state.isLoggedIn = value
-}
-
 export const getIsLoggedIn = () => {
-  return state.isLoggedIn;
+  return !!document.cookie
+  .split("; ")
+  .find((row) => row.startsWith("scom__wallet="))
+  ?.split("=")[1];
 }

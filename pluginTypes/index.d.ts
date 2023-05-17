@@ -259,7 +259,6 @@ declare module "@scom/dapp/network.ts" {
     export const getEnv: () => string;
     export const isDefaultNetworkFromWallet: () => boolean;
     export const getRequireLogin: () => boolean;
-    export const setIsLoggedIn: (value: boolean) => void;
     export const getIsLoggedIn: () => boolean;
 }
 /// <amd-module name="@scom/dapp/constants.ts" />
@@ -267,6 +266,7 @@ declare module "@scom/dapp/constants.ts" {
     export const enum EventId {
         ConnectWallet = "connectWallet",
         IsWalletConnected = "isWalletConnected",
+        IsAccountLoggedIn = "isAccountLoggedIn",
         chainChanged = "chainChanged",
         IsWalletDisconnected = "IsWalletDisconnected",
         themeChanged = "themeChanged"
@@ -414,6 +414,7 @@ declare module "@scom/dapp/header.tsx" {
         set hideNetworkButton(value: boolean);
         get hideWalletBalance(): boolean;
         set hideWalletBalance(value: boolean);
+        doActionOnWalletConnected(connected: boolean): Promise<void>;
         registerEvent(): void;
         init(): Promise<void>;
         connectedCallback(): void;

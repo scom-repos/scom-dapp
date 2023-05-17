@@ -49,13 +49,15 @@ export async function initWalletPlugins(eventHandlers?: { [key: string]: Functio
   const events = {
     onAccountChanged: async (account: string) => {
       let connected = !!account;
-      if (eventHandlers && eventHandlers.accountsChanged) {
-        let { requireLogin, isLoggedIn } = await eventHandlers.accountsChanged(account);
-        if (requireLogin && !isLoggedIn) connected = false;
-      }
       if (connected) {
+        if (eventHandlers && eventHandlers.accountsChanged) {
+          let { requireLogin, isLoggedIn } = await eventHandlers.accountsChanged(account);
+          if (requireLogin && isLoggedIn) {
+            document.cookie = `scom__wallet=${Wallet.getClientInstance()?.clientSideProvider?.name || ''}`;
+            application.EventBus.dispatch(EventId.IsAccountLoggedIn, true);
+          }
+        }
         localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.name || '');
-        document.cookie = `scom__wallet=${Wallet.getClientInstance()?.clientSideProvider?.name || ''}`;
       }
       application.EventBus.dispatch(EventId.IsWalletConnected, connected);
     },

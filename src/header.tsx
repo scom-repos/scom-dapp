@@ -32,7 +32,6 @@ import {
   getWalletProvider,
   getDefaultChainId,
   viewOnExplorerByAddress,
-  setIsLoggedIn,
   getIsLoggedIn
 } from './network';
 import { getSupportedWalletProviders, switchNetwork, truncateAddress, hasWallet, isWalletConnected, hasMetaMask, hasThemeButton, initWalletPlugins, WalletPlugin, getWalletPluginProvider, logoutWallet, connectWallet } from './wallet';
@@ -140,25 +139,37 @@ export class Header extends Module {
     if (value) this.hsBalance.visible = false;
   }
 
+  async doActionOnWalletConnected(connected: boolean) {
+    let wallet = Wallet.getInstance();
+    if (connected) {
+      this.walletInfo.address = wallet.address;
+      this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
+      this.walletInfo.networkId = wallet.chainId;
+    }
+    this.selectedNetwork = getNetworkInfo(wallet.chainId);
+    this.updateConnectedStatus(connected);
+    this.updateList(connected);
+    this.renderMobileMenu();
+    this.renderDesktopMenu();
+  }
+
   registerEvent() {
     let wallet = Wallet.getInstance();
     this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
     this.$eventBus.register(this, EventId.IsWalletConnected, async (connected: boolean) => {
-      if (connected) {
-        this.walletInfo.address = wallet.address;
-        this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
-        this.walletInfo.networkId = wallet.chainId;
-      }
-      this.selectedNetwork = getNetworkInfo(wallet.chainId);
-      this.updateConnectedStatus(connected);
-      this.updateList(connected);
-      this.renderMobileMenu();
-      this.renderDesktopMenu();
+      const requireLogin = getRequireLogin();
+      if (requireLogin) return;
+      this.doActionOnWalletConnected(connected);
     })
     this.$eventBus.register(this, EventId.IsWalletDisconnected, async (connected: boolean) => {
-      this.selectedNetwork = getNetworkInfo(wallet.chainId);
-      this.updateConnectedStatus(connected);
-      this.updateList(connected);
+      const requireLogin = getRequireLogin();
+      if (requireLogin) return;
+      this.doActionOnWalletConnected(connected);
+    })
+    this.$eventBus.register(this, EventId.IsAccountLoggedIn, async (loggedIn: boolean) => {
+      const requireLogin = getRequireLogin();
+      if (!requireLogin) return;
+      this.doActionOnWalletConnected(loggedIn);
     })
     this.$eventBus.register(this, EventId.chainChanged, async (chainId: number) => {
       this.onChainChanged(chainId);
@@ -331,21 +342,18 @@ export class Header extends Module {
       }
       this.isLoginRequestSent = false;
     }
-    setIsLoggedIn(isLoggedIn);
     return { requireLogin, isLoggedIn }
   }
 
   logout = async (target: Control, event: Event) => {
     if (event) event.stopPropagation();
     this.mdWalletDetail.visible = false;
+    if (getRequireLogin())  {
+      await logout();
+      document.cookie = 'scom__wallet=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+      application.EventBus.dispatch(EventId.IsAccountLoggedIn, false);
+    }
     await logoutWallet();
-    if (getRequireLogin()) await logout();
-    setIsLoggedIn(false);
-    this.renderMobileMenu();
-    this.renderDesktopMenu();
-    document.cookie = 'scom__wallet=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-    this.updateConnectedStatus(false);
-    this.updateList(false);
     this.mdAccount.visible = false;
   }
 
@@ -463,10 +471,7 @@ export class Header extends Module {
 		if (!Wallet.getClientInstance().chainId) {
 			Wallet.getClientInstance().chainId = getDefaultChainId();
 		}
-    let isLoggedIn = !!document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("scom__wallet="))
-      ?.split("=")[1];
+    let isLoggedIn = getIsLoggedIn();
 		if (isLoggedIn && hasWallet()) {
 			await connectWallet(selectedProvider);
 		}
