@@ -154,13 +154,21 @@ export class Header extends Module {
   }
 
   registerEvent() {
-    let wallet = Wallet.getInstance();
+    let wallet = Wallet.getClientInstance();
     this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
-    this.$eventBus.register(this, EventId.IsWalletConnected, async (connected: boolean) => {
+    wallet.registerClientWalletEvent(this, 'accountsChanged', async (account: string) => {
+      console.log('accountsChanged', account);
+      let connected = !!account;
       const requireLogin = getRequireLogin();
       if (requireLogin) return;
       this.doActionOnWalletConnected(connected);
-    })
+    });
+    wallet.registerClientWalletEvent(this, 'chainChanged', async (chainIdHex: string) => {
+      console.log('chainChanged', chainIdHex);
+      const chainId = Number(chainIdHex);
+      this.onChainChanged(chainId);
+    });
+
     this.$eventBus.register(this, EventId.IsWalletDisconnected, async (connected: boolean) => {
       const requireLogin = getRequireLogin();
       if (requireLogin) return;
@@ -170,9 +178,6 @@ export class Header extends Module {
       const requireLogin = getRequireLogin();
       if (!requireLogin) return;
       this.doActionOnWalletConnected(loggedIn);
-    })
-    this.$eventBus.register(this, EventId.chainChanged, async (chainId: number) => {
-      this.onChainChanged(chainId);
     })
   }
 
@@ -400,10 +405,28 @@ export class Header extends Module {
     let chainChangedEventHandler = async (hexChainId: number) => {
       this.updateConnectedStatus(true);
     }
-    await initWalletPlugins({
-      'accountsChanged': this.login,
-      'chainChanged': chainChangedEventHandler
-    });
+
+    const onAccountChanged = async (account: string) => {
+      let connected = !!account;
+      if (connected) {
+        let { requireLogin, isLoggedIn } = await this.login();
+        if (requireLogin && isLoggedIn) {
+          document.cookie = `scom__wallet=${Wallet.getClientInstance()?.clientSideProvider?.name || ''}`;
+          application.EventBus.dispatch(EventId.IsAccountLoggedIn, true);
+        }
+        localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.name || '');
+      }
+    }
+  
+    const onChainChanged = async (chainIdHex: string) => {
+      const chainId = Number(chainIdHex);
+      chainChangedEventHandler(chainId);
+    }
+    
+    let wallet = Wallet.getClientInstance();
+    wallet.registerClientWalletEvent(this, 'accountsChanged', onAccountChanged);
+    wallet.registerClientWalletEvent(this, 'chainChanged', onChainChanged);
+    await initWalletPlugins();
     this.gridWalletList.clearInnerHTML();
     this.walletMapper = new Map();
     const walletList  = getSupportedWalletProviders();

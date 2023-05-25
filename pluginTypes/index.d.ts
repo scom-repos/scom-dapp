@@ -285,9 +285,7 @@ declare module "@scom/dapp/wallet.ts" {
         packageName?: string;
         provider: IClientSideProvider;
     }
-    export function initWalletPlugins(eventHandlers?: {
-        [key: string]: Function;
-    }): Promise<void>;
+    export function initWalletPlugins(): Promise<void>;
     export function connectWallet(walletPlugin: string): Promise<IWallet>;
     export function logoutWallet(): Promise<void>;
     export const truncateAddress: (address: string) => string;
