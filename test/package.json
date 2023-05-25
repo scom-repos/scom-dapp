@@ -13,7 +13,8 @@
         "@ijstech/compiler": "^0.1.22",
         "@scom/dapp": "file:./ref",
         "@ijstech/eth-wallet-web3modal": "^0.1.15",
-        "@scom/scom-coin98-wallet": "^0.1.0"
+        "@scom/scom-coin98-wallet": "^0.1.0",
+        "@scom/oswap-drip-contract": "0.1.0"
     },
     "scripts": {
         "cp:dapp": "rm -rf ref && mkdir ref && cp ../package.json ref/package.json && cp -r ../dist ref/dist && cp -r ../types ref/types",
