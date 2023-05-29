@@ -1489,8 +1489,8 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                     chainChangedEventHandler(chainId);
                 };
                 let wallet = eth_wallet_5.Wallet.getClientInstance();
-                wallet.registerClientWalletEvent(this, 'accountsChanged', onAccountChanged);
-                wallet.registerClientWalletEvent(this, 'chainChanged', onChainChanged);
+                wallet.registerWalletEvent(this, eth_wallet_5.Constants.ClientWalletEvent.AccountsChanged, onAccountChanged);
+                wallet.registerWalletEvent(this, eth_wallet_5.Constants.ClientWalletEvent.ChainChanged, onChainChanged);
                 await wallet_1.initWalletPlugins();
                 this.gridWalletList.clearInnerHTML();
                 this.walletMapper = new Map();
@@ -1556,7 +1556,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         registerEvent() {
             let wallet = eth_wallet_5.Wallet.getClientInstance();
             this.$eventBus.register(this, "connectWallet" /* ConnectWallet */, this.openConnectModal);
-            wallet.registerClientWalletEvent(this, 'accountsChanged', async (account) => {
+            wallet.registerWalletEvent(this, eth_wallet_5.Constants.ClientWalletEvent.AccountsChanged, async (account) => {
                 console.log('accountsChanged', account);
                 let connected = !!account;
                 const requireLogin = network_2.getRequireLogin();
@@ -1564,7 +1564,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                     return;
                 this.doActionOnWalletConnected(connected);
             });
-            wallet.registerClientWalletEvent(this, 'chainChanged', async (chainIdHex) => {
+            wallet.registerWalletEvent(this, eth_wallet_5.Constants.ClientWalletEvent.ChainChanged, async (chainIdHex) => {
                 console.log('chainChanged', chainIdHex);
                 const chainId = Number(chainIdHex);
                 this.onChainChanged(chainId);

@@ -19,7 +19,7 @@ import {
   Image,
   Switch
 } from '@ijstech/components';
-import { Wallet } from "@ijstech/eth-wallet";
+import { Constants, Wallet } from "@ijstech/eth-wallet";
 import styleClass from './header.css';
 import Assets, { assets } from './assets';
 import {
@@ -156,14 +156,14 @@ export class Header extends Module {
   registerEvent() {
     let wallet = Wallet.getClientInstance();
     this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
-    wallet.registerClientWalletEvent(this, 'accountsChanged', async (account: string) => {
+    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, async (account: string) => {
       console.log('accountsChanged', account);
       let connected = !!account;
       const requireLogin = getRequireLogin();
       if (requireLogin) return;
       this.doActionOnWalletConnected(connected);
     });
-    wallet.registerClientWalletEvent(this, 'chainChanged', async (chainIdHex: string) => {
+    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, async (chainIdHex: string) => {
       console.log('chainChanged', chainIdHex);
       const chainId = Number(chainIdHex);
       this.onChainChanged(chainId);
@@ -424,8 +424,8 @@ export class Header extends Module {
     }
     
     let wallet = Wallet.getClientInstance();
-    wallet.registerClientWalletEvent(this, 'accountsChanged', onAccountChanged);
-    wallet.registerClientWalletEvent(this, 'chainChanged', onChainChanged);
+    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, onAccountChanged);
+    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, onChainChanged);
     await initWalletPlugins();
     this.gridWalletList.clearInnerHTML();
     this.walletMapper = new Map();
