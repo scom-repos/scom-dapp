@@ -157,14 +157,12 @@ export class Header extends Module {
     let wallet = Wallet.getClientInstance();
     this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
     wallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, async (account: string) => {
-      console.log('accountsChanged', account);
       let connected = !!account;
       const requireLogin = getRequireLogin();
       if (requireLogin) return;
       this.doActionOnWalletConnected(connected);
     });
     wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, async (chainIdHex: string) => {
-      console.log('chainChanged', chainIdHex);
       const chainId = Number(chainIdHex);
       this.onChainChanged(chainId);
     });

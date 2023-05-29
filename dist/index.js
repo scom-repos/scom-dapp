@@ -710,21 +710,22 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         if (options.requireLogin) {
             setRequireLogin(options.requireLogin);
         }
+        const networks = Object.values(state.networkMap);
+        const multicalls = scom_multicall_1.getMulticallInfoList();
         const clientWalletConfig = {
             defaultChainId: state.defaultChainId,
-            networks: Object.values(state.networkMap),
+            networks,
             infuraId: state.infuraId,
-            multicalls: scom_multicall_1.getMulticallInfoList()
+            multicalls
         };
         eth_wallet_2.Wallet.getClientInstance().initClientWallet(clientWalletConfig);
         const rpcWalletConfig = {
-            networks: Object.values(state.networkMap),
+            networks,
             infuraId: state.infuraId,
+            multicalls
         };
         const instanceId = eth_wallet_2.Wallet.getClientInstance().initRpcWallet(rpcWalletConfig);
-        const wallet = eth_wallet_2.Wallet.getRpcWalletInstance(instanceId);
         state.instanceId = instanceId;
-        console.log('instanceId', instanceId);
         components_3.application.store = state;
     };
     exports.updateNetworks = updateNetworks;
@@ -1557,7 +1558,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             let wallet = eth_wallet_5.Wallet.getClientInstance();
             this.$eventBus.register(this, "connectWallet" /* ConnectWallet */, this.openConnectModal);
             wallet.registerWalletEvent(this, eth_wallet_5.Constants.ClientWalletEvent.AccountsChanged, async (account) => {
-                console.log('accountsChanged', account);
                 let connected = !!account;
                 const requireLogin = network_2.getRequireLogin();
                 if (requireLogin)
@@ -1565,7 +1565,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 this.doActionOnWalletConnected(connected);
             });
             wallet.registerWalletEvent(this, eth_wallet_5.Constants.ClientWalletEvent.ChainChanged, async (chainIdHex) => {
-                console.log('chainChanged', chainIdHex);
                 const chainId = Number(chainIdHex);
                 this.onChainChanged(chainId);
             });

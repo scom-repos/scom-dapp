@@ -36,22 +36,23 @@ export const updateNetworks = (options: any) => {
     setRequireLogin(options.requireLogin);
   }
   
+  const networks = Object.values(state.networkMap);
+  const multicalls = getMulticallInfoList();
   const clientWalletConfig: IClientWalletConfig = {
     defaultChainId: state.defaultChainId,
-    networks: Object.values(state.networkMap),
+    networks,
     infuraId: state.infuraId,
-    multicalls: getMulticallInfoList()
+    multicalls
   }
   Wallet.getClientInstance().initClientWallet(clientWalletConfig);
 
   const rpcWalletConfig: IRpcWalletConfig = {
-    networks: Object.values(state.networkMap),
+    networks,
     infuraId: state.infuraId,
+    multicalls
   }
   const instanceId = Wallet.getClientInstance().initRpcWallet(rpcWalletConfig);
-  const wallet = Wallet.getRpcWalletInstance(instanceId);
   state.instanceId = instanceId;
-  console.log('instanceId', instanceId);
   application.store = state;
 };
 export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions) {
