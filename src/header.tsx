@@ -19,7 +19,7 @@ import {
   Image,
   Switch
 } from '@ijstech/components';
-import { Wallet } from "@ijstech/eth-wallet";
+import { Constants, Wallet } from "@ijstech/eth-wallet";
 import styleClass from './header.css';
 import Assets, { assets } from './assets';
 import {
@@ -154,13 +154,19 @@ export class Header extends Module {
   }
 
   registerEvent() {
-    let wallet = Wallet.getInstance();
+    let wallet = Wallet.getClientInstance();
     this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
-    this.$eventBus.register(this, EventId.IsWalletConnected, async (connected: boolean) => {
+    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, async (account: string) => {
+      let connected = !!account;
       const requireLogin = getRequireLogin();
       if (requireLogin) return;
       this.doActionOnWalletConnected(connected);
-    })
+    });
+    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, async (chainIdHex: string) => {
+      const chainId = Number(chainIdHex);
+      this.onChainChanged(chainId);
+    });
+
     this.$eventBus.register(this, EventId.IsWalletDisconnected, async (connected: boolean) => {
       const requireLogin = getRequireLogin();
       if (requireLogin) return;
@@ -170,9 +176,6 @@ export class Header extends Module {
       const requireLogin = getRequireLogin();
       if (!requireLogin) return;
       this.doActionOnWalletConnected(loggedIn);
-    })
-    this.$eventBus.register(this, EventId.chainChanged, async (chainId: number) => {
-      this.onChainChanged(chainId);
     })
   }
 
@@ -400,10 +403,28 @@ export class Header extends Module {
     let chainChangedEventHandler = async (hexChainId: number) => {
       this.updateConnectedStatus(true);
     }
-    await initWalletPlugins({
-      'accountsChanged': this.login,
-      'chainChanged': chainChangedEventHandler
-    });
+
+    const onAccountChanged = async (account: string) => {
+      let connected = !!account;
+      if (connected) {
+        let { requireLogin, isLoggedIn } = await this.login();
+        if (requireLogin && isLoggedIn) {
+          document.cookie = `scom__wallet=${Wallet.getClientInstance()?.clientSideProvider?.name || ''}`;
+          application.EventBus.dispatch(EventId.IsAccountLoggedIn, true);
+        }
+        localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.name || '');
+      }
+    }
+  
+    const onChainChanged = async (chainIdHex: string) => {
+      const chainId = Number(chainIdHex);
+      chainChangedEventHandler(chainId);
+    }
+    
+    let wallet = Wallet.getClientInstance();
+    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, onAccountChanged);
+    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, onChainChanged);
+    await initWalletPlugins();
     this.gridWalletList.clearInnerHTML();
     this.walletMapper = new Map();
     const walletList  = getSupportedWalletProviders();

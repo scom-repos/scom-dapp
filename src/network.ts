@@ -1,10 +1,11 @@
-import { Erc20, Wallet, ISendTxEventsOptions, INetwork, IClientWalletConfig } from '@ijstech/eth-wallet';
+import { Erc20, Wallet, ISendTxEventsOptions, INetwork, IClientWalletConfig, IRpcWalletConfig } from '@ijstech/eth-wallet';
 import { formatNumber } from './helper';
 
 export { formatNumber };
 import { IExtendedNetwork } from './interface';
 import getNetworkList from '@scom/scom-network-list';
 import {getMulticallInfoList} from '@scom/scom-multicall';
+import { application } from '@ijstech/components';
 
 export interface ITokenObject {
   address?: string;
@@ -35,13 +36,24 @@ export const updateNetworks = (options: any) => {
     setRequireLogin(options.requireLogin);
   }
   
+  const networks = Object.values(state.networkMap);
+  const multicalls = getMulticallInfoList();
   const clientWalletConfig: IClientWalletConfig = {
     defaultChainId: state.defaultChainId,
-    networks: Object.values(state.networkMap),
+    networks,
     infuraId: state.infuraId,
-    multicalls: getMulticallInfoList()
+    multicalls
   }
   Wallet.getClientInstance().initClientWallet(clientWalletConfig);
+
+  const rpcWalletConfig: IRpcWalletConfig = {
+    networks,
+    infuraId: state.infuraId,
+    multicalls
+  }
+  const instanceId = Wallet.getClientInstance().initRpcWallet(rpcWalletConfig);
+  state.instanceId = instanceId;
+  application.store = state;
 };
 export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions) {
   const wallet = Wallet.getClientInstance();
@@ -79,6 +91,7 @@ const state = {
   defaultNetworkFromWallet: false,
   requireLogin: false,
   isLoggedIn: false,
+  instanceId: "",
 }
 const setNetworkList = (networkList: IExtendedNetwork[] | "*", infuraId?: string) => {
   state.networkMap = {};

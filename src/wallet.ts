@@ -44,32 +44,11 @@ async function getWalletPluginConfigProvider(
   }
 } 
 
-export async function initWalletPlugins(eventHandlers?: { [key: string]: Function }) {
+export async function initWalletPlugins() {
   let wallet: any = Wallet.getClientInstance();
   const events = {
-    onAccountChanged: async (account: string) => {
-      let connected = !!account;
-      if (connected) {
-        if (eventHandlers && eventHandlers.accountsChanged) {
-          let { requireLogin, isLoggedIn } = await eventHandlers.accountsChanged(account);
-          if (requireLogin && isLoggedIn) {
-            document.cookie = `scom__wallet=${Wallet.getClientInstance()?.clientSideProvider?.name || ''}`;
-            application.EventBus.dispatch(EventId.IsAccountLoggedIn, true);
-          }
-        }
-        localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.name || '');
-      }
-      application.EventBus.dispatch(EventId.IsWalletConnected, connected);
-    },
-    onChainChanged: async (chainIdHex: string) => {
-      const chainId = Number(chainIdHex);
-
-      if (eventHandlers && eventHandlers.chainChanged) {
-        eventHandlers.chainChanged(chainId);
-      }
-      application.EventBus.dispatch(EventId.chainChanged, chainId);
-    }
   }
+
   let networkList = getSiteSupportedNetworks();
   const rpcs: { [chainId: number]: string } = {}
   for (const network of networkList) {

@@ -1,5 +1,6 @@
 import { Module, Styles, Container, customModule, application } from '@ijstech/components';
 import Assets from '@modules/assets';
+
 @customModule
 export default class Module1 extends Module {
     render(){
