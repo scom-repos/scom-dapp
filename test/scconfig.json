@@ -15,6 +15,9 @@
     },
     "@modules/module3": {
       "path": "module3"
+    },
+    "@modules/rpcWallets": {
+      "path": "rpcWallets"
     }
   },
   "dependencies": {
@@ -40,6 +43,11 @@
       "module": "@modules/module2",
       "params": {},
       "menus": []
+    },
+    {
+      "caption": "RPC Wallets",
+      "url": "/rpcWallets",
+      "module": "@modules/rpcWallets"
     }
   ],
   "routes": [
@@ -51,6 +59,10 @@
     {
       "url": "/module3/:id?",
       "module": "@modules/module3"
+    },
+    {
+      "url": "/rpcWallets",
+      "module": "@modules/rpcWallets"
     }
   ],
   "defaultChainId": 43113,
