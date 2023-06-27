@@ -19,7 +19,7 @@ import {
   Image,
   Switch
 } from '@ijstech/components';
-import { Constants, Wallet } from "@ijstech/eth-wallet";
+import { Constants, Wallet, IClientWallet} from "@ijstech/eth-wallet";
 import styleClass from './header.css';
 import Assets, { assets } from './assets';
 import {
@@ -94,6 +94,8 @@ export class Header extends Module {
   private imgMobileLogo: Image;
   private supportedNetworks: IExtendedNetwork[] = [];
   private isLoginRequestSent: Boolean;
+  private wallet: IClientWallet;
+
   @observable()
   private walletInfo = {
     address: '',
@@ -192,12 +194,14 @@ export class Header extends Module {
     this.renderMobileMenu();
     this.renderDesktopMenu();
     this.controlMenuDisplay();
-    await this.renderWalletList();
     this.renderNetworks();
-    this.updateConnectedStatus(isWalletConnected());
     this.initData();
     const themeType = document.body.style.getPropertyValue('--theme')
-    this.switchTheme.checked = themeType === 'light'
+    this.switchTheme.checked = themeType === 'light';
+    setTimeout(async () => {
+      await this.initWallet();
+      this.updateConnectedStatus(isWalletConnected());
+    }, 100)
   }
 
   connectedCallback(): void {
@@ -294,6 +298,7 @@ export class Header extends Module {
   }
 
   openConnectModal = () => {
+    this.initWallet();
     this.mdConnect.title = "Connect wallet"
     this.mdConnect.visible = true;
   }
@@ -399,7 +404,10 @@ export class Header extends Module {
     return Wallet.getInstance().chainId === chainId;
   }
 
-  renderWalletList = async () => {
+  initWallet = async () => {
+    if (this.wallet)
+      return;
+    await application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
     let chainChangedEventHandler = async (hexChainId: number) => {
       this.updateConnectedStatus(true);
     }
@@ -422,6 +430,7 @@ export class Header extends Module {
     }
     
     let wallet = Wallet.getClientInstance();
+    this.wallet = wallet;
     wallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, onAccountChanged);
     wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, onChainChanged);
     await initWalletPlugins();

@@ -404,6 +404,7 @@ declare module "@scom/dapp/header.tsx" {
         private imgMobileLogo;
         private supportedNetworks;
         private isLoginRequestSent;
+        private wallet;
         private walletInfo;
         constructor(parent?: Container, options?: any);
         get symbol(): string;
@@ -439,7 +440,7 @@ declare module "@scom/dapp/header.tsx" {
         copyWalletAddress: () => void;
         isWalletActive(walletPlugin: any): boolean;
         isNetworkActive(chainId: number): boolean;
-        renderWalletList: () => Promise<void>;
+        initWallet: () => Promise<void>;
         renderNetworks(): void;
         initData(): Promise<void>;
         getMenuPath(url: string, params: any): string;
