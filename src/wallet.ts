@@ -3,8 +3,20 @@ import {
 } from '@ijstech/components';
 import {IClientProviderOptions, IClientSideProvider, IClientSideProviderEvents,  MetaMaskProvider, Wallet, Web3ModalProvider } from '@ijstech/eth-wallet';
 import { EventId } from './constants';
-import { getInfuraId, getSiteSupportedNetworks } from './network';
+import { getDefaultChainId, getInfuraId, getSiteSupportedNetworks } from './network';
 import { IWallet } from '@ijstech/eth-wallet';
+
+export interface IWalletConnectMetadata {
+  name: string;
+  description: string;
+  url: string;
+  icons: string[];
+}
+
+export interface IWalletConnectConfig {
+  projectId: string;
+  metadata: IWalletConnectMetadata;
+}
 
 export enum WalletPlugin {
   MetaMask = 'metamask',
@@ -20,7 +32,8 @@ export interface IWalletPlugin {
 const state = {
   wallets: [] as IWalletPlugin[],
   showThemeButton: false,
-  walletPluginMap: {} as Record<string, IWalletPlugin>
+  walletPluginMap: {} as Record<string, IWalletPlugin>,
+  walletConnectConfig: null as IWalletConnectConfig
 }
 
 async function getWalletPluginConfigProvider(
@@ -60,10 +73,15 @@ export async function initWalletPlugins() {
     let pluginName = walletPlugin.name;
     let providerOptions;
     if (pluginName == WalletPlugin.WalletConnect) {
+      let walletConnectConfig = getWalletConnectConfig();
+      let mainChainId = getDefaultChainId();
+      let optionalChains = networkList.map((network) => network.chainId).filter((chainId) => chainId !== mainChainId);
       providerOptions = {
+        ...walletConnectConfig,
         name: pluginName,
         infuraId: getInfuraId(),
-        bridge: "https://bridge.walletconnect.org",
+        chains: [mainChainId],
+        optionalChains: optionalChains,
         rpc: rpcs,
         useDefaultProvider: true
       }
@@ -146,9 +164,12 @@ export async function switchNetwork(chainId: number) {
   }
 }
 
-export const updateWallets = (options: any) => {
+export const updateWalletConfig = (options: any) => {
   if (options.wallets) {
     state.wallets = options.wallets
+  }
+  if (options.walletConnect) {
+    state.walletConnectConfig = options.walletConnect
   }
 }
 
@@ -170,4 +191,12 @@ export const getWalletPluginMap = () => {
 
 export const getWalletPluginProvider = (name: string) => {
   return state.walletPluginMap[name]?.provider||null;
+}
+
+export const setWalletConnectConfig = (data: IWalletConnectConfig) => {
+  state.walletConnectConfig = data;
+}
+
+export const getWalletConnectConfig = () => {
+  return state.walletConnectConfig;
 }
