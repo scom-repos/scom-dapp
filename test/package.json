@@ -6,13 +6,13 @@
     },
     "dependencies": {
         "@ijstech/components": "^0.1.35",
-        "@ijstech/eth-wallet": "^0.1.51"
+        "@ijstech/eth-wallet": "^0.1.62"
     },
     "devDependencies": {
         "@ijstech/cli": "^0.1.28",
         "@ijstech/compiler": "^0.1.22",
         "@scom/dapp": "file:./ref",
-        "@ijstech/eth-wallet-web3modal": "^0.1.15",
+        "@ijstech/eth-wallet-web3modal": "^0.2.0",
         "@scom/scom-coin98-wallet": "^0.1.0",
         "@scom/oswap-drip-contract": "0.1.0"
     },

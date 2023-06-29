@@ -276,6 +276,16 @@ declare module "@scom/dapp/constants.ts" {
 declare module "@scom/dapp/wallet.ts" {
     import { IClientSideProvider } from '@ijstech/eth-wallet';
     import { IWallet } from '@ijstech/eth-wallet';
+    export interface IWalletConnectMetadata {
+        name: string;
+        description: string;
+        url: string;
+        icons: string[];
+    }
+    export interface IWalletConnectConfig {
+        projectId: string;
+        metadata: IWalletConnectMetadata;
+    }
     export enum WalletPlugin {
         MetaMask = "metamask",
         WalletConnect = "walletconnect"
@@ -294,12 +304,14 @@ declare module "@scom/dapp/wallet.ts" {
     export const hasWallet: () => boolean;
     export const hasMetaMask: () => boolean;
     export function switchNetwork(chainId: number): Promise<void>;
-    export const updateWallets: (options: any) => void;
+    export const updateWalletConfig: (options: any) => void;
     export const toggleThemeButton: (options: any) => void;
     export const hasThemeButton: () => boolean;
     export const setWalletPluginProvider: (name: string, wallet: IWalletPlugin) => void;
     export const getWalletPluginMap: () => Record<string, IWalletPlugin>;
     export const getWalletPluginProvider: (name: string) => IClientSideProvider;
+    export const setWalletConnectConfig: (data: IWalletConnectConfig) => void;
+    export const getWalletConnectConfig: () => IWalletConnectConfig;
 }
 /// <amd-module name="@scom/dapp/header.css.ts" />
 declare module "@scom/dapp/header.css.ts" {

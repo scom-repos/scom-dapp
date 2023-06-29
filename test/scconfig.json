@@ -86,6 +86,15 @@
       "packageName": "@scom/scom-coin98-wallet"
     }
   ],
+  "walletConnect": {
+    "projectId": "157545b952a4680cd6a110f23e61dc0b",
+    "metadata": {
+      "name": "Dapp",
+      "description": "Dapp",
+      "url": "",
+      "icons": []
+    }
+  },
   "themes": {
     "default": "dark",
     "dark": {

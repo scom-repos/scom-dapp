@@ -2,7 +2,7 @@ import { Module, Styles, Container, customModule, application, Panel } from '@ij
 import {} from '@ijstech/eth-contract';
 import styleClass from './index.css';
 import { updateNetworks } from './network';
-import { toggleThemeButton, updateWallets } from './wallet';
+import { toggleThemeButton, updateWalletConfig } from './wallet';
 export { Header } from './header';
 export { Footer } from './footer';
 export { Alert } from './alert';
@@ -71,7 +71,7 @@ export default class MainLauncher extends Module {
 		this.menuItems = this.options.menus || [];
 		assets.breakpoints = this.options.breakpoints;
 		updateNetworks(this.options);
-		updateWallets(this.options);
+		updateWalletConfig(this.options);
 		toggleThemeButton(this.options)
 		this.updateThemes(this.options.themes)
 		this.customHeaderStyles = this._options?.header?.customStyles ?? {};

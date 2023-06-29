@@ -901,7 +901,7 @@ define("@scom/dapp/constants.ts", ["require", "exports"], function (require, exp
 define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/dapp/network.ts"], function (require, exports, components_4, eth_wallet_3, network_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getWalletPluginProvider = exports.getWalletPluginMap = exports.setWalletPluginProvider = exports.hasThemeButton = exports.toggleThemeButton = exports.updateWallets = exports.switchNetwork = exports.hasMetaMask = exports.hasWallet = exports.isWalletConnected = exports.getSupportedWalletProviders = exports.truncateAddress = exports.logoutWallet = exports.connectWallet = exports.initWalletPlugins = exports.WalletPlugin = void 0;
+    exports.getWalletConnectConfig = exports.setWalletConnectConfig = exports.getWalletPluginProvider = exports.getWalletPluginMap = exports.setWalletPluginProvider = exports.hasThemeButton = exports.toggleThemeButton = exports.updateWalletConfig = exports.switchNetwork = exports.hasMetaMask = exports.hasWallet = exports.isWalletConnected = exports.getSupportedWalletProviders = exports.truncateAddress = exports.logoutWallet = exports.connectWallet = exports.initWalletPlugins = exports.WalletPlugin = void 0;
     var WalletPlugin;
     (function (WalletPlugin) {
         WalletPlugin["MetaMask"] = "metamask";
@@ -910,7 +910,8 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
     const state = {
         wallets: [],
         showThemeButton: false,
-        walletPluginMap: {}
+        walletPluginMap: {},
+        walletConnectConfig: null
     };
     async function getWalletPluginConfigProvider(wallet, pluginName, packageName, events, options) {
         switch (pluginName) {
@@ -940,13 +941,10 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
             let pluginName = walletPlugin.name;
             let providerOptions;
             if (pluginName == WalletPlugin.WalletConnect) {
-                providerOptions = {
-                    name: pluginName,
-                    infuraId: (0, network_1.getInfuraId)(),
-                    bridge: "https://bridge.walletconnect.org",
-                    rpc: rpcs,
-                    useDefaultProvider: true
-                };
+                let walletConnectConfig = (0, exports.getWalletConnectConfig)();
+                let mainChainId = (0, network_1.getDefaultChainId)();
+                let optionalChains = networkList.map((network) => network.chainId).filter((chainId) => chainId !== mainChainId);
+                providerOptions = Object.assign(Object.assign({}, walletConnectConfig), { name: pluginName, infuraId: (0, network_1.getInfuraId)(), chains: [mainChainId], optionalChains: optionalChains, rpc: rpcs, useDefaultProvider: true });
             }
             else {
                 providerOptions = {
@@ -1027,12 +1025,15 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         }
     }
     exports.switchNetwork = switchNetwork;
-    const updateWallets = (options) => {
+    const updateWalletConfig = (options) => {
         if (options.wallets) {
             state.wallets = options.wallets;
         }
+        if (options.walletConnect) {
+            state.walletConnectConfig = options.walletConnect;
+        }
     };
-    exports.updateWallets = updateWallets;
+    exports.updateWalletConfig = updateWalletConfig;
     const toggleThemeButton = (options) => {
         var _a;
         state.showThemeButton = (_a = options === null || options === void 0 ? void 0 : options.showThemeButton) !== null && _a !== void 0 ? _a : false;
@@ -1055,6 +1056,14 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         return ((_a = state.walletPluginMap[name]) === null || _a === void 0 ? void 0 : _a.provider) || null;
     };
     exports.getWalletPluginProvider = getWalletPluginProvider;
+    const setWalletConnectConfig = (data) => {
+        state.walletConnectConfig = data;
+    };
+    exports.setWalletConnectConfig = setWalletConnectConfig;
+    const getWalletConnectConfig = () => {
+        return state.walletConnectConfig;
+    };
+    exports.getWalletConnectConfig = getWalletConnectConfig;
 });
 define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_5) {
     "use strict";
@@ -1950,7 +1959,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             this.menuItems = this.options.menus || [];
             assets_4.assets.breakpoints = this.options.breakpoints;
             (0, network_3.updateNetworks)(this.options);
-            (0, wallet_2.updateWallets)(this.options);
+            (0, wallet_2.updateWalletConfig)(this.options);
             (0, wallet_2.toggleThemeButton)(this.options);
             this.updateThemes(this.options.themes);
             this.customHeaderStyles = (_c = (_b = (_a = this._options) === null || _a === void 0 ? void 0 : _a.header) === null || _b === void 0 ? void 0 : _b.customStyles) !== null && _c !== void 0 ? _c : {};
