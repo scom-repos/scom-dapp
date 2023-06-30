@@ -259,7 +259,7 @@ declare module "@scom/dapp/network.ts" {
     export const getEnv: () => string;
     export const isDefaultNetworkFromWallet: () => boolean;
     export const getRequireLogin: () => boolean;
-    export const getIsLoggedIn: () => boolean;
+    export const getIsLoggedIn: (address: string) => boolean;
 }
 /// <amd-module name="@scom/dapp/constants.ts" />
 declare module "@scom/dapp/constants.ts" {
@@ -296,7 +296,7 @@ declare module "@scom/dapp/wallet.ts" {
         provider: IClientSideProvider;
     }
     export function initWalletPlugins(): Promise<void>;
-    export function connectWallet(walletPlugin: string): Promise<IWallet>;
+    export function connectWallet(walletPluginName: string): Promise<IWallet>;
     export function logoutWallet(): Promise<void>;
     export const truncateAddress: (address: string) => string;
     export const getSupportedWalletProviders: () => IClientSideProvider[];

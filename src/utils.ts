@@ -34,6 +34,7 @@ async function login() {
     return {success: true};
 
   let msg = constructPersonalSignMessage(wallet.address, session.data.nonce);
+  await Wallet.initWeb3();
   let signature = await wallet.signMessage(msg);
   let chainId = await wallet.getChainId();
   let body = JSON.stringify({

@@ -158,16 +158,16 @@ export class Header extends Module {
   registerEvent() {
     let wallet = Wallet.getClientInstance();
     this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
-    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, async (account: string) => {
-      let connected = !!account;
-      const requireLogin = getRequireLogin();
-      if (requireLogin) return;
-      this.doActionOnWalletConnected(connected);
-    });
-    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, async (chainIdHex: string) => {
-      const chainId = Number(chainIdHex);
-      this.onChainChanged(chainId);
-    });
+    // wallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, async (account: string) => {
+    //   let connected = !!account;
+    //   const requireLogin = getRequireLogin();
+    //   if (requireLogin) return;
+    //   this.doActionOnWalletConnected(connected);
+    // });
+    // wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, async (chainIdHex: string) => {
+    //   const chainId = Number(chainIdHex);
+    //   this.onChainChanged(chainId);
+    // });
 
     this.$eventBus.register(this, EventId.IsWalletDisconnected, async (connected: boolean) => {
       const requireLogin = getRequireLogin();
@@ -198,10 +198,12 @@ export class Header extends Module {
     this.initData();
     const themeType = document.body.style.getPropertyValue('--theme')
     this.switchTheme.checked = themeType === 'light';
-    setTimeout(async () => {
-      await this.initWallet();
-      this.updateConnectedStatus(isWalletConnected());
-    }, 100)
+    // setTimeout(async () => {
+    //   await this.initWallet();
+    //   this.updateConnectedStatus(isWalletConnected());
+    // }, 100)
+    await this.initWallet();
+    this.updateConnectedStatus(isWalletConnected());
   }
 
   connectedCallback(): void {
@@ -358,7 +360,7 @@ export class Header extends Module {
     this.mdWalletDetail.visible = false;
     if (getRequireLogin())  {
       await logout();
-      document.cookie = 'scom__wallet=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+      localStorage.removeItem('loggedInAccount');
       application.EventBus.dispatch(EventId.IsAccountLoggedIn, false);
     }
     await logoutWallet();
@@ -407,7 +409,8 @@ export class Header extends Module {
   initWallet = async () => {
     if (this.wallet)
       return;
-    await application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
+    // await Wallet.initWeb3();
+    // await application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
     let chainChangedEventHandler = async (hexChainId: number) => {
       this.updateConnectedStatus(true);
     }
@@ -415,10 +418,17 @@ export class Header extends Module {
     const onAccountChanged = async (account: string) => {
       let connected = !!account;
       if (connected) {
-        let { requireLogin, isLoggedIn } = await this.login();
-        if (requireLogin && isLoggedIn) {
-          document.cookie = `scom__wallet=${Wallet.getClientInstance()?.clientSideProvider?.name || ''}`;
-          application.EventBus.dispatch(EventId.IsAccountLoggedIn, true);
+        let requireLogin = getRequireLogin();
+        if (requireLogin) {
+          let isLoggedIn = getIsLoggedIn(account);
+          if (!isLoggedIn) {
+            let loginStatus = await this.login();
+            isLoggedIn = loginStatus.isLoggedIn;
+          }
+          if (isLoggedIn) {
+            localStorage.setItem('loggedInAccount', account);
+            application.EventBus.dispatch(EventId.IsAccountLoggedIn, true);
+          }
         }
         localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.name || '');
       }
@@ -501,10 +511,7 @@ export class Header extends Module {
 		if (!Wallet.getClientInstance().chainId) {
 			Wallet.getClientInstance().chainId = getDefaultChainId();
 		}
-    let isLoggedIn = getIsLoggedIn();
-		if (isLoggedIn && hasWallet()) {
-			await connectWallet(selectedProvider);
-		}
+		await connectWallet(selectedProvider);
   }
 
   getMenuPath(url: string, params: any) {
@@ -538,8 +545,9 @@ export class Header extends Module {
   }
 
   getMenuData(list: IMenu[], mode: string): any {
-    let isLoggedIn = (item: IMenu) => !item.isLoginRequired || getIsLoggedIn();
-    let chainId = this.selectedNetwork?.chainId || Wallet.getInstance().chainId;
+    let wallet = Wallet.getClientInstance();
+    let isLoggedIn = (item: IMenu) => !item.isLoginRequired || getIsLoggedIn(wallet.address);
+    let chainId = this.selectedNetwork?.chainId || wallet.chainId;
     let validMenuItemsFn: (item: IMenu) => boolean;
     if (chainId) {
       validMenuItemsFn = (item: IMenu) => isLoggedIn(item) && !item.isDisabled && (!item.networks || item.networks.includes(chainId)) && isValidEnv(item.env);

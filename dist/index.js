@@ -774,7 +774,6 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         env: "",
         defaultNetworkFromWallet: false,
         requireLogin: false,
-        isLoggedIn: false,
         instanceId: "",
     };
     const setNetworkList = (networkList, infuraId) => {
@@ -885,11 +884,9 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         return state.requireLogin;
     };
     exports.getRequireLogin = getRequireLogin;
-    const getIsLoggedIn = () => {
-        var _a;
-        return !!((_a = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("scom__wallet="))) === null || _a === void 0 ? void 0 : _a.split("=")[1]);
+    const getIsLoggedIn = (address) => {
+        const loggedInAccount = localStorage.getItem('loggedInAccount');
+        return loggedInAccount === address;
     };
     exports.getIsLoggedIn = getIsLoggedIn;
 });
@@ -927,9 +924,34 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
             }
         }
     }
-    async function initWalletPlugins() {
+    async function initWalletPlugin(walletPlugin, networkList, rpcs) {
         let wallet = eth_wallet_3.Wallet.getClientInstance();
-        const events = {};
+        let pluginName = walletPlugin.name;
+        let providerOptions;
+        if (pluginName == WalletPlugin.WalletConnect) {
+            await components_4.application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
+            let walletConnectConfig = (0, exports.getWalletConnectConfig)();
+            let mainChainId = (0, network_1.getDefaultChainId)();
+            let optionalChains = networkList.map((network) => network.chainId).filter((chainId) => chainId !== mainChainId);
+            providerOptions = Object.assign(Object.assign({}, walletConnectConfig), { name: pluginName, infuraId: (0, network_1.getInfuraId)(), chains: [mainChainId], optionalChains: optionalChains, rpc: rpcs, useDefaultProvider: true });
+        }
+        else {
+            providerOptions = {
+                name: pluginName,
+                infuraId: (0, network_1.getInfuraId)(),
+                rpc: rpcs,
+                useDefaultProvider: true
+            };
+        }
+        let provider = await getWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, {}, providerOptions);
+        (0, exports.setWalletPluginProvider)(pluginName, {
+            name: pluginName,
+            packageName: walletPlugin.packageName,
+            provider
+        });
+        return provider;
+    }
+    async function initWalletPlugins() {
         let networkList = (0, network_1.getSiteSupportedNetworks)();
         const rpcs = {};
         for (const network of networkList) {
@@ -938,38 +960,30 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
                 rpcs[network.chainId] = rpc;
         }
         for (let walletPlugin of state.wallets) {
-            let pluginName = walletPlugin.name;
-            let providerOptions;
-            if (pluginName == WalletPlugin.WalletConnect) {
-                let walletConnectConfig = (0, exports.getWalletConnectConfig)();
-                let mainChainId = (0, network_1.getDefaultChainId)();
-                let optionalChains = networkList.map((network) => network.chainId).filter((chainId) => chainId !== mainChainId);
-                providerOptions = Object.assign(Object.assign({}, walletConnectConfig), { name: pluginName, infuraId: (0, network_1.getInfuraId)(), chains: [mainChainId], optionalChains: optionalChains, rpc: rpcs, useDefaultProvider: true });
-            }
-            else {
-                providerOptions = {
-                    name: pluginName,
-                    infuraId: (0, network_1.getInfuraId)(),
-                    rpc: rpcs,
-                    useDefaultProvider: true
-                };
-            }
-            let provider = await getWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, events, providerOptions);
-            (0, exports.setWalletPluginProvider)(pluginName, {
-                name: pluginName,
-                packageName: walletPlugin.packageName,
-                provider
-            });
+            await initWalletPlugin(walletPlugin, networkList, rpcs);
         }
     }
     exports.initWalletPlugins = initWalletPlugins;
-    async function connectWallet(walletPlugin) {
+    async function connectWallet(walletPluginName) {
         // let walletProvider = localStorage.getItem('walletProvider') || '';
         let wallet = eth_wallet_3.Wallet.getClientInstance();
         if (!wallet.chainId) {
             // wallet.chainId = getDefaultChainId();
         }
-        let provider = (0, exports.getWalletPluginProvider)(walletPlugin);
+        let provider = (0, exports.getWalletPluginProvider)(walletPluginName);
+        if (!provider) {
+            let networkList = (0, network_1.getSiteSupportedNetworks)();
+            const rpcs = {};
+            for (const network of networkList) {
+                let rpc = network.rpcUrls[0];
+                if (rpc)
+                    rpcs[network.chainId] = rpc;
+            }
+            let walletPlugin = state.wallets.find(v => v.name == walletPluginName);
+            if (walletPlugin) {
+                provider = await initWalletPlugin(walletPlugin, networkList, rpcs);
+            }
+        }
         if (provider === null || provider === void 0 ? void 0 : provider.installed()) {
             await wallet.connect(provider);
         }
@@ -1219,6 +1233,7 @@ define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], fun
         if (session.success && ((_a = session.data) === null || _a === void 0 ? void 0 : _a.account))
             return { success: true };
         let msg = constructPersonalSignMessage(wallet.address, session.data.nonce);
+        await eth_wallet_4.Wallet.initWeb3();
         let signature = await wallet.signMessage(msg);
         let chainId = await wallet.getChainId();
         let body = JSON.stringify({
@@ -1460,7 +1475,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 this.mdWalletDetail.visible = false;
                 if ((0, network_2.getRequireLogin)()) {
                     await (0, utils_1.logout)();
-                    document.cookie = 'scom__wallet=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+                    localStorage.removeItem('loggedInAccount');
                     components_8.application.EventBus.dispatch("isAccountLoggedIn" /* EventId.IsAccountLoggedIn */, false);
                 }
                 await (0, wallet_1.logoutWallet)();
@@ -1483,20 +1498,28 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.initWallet = async () => {
                 if (this.wallet)
                     return;
-                await components_8.application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
+                // await Wallet.initWeb3();
+                // await application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
                 let chainChangedEventHandler = async (hexChainId) => {
                     this.updateConnectedStatus(true);
                 };
                 const onAccountChanged = async (account) => {
-                    var _a, _b, _c, _d;
+                    var _a, _b;
                     let connected = !!account;
                     if (connected) {
-                        let { requireLogin, isLoggedIn } = await this.login();
-                        if (requireLogin && isLoggedIn) {
-                            document.cookie = `scom__wallet=${((_b = (_a = eth_wallet_5.Wallet.getClientInstance()) === null || _a === void 0 ? void 0 : _a.clientSideProvider) === null || _b === void 0 ? void 0 : _b.name) || ''}`;
-                            components_8.application.EventBus.dispatch("isAccountLoggedIn" /* EventId.IsAccountLoggedIn */, true);
+                        let requireLogin = (0, network_2.getRequireLogin)();
+                        if (requireLogin) {
+                            let isLoggedIn = (0, network_2.getIsLoggedIn)(account);
+                            if (!isLoggedIn) {
+                                let loginStatus = await this.login();
+                                isLoggedIn = loginStatus.isLoggedIn;
+                            }
+                            if (isLoggedIn) {
+                                localStorage.setItem('loggedInAccount', account);
+                                components_8.application.EventBus.dispatch("isAccountLoggedIn" /* EventId.IsAccountLoggedIn */, true);
+                            }
                         }
-                        localStorage.setItem('walletProvider', ((_d = (_c = eth_wallet_5.Wallet.getClientInstance()) === null || _c === void 0 ? void 0 : _c.clientSideProvider) === null || _d === void 0 ? void 0 : _d.name) || '');
+                        localStorage.setItem('walletProvider', ((_b = (_a = eth_wallet_5.Wallet.getClientInstance()) === null || _a === void 0 ? void 0 : _a.clientSideProvider) === null || _b === void 0 ? void 0 : _b.name) || '');
                     }
                 };
                 const onChainChanged = async (chainIdHex) => {
@@ -1572,17 +1595,16 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         registerEvent() {
             let wallet = eth_wallet_5.Wallet.getClientInstance();
             this.$eventBus.register(this, "connectWallet" /* EventId.ConnectWallet */, this.openConnectModal);
-            wallet.registerWalletEvent(this, eth_wallet_5.Constants.ClientWalletEvent.AccountsChanged, async (account) => {
-                let connected = !!account;
-                const requireLogin = (0, network_2.getRequireLogin)();
-                if (requireLogin)
-                    return;
-                this.doActionOnWalletConnected(connected);
-            });
-            wallet.registerWalletEvent(this, eth_wallet_5.Constants.ClientWalletEvent.ChainChanged, async (chainIdHex) => {
-                const chainId = Number(chainIdHex);
-                this.onChainChanged(chainId);
-            });
+            // wallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, async (account: string) => {
+            //   let connected = !!account;
+            //   const requireLogin = getRequireLogin();
+            //   if (requireLogin) return;
+            //   this.doActionOnWalletConnected(connected);
+            // });
+            // wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, async (chainIdHex: string) => {
+            //   const chainId = Number(chainIdHex);
+            //   this.onChainChanged(chainId);
+            // });
             this.$eventBus.register(this, "IsWalletDisconnected" /* EventId.IsWalletDisconnected */, async (connected) => {
                 const requireLogin = (0, network_2.getRequireLogin)();
                 if (requireLogin)
@@ -1614,10 +1636,12 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.initData();
             const themeType = document.body.style.getPropertyValue('--theme');
             this.switchTheme.checked = themeType === 'light';
-            setTimeout(async () => {
-                await this.initWallet();
-                this.updateConnectedStatus((0, wallet_1.isWalletConnected)());
-            }, 100);
+            // setTimeout(async () => {
+            //   await this.initWallet();
+            //   this.updateConnectedStatus(isWalletConnected());
+            // }, 100)
+            await this.initWallet();
+            this.updateConnectedStatus((0, wallet_1.isWalletConnected)());
         }
         connectedCallback() {
             super.connectedCallback();
@@ -1720,10 +1744,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             if (!eth_wallet_5.Wallet.getClientInstance().chainId) {
                 eth_wallet_5.Wallet.getClientInstance().chainId = (0, network_2.getDefaultChainId)();
             }
-            let isLoggedIn = (0, network_2.getIsLoggedIn)();
-            if (isLoggedIn && (0, wallet_1.hasWallet)()) {
-                await (0, wallet_1.connectWallet)(selectedProvider);
-            }
+            await (0, wallet_1.connectWallet)(selectedProvider);
         }
         getMenuPath(url, params) {
             try {
@@ -1756,8 +1777,9 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         }
         getMenuData(list, mode) {
             var _a;
-            let isLoggedIn = (item) => !item.isLoginRequired || (0, network_2.getIsLoggedIn)();
-            let chainId = ((_a = this.selectedNetwork) === null || _a === void 0 ? void 0 : _a.chainId) || eth_wallet_5.Wallet.getInstance().chainId;
+            let wallet = eth_wallet_5.Wallet.getClientInstance();
+            let isLoggedIn = (item) => !item.isLoginRequired || (0, network_2.getIsLoggedIn)(wallet.address);
+            let chainId = ((_a = this.selectedNetwork) === null || _a === void 0 ? void 0 : _a.chainId) || wallet.chainId;
             let validMenuItemsFn;
             if (chainId) {
                 validMenuItemsFn = (item) => isLoggedIn(item) && !item.isDisabled && (!item.networks || item.networks.includes(chainId)) && (0, network_2.isValidEnv)(item.env);
