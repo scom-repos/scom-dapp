@@ -36,7 +36,7 @@ import {
 } from './network';
 import { getSupportedWalletProviders, switchNetwork, truncateAddress, hasWallet, isWalletConnected, hasMetaMask, hasThemeButton, initWalletPlugins, WalletPlugin, getWalletPluginProvider, logoutWallet, connectWallet } from './wallet';
 import { compile } from './pathToRegexp'
-import { login, logout } from './utils';
+import { checkLoginSession, login, logout } from './utils';
 import { Alert } from './alert';
 import { EventId } from './constants';
 import { IMenu, IExtendedNetwork } from './interface';
@@ -156,19 +156,7 @@ export class Header extends Module {
   }
 
   registerEvent() {
-    let wallet = Wallet.getClientInstance();
     this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
-    // wallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, async (account: string) => {
-    //   let connected = !!account;
-    //   const requireLogin = getRequireLogin();
-    //   if (requireLogin) return;
-    //   this.doActionOnWalletConnected(connected);
-    // });
-    // wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, async (chainIdHex: string) => {
-    //   const chainId = Number(chainIdHex);
-    //   this.onChainChanged(chainId);
-    // });
-
     this.$eventBus.register(this, EventId.IsWalletDisconnected, async (connected: boolean) => {
       const requireLogin = getRequireLogin();
       if (requireLogin) return;
@@ -327,10 +315,9 @@ export class Header extends Module {
     this.mdConnect.visible = true;
   }
 
-  login = async (): Promise<{ requireLogin: boolean, isLoggedIn: boolean }> => {
-    let requireLogin = getRequireLogin();
+  login = async (): Promise<{ isLoggedIn: boolean }> => {
     let isLoggedIn = false;
-    if (!this.isLoginRequestSent && requireLogin) {
+    if (!this.isLoginRequestSent) {
       try {
         this.isLoginRequestSent = true;
         const { success, error } = await login();
@@ -352,7 +339,7 @@ export class Header extends Module {
       }
       this.isLoginRequestSent = false;
     }
-    return { requireLogin, isLoggedIn }
+    return { isLoggedIn }
   }
 
   logout = async (target: Control, event: Event) => {
@@ -409,8 +396,6 @@ export class Header extends Module {
   initWallet = async () => {
     if (this.wallet)
       return;
-    // await Wallet.initWeb3();
-    // await application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
     let chainChangedEventHandler = async (hexChainId: number) => {
       this.updateConnectedStatus(true);
     }
@@ -420,14 +405,17 @@ export class Header extends Module {
       if (connected) {
         let requireLogin = getRequireLogin();
         if (requireLogin) {
-          let isLoggedIn = getIsLoggedIn(account);
-          if (!isLoggedIn) {
-            let loginStatus = await this.login();
-            isLoggedIn = loginStatus.isLoggedIn;
-          }
-          if (isLoggedIn) {
+          const { success, error } = await checkLoginSession(account);
+          if (success) {
             localStorage.setItem('loggedInAccount', account);
             application.EventBus.dispatch(EventId.IsAccountLoggedIn, true);
+          }
+          else {
+            let loginStatus = await this.login();
+            if (loginStatus.isLoggedIn) {
+              localStorage.setItem('loggedInAccount', account);
+              application.EventBus.dispatch(EventId.IsAccountLoggedIn, true);
+            }
           }
         }
         localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.name || '');

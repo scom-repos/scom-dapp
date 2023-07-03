@@ -91,6 +91,7 @@ const state = {
   defaultNetworkFromWallet: false,
   requireLogin: false,
   instanceId: "",
+  isLoggedIn: (address: string) => getIsLoggedIn(address)
 }
 const setNetworkList = (networkList: IExtendedNetwork[] | "*", infuraId?: string) => {
   state.networkMap = {};

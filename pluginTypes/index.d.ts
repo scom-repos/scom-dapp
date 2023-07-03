@@ -320,9 +320,10 @@ declare module "@scom/dapp/header.css.ts" {
 }
 /// <amd-module name="@scom/dapp/utils.ts" />
 declare module "@scom/dapp/utils.ts" {
+    function checkLoginSession(walletAddress: string): Promise<any>;
     function login(): Promise<any>;
     function logout(): Promise<any>;
-    export { login, logout };
+    export { checkLoginSession, login, logout };
 }
 /// <amd-module name="@scom/dapp/alert.css.ts" />
 declare module "@scom/dapp/alert.css.ts" {
@@ -441,7 +442,6 @@ declare module "@scom/dapp/header.tsx" {
         openAccountModal: (target: Control, event: Event) => void;
         openSwitchModal: (target: Control, event: Event) => void;
         login: () => Promise<{
-            requireLogin: boolean;
             isLoggedIn: boolean;
         }>;
         logout: (target: Control, event: Event) => Promise<void>;
