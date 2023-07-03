@@ -220,7 +220,8 @@ export class Header extends Module {
     }
   }
 
-  onChainChanged = async (chainId: number) => {
+  onChainChanged = async (chainIdHex: string) => {
+    const chainId = Number(chainIdHex);
     this.walletInfo.networkId = chainId;
     this.selectedNetwork = getNetworkInfo(chainId);
     let wallet = Wallet.getClientInstance();
@@ -371,7 +372,7 @@ export class Header extends Module {
   connectToProviderFunc = async (walletPlugin: string) => {
     const provider = getWalletPluginProvider(walletPlugin);
     if (provider?.installed()) {
-      await connectWallet(walletPlugin);
+      await connectWallet(walletPlugin, true);
     }
     else {
       let homepage = provider.homepage;
@@ -396,41 +397,40 @@ export class Header extends Module {
   initWallet = async () => {
     if (this.wallet)
       return;
-    let chainChangedEventHandler = async (hexChainId: number) => {
-      this.updateConnectedStatus(true);
-    }
-
-    const onAccountChanged = async (account: string) => {
+      
+    const onAccountChanged = async (payload: Record<string, any>) => {
+      const { userTriggeredConnect, account } = payload;
       let connected = !!account;
       if (connected) {
         let requireLogin = getRequireLogin();
         if (requireLogin) {
-          const { success, error } = await checkLoginSession(account);
-          if (success) {
-            localStorage.setItem('loggedInAccount', account);
-            application.EventBus.dispatch(EventId.IsAccountLoggedIn, true);
-          }
-          else {
+          if (userTriggeredConnect) {
             let loginStatus = await this.login();
             if (loginStatus.isLoggedIn) {
+              localStorage.setItem('loggedInAccount', account);  
+            }
+            application.EventBus.dispatch(EventId.IsAccountLoggedIn, loginStatus.isLoggedIn);
+          }
+          else {
+            const { success, error } = await checkLoginSession(account);
+            if (success) {
               localStorage.setItem('loggedInAccount', account);
               application.EventBus.dispatch(EventId.IsAccountLoggedIn, true);
+            }
+            else {
+              localStorage.removeItem('loggedInAccount');
+              application.EventBus.dispatch(EventId.IsAccountLoggedIn, false);
             }
           }
         }
         localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.name || '');
       }
     }
-  
-    const onChainChanged = async (chainIdHex: string) => {
-      const chainId = Number(chainIdHex);
-      chainChangedEventHandler(chainId);
-    }
     
     let wallet = Wallet.getClientInstance();
     this.wallet = wallet;
     wallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, onAccountChanged);
-    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, onChainChanged);
+    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, this.onChainChanged);
     await initWalletPlugins();
     this.gridWalletList.clearInnerHTML();
     this.walletMapper = new Map();
@@ -499,7 +499,8 @@ export class Header extends Module {
 		if (!Wallet.getClientInstance().chainId) {
 			Wallet.getClientInstance().chainId = getDefaultChainId();
 		}
-		await connectWallet(selectedProvider);
+
+    await connectWallet(selectedProvider, false);
   }
 
   getMenuPath(url: string, params: any) {

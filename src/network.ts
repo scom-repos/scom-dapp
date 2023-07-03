@@ -219,6 +219,11 @@ export const getRequireLogin = () => {
 }
 
 export const getIsLoggedIn = (address: string) => {
-  const loggedInAccount = localStorage.getItem('loggedInAccount');
+  const loggedInAccount = getLoggedInAccount();
   return loggedInAccount === address;
+}
+
+export const getLoggedInAccount = () => {
+  const loggedInAccount = localStorage.getItem('loggedInAccount');
+  return loggedInAccount;
 }

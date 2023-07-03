@@ -260,6 +260,7 @@ declare module "@scom/dapp/network.ts" {
     export const isDefaultNetworkFromWallet: () => boolean;
     export const getRequireLogin: () => boolean;
     export const getIsLoggedIn: (address: string) => boolean;
+    export const getLoggedInAccount: () => string;
 }
 /// <amd-module name="@scom/dapp/constants.ts" />
 declare module "@scom/dapp/constants.ts" {
@@ -296,7 +297,7 @@ declare module "@scom/dapp/wallet.ts" {
         provider: IClientSideProvider;
     }
     export function initWalletPlugins(): Promise<void>;
-    export function connectWallet(walletPluginName: string): Promise<IWallet>;
+    export function connectWallet(walletPluginName: string, userTriggeredConnect: boolean): Promise<IWallet>;
     export function logoutWallet(): Promise<void>;
     export const truncateAddress: (address: string) => string;
     export const getSupportedWalletProviders: () => IClientSideProvider[];
@@ -432,7 +433,7 @@ declare module "@scom/dapp/header.tsx" {
         connectedCallback(): void;
         disconnectCallback(): void;
         controlMenuDisplay(): void;
-        onChainChanged: (chainId: number) => Promise<void>;
+        onChainChanged: (chainIdHex: string) => Promise<void>;
         updateConnectedStatus: (isConnected: boolean) => void;
         updateDot(connected: boolean, type: 'network' | 'wallet'): void;
         updateList(isConnected: boolean): void;

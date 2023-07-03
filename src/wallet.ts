@@ -107,7 +107,7 @@ export async function initWalletPlugins() {
   }
 }
 
-export async function connectWallet(walletPluginName: string):Promise<IWallet> {
+export async function connectWallet(walletPluginName: string, userTriggeredConnect: boolean):Promise<IWallet> {
   // let walletProvider = localStorage.getItem('walletProvider') || '';
   let wallet = Wallet.getClientInstance();
   if (!wallet.chainId) {
@@ -127,7 +127,9 @@ export async function connectWallet(walletPluginName: string):Promise<IWallet> {
     }
   }
   if (provider?.installed()) {
-    await wallet.connect(provider);
+    await wallet.connect(provider, {
+      userTriggeredConnect
+    });
   }
   return wallet;
 }
