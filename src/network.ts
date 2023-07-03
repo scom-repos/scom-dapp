@@ -90,8 +90,8 @@ const state = {
   env: "",
   defaultNetworkFromWallet: false,
   requireLogin: false,
-  isLoggedIn: false,
   instanceId: "",
+  isLoggedIn: (address: string) => getIsLoggedIn(address)
 }
 const setNetworkList = (networkList: IExtendedNetwork[] | "*", infuraId?: string) => {
   state.networkMap = {};
@@ -218,9 +218,12 @@ export const getRequireLogin = () => {
   return state.requireLogin;
 }
 
-export const getIsLoggedIn = () => {
-  return !!document.cookie
-  .split("; ")
-  .find((row) => row.startsWith("scom__wallet="))
-  ?.split("=")[1];
+export const getIsLoggedIn = (address: string) => {
+  const loggedInAccount = getLoggedInAccount();
+  return loggedInAccount === address;
+}
+
+export const getLoggedInAccount = () => {
+  const loggedInAccount = localStorage.getItem('loggedInAccount');
+  return loggedInAccount;
 }

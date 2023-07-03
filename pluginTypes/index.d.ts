@@ -259,7 +259,8 @@ declare module "@scom/dapp/network.ts" {
     export const getEnv: () => string;
     export const isDefaultNetworkFromWallet: () => boolean;
     export const getRequireLogin: () => boolean;
-    export const getIsLoggedIn: () => boolean;
+    export const getIsLoggedIn: (address: string) => boolean;
+    export const getLoggedInAccount: () => string;
 }
 /// <amd-module name="@scom/dapp/constants.ts" />
 declare module "@scom/dapp/constants.ts" {
@@ -296,7 +297,7 @@ declare module "@scom/dapp/wallet.ts" {
         provider: IClientSideProvider;
     }
     export function initWalletPlugins(): Promise<void>;
-    export function connectWallet(walletPlugin: string): Promise<IWallet>;
+    export function connectWallet(walletPluginName: string, userTriggeredConnect: boolean): Promise<IWallet>;
     export function logoutWallet(): Promise<void>;
     export const truncateAddress: (address: string) => string;
     export const getSupportedWalletProviders: () => IClientSideProvider[];
@@ -320,9 +321,10 @@ declare module "@scom/dapp/header.css.ts" {
 }
 /// <amd-module name="@scom/dapp/utils.ts" />
 declare module "@scom/dapp/utils.ts" {
+    function checkLoginSession(walletAddress: string): Promise<any>;
     function login(): Promise<any>;
     function logout(): Promise<any>;
-    export { login, logout };
+    export { checkLoginSession, login, logout };
 }
 /// <amd-module name="@scom/dapp/alert.css.ts" />
 declare module "@scom/dapp/alert.css.ts" {
@@ -431,7 +433,7 @@ declare module "@scom/dapp/header.tsx" {
         connectedCallback(): void;
         disconnectCallback(): void;
         controlMenuDisplay(): void;
-        onChainChanged: (chainId: number) => Promise<void>;
+        onChainChanged: (chainIdHex: string) => Promise<void>;
         updateConnectedStatus: (isConnected: boolean) => void;
         updateDot(connected: boolean, type: 'network' | 'wallet'): void;
         updateList(isConnected: boolean): void;
@@ -441,7 +443,6 @@ declare module "@scom/dapp/header.tsx" {
         openAccountModal: (target: Control, event: Event) => void;
         openSwitchModal: (target: Control, event: Event) => void;
         login: () => Promise<{
-            requireLogin: boolean;
             isLoggedIn: boolean;
         }>;
         logout: (target: Control, event: Event) => Promise<void>;

@@ -12,7 +12,20 @@ function constructPersonalSignMessage(walletAddress: string, uuid: string) {
   ]
   return messageChunks.join('\n\n');
 }
-
+async function checkLoginSession(walletAddress: string) {
+  let body = JSON.stringify({ walletAddress: walletAddress });
+  let response = await fetch(API_BASE_URL + '/checkLoginSession', {
+    body: body,
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    }
+  });
+  let result = await response.json();
+  return result;
+};
 async function requestLoginSession(walletAddress: string) {
   let body = JSON.stringify({ walletAddress: walletAddress });
   let response = await fetch(API_BASE_URL + '/requestLoginSession', {
@@ -29,11 +42,12 @@ async function requestLoginSession(walletAddress: string) {
 };
 async function login() {
   const wallet = Wallet.getClientInstance();
-  let session = await requestLoginSession(wallet.account.address);
+  let session = await requestLoginSession(wallet.address);
   if (session.success && session.data?.account)
     return {success: true};
 
   let msg = constructPersonalSignMessage(wallet.address, session.data.nonce);
+  await Wallet.initWeb3();
   let signature = await wallet.signMessage(msg);
   let chainId = await wallet.getChainId();
   let body = JSON.stringify({
@@ -68,6 +82,7 @@ async function logout() {
 }
 
 export {
+  checkLoginSession,
   login,
   logout
 }
