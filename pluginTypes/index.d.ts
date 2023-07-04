@@ -370,6 +370,11 @@ declare module "@scom/dapp/alert.tsx" {
 declare module "@scom/dapp/header.tsx" {
     import { Module, Control, ControlElement, Container, IMenuItem } from '@ijstech/components';
     import { IMenu } from "@scom/dapp/interface.ts";
+    interface ILoginResult {
+        success: boolean;
+        error?: string;
+        expireAt?: number;
+    }
     export interface HeaderElement extends ControlElement {
         menuItems?: IMenu[];
         customStyles?: any;
@@ -419,6 +424,7 @@ declare module "@scom/dapp/header.tsx" {
         private supportedNetworks;
         private isLoginRequestSent;
         private wallet;
+        private keepAliveInterval;
         private walletInfo;
         constructor(parent?: Container, options?: any);
         get symbol(): string;
@@ -442,9 +448,7 @@ declare module "@scom/dapp/header.tsx" {
         openWalletDetailModal: () => void;
         openAccountModal: (target: Control, event: Event) => void;
         openSwitchModal: (target: Control, event: Event) => void;
-        login: () => Promise<{
-            isLoggedIn: boolean;
-        }>;
+        login: () => Promise<ILoginResult>;
         logout: (target: Control, event: Event) => Promise<void>;
         viewOnExplorerByAddress(): void;
         switchNetwork(chainId: number): Promise<void>;
@@ -453,6 +457,7 @@ declare module "@scom/dapp/header.tsx" {
         copyWalletAddress: () => void;
         isWalletActive(walletPlugin: any): boolean;
         isNetworkActive(chainId: number): boolean;
+        keepSessionAlive(account: string, expireAt: number): void;
         initWallet: () => Promise<void>;
         renderNetworks(): void;
         initData(): Promise<void>;

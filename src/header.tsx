@@ -43,6 +43,12 @@ import { IMenu, IExtendedNetwork } from './interface';
 
 const Theme = Styles.Theme.ThemeVars;
 
+interface ILoginResult {
+  success: boolean;
+  error?: string;
+  expireAt?: number;
+}
+
 export interface HeaderElement extends ControlElement {
   menuItems?: IMenu[];
   customStyles?: any;
@@ -95,6 +101,7 @@ export class Header extends Module {
   private supportedNetworks: IExtendedNetwork[] = [];
   private isLoginRequestSent: Boolean;
   private wallet: IClientWallet;
+  private keepAliveInterval: any;
 
   @observable()
   private walletInfo = {
@@ -186,10 +193,6 @@ export class Header extends Module {
     this.initData();
     const themeType = document.body.style.getPropertyValue('--theme')
     this.switchTheme.checked = themeType === 'light';
-    // setTimeout(async () => {
-    //   await this.initWallet();
-    //   this.updateConnectedStatus(isWalletConnected());
-    // }, 100)
     await this.initWallet();
     this.updateConnectedStatus(isWalletConnected());
   }
@@ -316,31 +319,30 @@ export class Header extends Module {
     this.mdConnect.visible = true;
   }
 
-  login = async (): Promise<{ isLoggedIn: boolean }> => {
+  login = async (): Promise<ILoginResult> => {
+    let errMsg = '';
     let isLoggedIn = false;
+    let expireAt = 0;
     if (!this.isLoginRequestSent) {
       try {
         this.isLoginRequestSent = true;
-        const { success, error } = await login();
-        if (error || !success) {
-          this.mdMainAlert.message = {
-            status: 'error',
-            content: error?.message || 'Login failed'
-          };
-          this.mdMainAlert.showModal();
+        const loginAPIResult = await login();
+        if (loginAPIResult.error || !loginAPIResult.success) {
+          errMsg = loginAPIResult.error?.message || 'Login failed';
         } else {
           isLoggedIn = true;
+          expireAt = loginAPIResult.expireAt;
         }
       } catch (err) {
-        this.mdMainAlert.message = {
-          status: 'error',
-          content: 'Login failed'
-        };
-        this.mdMainAlert.showModal();
+        errMsg = 'Login failed';
       }
       this.isLoginRequestSent = false;
     }
-    return { isLoggedIn }
+    return { 
+      success: isLoggedIn,
+      error: errMsg,
+      expireAt
+    }
   }
 
   logout = async (target: Control, event: Event) => {
@@ -394,6 +396,16 @@ export class Header extends Module {
     return Wallet.getInstance().chainId === chainId;
   }
 
+  keepSessionAlive(account: string, expireAt: number) {
+    if (this.keepAliveInterval) {
+      clearInterval(this.keepAliveInterval);
+    }
+    const interval = Math.floor((expireAt - Date.now()) / 2);
+    this.keepAliveInterval = setInterval(async () => {
+      await checkLoginSession(account);
+    }, interval);
+  }
+
   initWallet = async () => {
     if (this.wallet)
       return;
@@ -405,15 +417,24 @@ export class Header extends Module {
         let requireLogin = getRequireLogin();
         if (requireLogin) {
           if (userTriggeredConnect) {
-            let loginStatus = await this.login();
-            if (loginStatus.isLoggedIn) {
+            let loginResult = await this.login();
+            if (loginResult.success) {
+              this.keepSessionAlive(account, loginResult.expireAt);
               localStorage.setItem('loggedInAccount', account);  
             }
-            application.EventBus.dispatch(EventId.IsAccountLoggedIn, loginStatus.isLoggedIn);
+            else {
+              this.mdMainAlert.message = {
+                status: 'error',
+                content: loginResult.error
+              };
+              this.mdMainAlert.showModal();
+            }
+            application.EventBus.dispatch(EventId.IsAccountLoggedIn, loginResult.success);
           }
           else {
-            const { success, error } = await checkLoginSession(account);
+            const { success, error, expireAt } = await checkLoginSession(account);
             if (success) {
+              this.keepSessionAlive(account, expireAt);
               localStorage.setItem('loggedInAccount', account);
               application.EventBus.dispatch(EventId.IsAccountLoggedIn, true);
             }
