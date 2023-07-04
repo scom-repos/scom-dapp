@@ -1466,32 +1466,32 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 this.mdConnect.visible = true;
             };
             this.login = async () => {
+                var _a;
+                let errMsg = '';
                 let isLoggedIn = false;
+                let expireAt = 0;
                 if (!this.isLoginRequestSent) {
                     try {
                         this.isLoginRequestSent = true;
-                        const { success, error } = await (0, utils_1.login)();
-                        if (error || !success) {
-                            this.mdMainAlert.message = {
-                                status: 'error',
-                                content: (error === null || error === void 0 ? void 0 : error.message) || 'Login failed'
-                            };
-                            this.mdMainAlert.showModal();
+                        const loginAPIResult = await (0, utils_1.login)();
+                        if (loginAPIResult.error || !loginAPIResult.success) {
+                            errMsg = ((_a = loginAPIResult.error) === null || _a === void 0 ? void 0 : _a.message) || 'Login failed';
                         }
                         else {
                             isLoggedIn = true;
+                            expireAt = loginAPIResult.expireAt;
                         }
                     }
                     catch (err) {
-                        this.mdMainAlert.message = {
-                            status: 'error',
-                            content: 'Login failed'
-                        };
-                        this.mdMainAlert.showModal();
+                        errMsg = 'Login failed';
                     }
                     this.isLoginRequestSent = false;
                 }
-                return { isLoggedIn };
+                return {
+                    success: isLoggedIn,
+                    error: errMsg,
+                    expireAt
+                };
             };
             this.logout = async (target, event) => {
                 if (event)
@@ -1530,15 +1530,24 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                         let requireLogin = (0, network_2.getRequireLogin)();
                         if (requireLogin) {
                             if (userTriggeredConnect) {
-                                let loginStatus = await this.login();
-                                if (loginStatus.isLoggedIn) {
+                                let loginResult = await this.login();
+                                if (loginResult.success) {
+                                    this.keepSessionAlive(account, loginResult.expireAt);
                                     localStorage.setItem('loggedInAccount', account);
                                 }
-                                components_8.application.EventBus.dispatch("isAccountLoggedIn" /* EventId.IsAccountLoggedIn */, loginStatus.isLoggedIn);
+                                else {
+                                    this.mdMainAlert.message = {
+                                        status: 'error',
+                                        content: loginResult.error
+                                    };
+                                    this.mdMainAlert.showModal();
+                                }
+                                components_8.application.EventBus.dispatch("isAccountLoggedIn" /* EventId.IsAccountLoggedIn */, loginResult.success);
                             }
                             else {
-                                const { success, error } = await (0, utils_1.checkLoginSession)(account);
+                                const { success, error, expireAt } = await (0, utils_1.checkLoginSession)(account);
                                 if (success) {
+                                    this.keepSessionAlive(account, expireAt);
                                     localStorage.setItem('loggedInAccount', account);
                                     components_8.application.EventBus.dispatch("isAccountLoggedIn" /* EventId.IsAccountLoggedIn */, true);
                                 }
@@ -1650,10 +1659,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.initData();
             const themeType = document.body.style.getPropertyValue('--theme');
             this.switchTheme.checked = themeType === 'light';
-            // setTimeout(async () => {
-            //   await this.initWallet();
-            //   this.updateConnectedStatus(isWalletConnected());
-            // }, 100)
             await this.initWallet();
             this.updateConnectedStatus((0, wallet_1.isWalletConnected)());
         }
@@ -1732,6 +1737,15 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         }
         isNetworkActive(chainId) {
             return eth_wallet_5.Wallet.getInstance().chainId === chainId;
+        }
+        keepSessionAlive(account, expireAt) {
+            if (this.keepAliveInterval) {
+                clearInterval(this.keepAliveInterval);
+            }
+            const interval = Math.floor((expireAt - Date.now()) / 2);
+            this.keepAliveInterval = setInterval(async () => {
+                await (0, utils_1.checkLoginSession)(account);
+            }, interval);
         }
         renderNetworks() {
             this.gridNetworkGroup.clearInnerHTML();
