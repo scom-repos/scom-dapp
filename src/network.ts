@@ -4,7 +4,7 @@ import { formatNumber } from './helper';
 export { formatNumber };
 import { IExtendedNetwork } from './interface';
 import getNetworkList from '@scom/scom-network-list';
-import {getMulticallInfoList} from '@scom/scom-multicall';
+import {getMulticallInfoList, IMulticallInfo} from '@scom/scom-multicall';
 import { application } from '@ijstech/components';
 
 export interface ITokenObject {
@@ -38,6 +38,7 @@ export const updateNetworks = (options: any) => {
   
   const networks = Object.values(state.networkMap);
   const multicalls = getMulticallInfoList();
+  state.multicalls = multicalls;
   const clientWalletConfig: IClientWalletConfig = {
     defaultChainId: state.defaultChainId,
     networks,
@@ -91,6 +92,7 @@ const state = {
   defaultNetworkFromWallet: false,
   requireLogin: false,
   instanceId: "",
+  multicalls: [] as IMulticallInfo[],
   isLoggedIn: (address: string) => getIsLoggedIn(address)
 }
 const setNetworkList = (networkList: IExtendedNetwork[] | "*", infuraId?: string) => {

@@ -712,6 +712,7 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         }
         const networks = Object.values(state.networkMap);
         const multicalls = (0, scom_multicall_1.getMulticallInfoList)();
+        state.multicalls = multicalls;
         const clientWalletConfig = {
             defaultChainId: state.defaultChainId,
             networks,
@@ -775,6 +776,7 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         defaultNetworkFromWallet: false,
         requireLogin: false,
         instanceId: "",
+        multicalls: [],
         isLoggedIn: (address) => (0, exports.getIsLoggedIn)(address)
     };
     const setNetworkList = (networkList, infuraId) => {
