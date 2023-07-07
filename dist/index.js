@@ -779,7 +779,7 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
         multicalls: [],
         isLoggedIn: (address) => (0, exports.getIsLoggedIn)(address)
     };
-    const setNetworkList = (networkList, infuraId) => {
+    const setNetworkList = (networkOptionsList, infuraId) => {
         var _a, _b;
         state.networkMap = {};
         const defaultNetworkList = (0, scom_network_list_1.default)();
@@ -787,7 +787,7 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
             acc[cur.chainId] = cur;
             return acc;
         }, {});
-        state.defaultNetworkFromWallet = networkList === "*";
+        state.defaultNetworkFromWallet = networkOptionsList === "*";
         if (state.defaultNetworkFromWallet) {
             const networksMap = defaultNetworkMap;
             for (const chainId in networksMap) {
@@ -795,26 +795,28 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
                 const explorerUrl = networkInfo.blockExplorerUrls && networkInfo.blockExplorerUrls.length ? networkInfo.blockExplorerUrls[0] : "";
                 if (state.infuraId && networkInfo.rpcUrls && networkInfo.rpcUrls.length > 0) {
                     for (let i = 0; i < networkInfo.rpcUrls.length; i++) {
-                        networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
+                        networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{INFURA_ID}/g, infuraId);
                     }
                 }
                 state.networkMap[networkInfo.chainId] = Object.assign(Object.assign({}, networkInfo), { symbol: ((_a = networkInfo.nativeCurrency) === null || _a === void 0 ? void 0 : _a.symbol) || "", explorerTxUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}tx/` : "", explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : "" });
             }
         }
-        else if (Array.isArray(networkList)) {
+        else if (Array.isArray(networkOptionsList)) {
             const networksMap = defaultNetworkMap;
-            Object.values(defaultNetworkMap).forEach(network => {
-                state.networkMap[network.chainId] = Object.assign(Object.assign({}, network), { isDisabled: true });
-            });
-            for (let network of networkList) {
-                const networkInfo = networksMap[network.chainId];
+            let networkOptionsMap = networkOptionsList.reduce((acc, cur) => {
+                acc[cur.chainId] = cur;
+                return acc;
+            }, {});
+            for (let chainId in networksMap) {
+                const networkOptions = networkOptionsMap[chainId];
+                const networkInfo = networksMap[chainId];
                 const explorerUrl = networkInfo.blockExplorerUrls && networkInfo.blockExplorerUrls.length ? networkInfo.blockExplorerUrls[0] : "";
-                if (infuraId && network.rpcUrls && network.rpcUrls.length > 0) {
-                    for (let i = 0; i < network.rpcUrls.length; i++) {
-                        networkInfo.rpcUrls[i] = network.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
+                if (infuraId && networkInfo.rpcUrls && networkInfo.rpcUrls.length > 0) {
+                    for (let i = 0; i < networkInfo.rpcUrls.length; i++) {
+                        networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{INFURA_ID}/g, infuraId);
                     }
                 }
-                state.networkMap[network.chainId] = Object.assign(Object.assign(Object.assign({}, networkInfo), network), { symbol: ((_b = networkInfo.nativeCurrency) === null || _b === void 0 ? void 0 : _b.symbol) || "", explorerTxUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}tx/` : "", explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : "", isDisabled: false });
+                state.networkMap[networkInfo.chainId] = Object.assign(Object.assign(Object.assign({}, networkInfo), networkOptions), { symbol: ((_b = networkInfo.nativeCurrency) === null || _b === void 0 ? void 0 : _b.symbol) || "", explorerTxUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}tx/` : "", explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : "", isDisabled: !!networkOptions ? false : true });
             }
         }
     };
@@ -1661,6 +1663,13 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.initData();
             const themeType = document.body.style.getPropertyValue('--theme');
             this.switchTheme.checked = themeType === 'light';
+            const requireLogin = (0, network_2.getRequireLogin)();
+            if (requireLogin) {
+                this.btnConnectWallet.caption = 'Login';
+            }
+            else {
+                this.btnConnectWallet.caption = 'Connect Wallet';
+            }
             await this.initWallet();
             this.updateConnectedStatus((0, wallet_1.isWalletConnected)());
         }
