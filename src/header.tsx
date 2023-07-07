@@ -193,6 +193,13 @@ export class Header extends Module {
     this.initData();
     const themeType = document.body.style.getPropertyValue('--theme')
     this.switchTheme.checked = themeType === 'light';
+    const requireLogin = getRequireLogin();
+    if (requireLogin) {
+      this.btnConnectWallet.caption = 'Login';
+    }
+    else {
+      this.btnConnectWallet.caption = 'Connect Wallet';
+    }
     await this.initWallet();
     this.updateConnectedStatus(isWalletConnected());
   }

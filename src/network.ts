@@ -95,14 +95,14 @@ const state = {
   multicalls: [] as IMulticallInfo[],
   isLoggedIn: (address: string) => getIsLoggedIn(address)
 }
-const setNetworkList = (networkList: IExtendedNetwork[] | "*", infuraId?: string) => {
+const setNetworkList = (networkOptionsList: IExtendedNetwork[] | "*", infuraId?: string) => {
   state.networkMap = {};
   const defaultNetworkList: INetwork[] = getNetworkList();
   const defaultNetworkMap: Record<number, INetwork> = defaultNetworkList.reduce((acc, cur) => {
     acc[cur.chainId] = cur;
     return acc;
   }, {});
-  state.defaultNetworkFromWallet = networkList === "*";
+  state.defaultNetworkFromWallet = networkOptionsList === "*";
   if (state.defaultNetworkFromWallet) {
     const networksMap = defaultNetworkMap;
     for (const chainId in networksMap) {
@@ -110,7 +110,7 @@ const setNetworkList = (networkList: IExtendedNetwork[] | "*", infuraId?: string
       const explorerUrl = networkInfo.blockExplorerUrls && networkInfo.blockExplorerUrls.length ? networkInfo.blockExplorerUrls[0] : "";
       if (state.infuraId && networkInfo.rpcUrls && networkInfo.rpcUrls.length > 0) {
         for (let i = 0; i < networkInfo.rpcUrls.length; i++) {
-          networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
+          networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{INFURA_ID}/g, infuraId);
         }
       }
       state.networkMap[networkInfo.chainId] =  {
@@ -121,26 +121,28 @@ const setNetworkList = (networkList: IExtendedNetwork[] | "*", infuraId?: string
       }
     }
   }
-  else if (Array.isArray(networkList)) {
+  else if (Array.isArray(networkOptionsList)) {
     const networksMap = defaultNetworkMap;
-    Object.values(defaultNetworkMap).forEach(network => {
-      state.networkMap[network.chainId] = { ...network, isDisabled: true };
-    })
-    for (let network of networkList) {
-      const networkInfo = networksMap[network.chainId];
+    let networkOptionsMap = networkOptionsList.reduce((acc, cur) => {
+      acc[cur.chainId] = cur;
+      return acc;
+    }, {} as Record<number, IExtendedNetwork>);
+    for (let chainId in networksMap) {
+      const networkOptions = networkOptionsMap[chainId];
+      const networkInfo = networksMap[chainId];
       const explorerUrl = networkInfo.blockExplorerUrls && networkInfo.blockExplorerUrls.length ? networkInfo.blockExplorerUrls[0] : "";
-      if (infuraId && network.rpcUrls && network.rpcUrls.length > 0) {
-        for (let i = 0; i < network.rpcUrls.length; i++) {
-          networkInfo.rpcUrls[i] = network.rpcUrls[i].replace(/{InfuraId}/g, infuraId);
+      if (infuraId && networkInfo.rpcUrls && networkInfo.rpcUrls.length > 0) {
+        for (let i = 0; i < networkInfo.rpcUrls.length; i++) {
+          networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{INFURA_ID}/g, infuraId);
         }
       }
-      state.networkMap[network.chainId] = {
+      state.networkMap[networkInfo.chainId] = {
         ...networkInfo,
-        ...network,
+        ...networkOptions,
         symbol: networkInfo.nativeCurrency?.symbol || "",
         explorerTxUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}tx/` : "",
         explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : "",
-        isDisabled: false
+        isDisabled: !!networkOptions ? false : true
       }
     }
   }
