@@ -407,10 +407,12 @@ export class Header extends Module {
     if (this.keepAliveInterval) {
       clearInterval(this.keepAliveInterval);
     }
-    const interval = Math.floor((expireAt - Date.now()) / 2);
-    this.keepAliveInterval = setInterval(async () => {
-      await checkLoginSession(account);
-    }, interval);
+    if (expireAt) {
+      const interval = Math.floor((expireAt - Date.now()) / 2);
+      this.keepAliveInterval = setInterval(async () => {
+        await checkLoginSession(account);
+      }, interval);
+    }
   }
 
   initWallet = async () => {

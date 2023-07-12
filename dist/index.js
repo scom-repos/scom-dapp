@@ -1753,10 +1753,12 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             if (this.keepAliveInterval) {
                 clearInterval(this.keepAliveInterval);
             }
-            const interval = Math.floor((expireAt - Date.now()) / 2);
-            this.keepAliveInterval = setInterval(async () => {
-                await (0, utils_1.checkLoginSession)(account);
-            }, interval);
+            if (expireAt) {
+                const interval = Math.floor((expireAt - Date.now()) / 2);
+                this.keepAliveInterval = setInterval(async () => {
+                    await (0, utils_1.checkLoginSession)(account);
+                }, interval);
+            }
         }
         renderNetworks() {
             this.gridNetworkGroup.clearInnerHTML();
