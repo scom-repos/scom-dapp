@@ -245,7 +245,7 @@ declare module "@scom/dapp/network.ts" {
     export const updateNetworks: (options: any) => void;
     export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions): void;
     export function getChainId(): number;
-    export function getWallet(): import("wallet").IWallet;
+    export function getWallet(): import("@ijstech/eth-wallet").IWallet;
     export function getWalletProvider(): string;
     export function getErc20(address: string): Erc20;
     export const getNetworkInfo: (chainId: number) => IExtendedNetwork | undefined;
