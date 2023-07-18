@@ -270,7 +270,9 @@ declare module "@scom/dapp/constants.ts" {
         IsAccountLoggedIn = "isAccountLoggedIn",
         chainChanged = "chainChanged",
         IsWalletDisconnected = "IsWalletDisconnected",
-        themeChanged = "themeChanged"
+        themeChanged = "themeChanged",
+        setHeaderVisibility = "setHeaderVisibility",
+        setFooterVisibility = "setFooterVisibility"
     }
 }
 /// <amd-module name="@scom/dapp/wallet.ts" />
@@ -525,8 +527,10 @@ declare module "@scom/dapp" {
         private customHeaderStyles;
         private customFooterStyles;
         private hasFooterLogo;
+        private $eventBus;
         constructor(parent?: Container, options?: any);
         init(): Promise<void>;
+        registerEvent(): void;
         hideCurrentModule(): void;
         getModuleByPath(path: string): Promise<{
             module: Module;

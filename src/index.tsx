@@ -1,4 +1,4 @@
-import { Module, Styles, Container, customModule, application, Panel } from '@ijstech/components';
+import { Module, Styles, Container, customModule, application, Panel, IEventBus } from '@ijstech/components';
 import {} from '@ijstech/eth-contract';
 import styleClass from './index.css';
 import { updateNetworks } from './network';
@@ -11,6 +11,7 @@ import { assets } from './assets';
 import { Header } from './header';
 import { Footer } from './footer';
 import { IBreakpoints, IFooter, IHeader, IMenu, IExtendedNetwork } from './interface';
+import { EventId } from './constants';
 Styles.Theme.applyTheme(Styles.Theme.darkTheme);
 
 interface ISCConfig {
@@ -53,6 +54,7 @@ export default class MainLauncher extends Module {
 	private customHeaderStyles: any;
 	private customFooterStyles: any;
 	private hasFooterLogo: boolean;
+	private $eventBus: IEventBus;
 
 	constructor(parent?: Container, options?: any) {
 		super(parent, options);
@@ -65,6 +67,8 @@ export default class MainLauncher extends Module {
 		} else {
 			this.handleHashChange()
 		}
+		this.$eventBus = application.EventBus;
+		this.registerEvent();
 	};
 	async init() {
 		window.onhashchange = this.handleHashChange.bind(this);
@@ -80,6 +84,14 @@ export default class MainLauncher extends Module {
 		super.init();
 		this.updateLayout();
 	};
+	registerEvent() {
+		this.$eventBus.register(this, EventId.setHeaderVisibility, (visible: boolean) => {
+			this.headerElm.visible = visible;
+		});
+		this.$eventBus.register(this, EventId.setFooterVisibility, (visible: boolean) => {
+			this.footerElm.visible = visible;
+		});
+	}
 	hideCurrentModule() {
 		if (this.currentModule) {
 			this.currentModule.style.display = 'none';
