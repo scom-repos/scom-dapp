@@ -2014,6 +2014,8 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             else {
                 this.handleHashChange();
             }
+            this.$eventBus = components_11.application.EventBus;
+            this.registerEvent();
         }
         ;
         async init() {
@@ -2032,6 +2034,14 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             this.updateLayout();
         }
         ;
+        registerEvent() {
+            this.$eventBus.register(this, "setHeaderVisibility" /* EventId.setHeaderVisibility */, (visible) => {
+                this.headerElm.visible = visible;
+            });
+            this.$eventBus.register(this, "setFooterVisibility" /* EventId.setFooterVisibility */, (visible) => {
+                this.footerElm.visible = visible;
+            });
+        }
         hideCurrentModule() {
             if (this.currentModule) {
                 this.currentModule.style.display = 'none';

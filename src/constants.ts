@@ -4,5 +4,7 @@ export const enum EventId {
   IsAccountLoggedIn = 'isAccountLoggedIn',
   chainChanged = 'chainChanged',
   IsWalletDisconnected = "IsWalletDisconnected",
-  themeChanged = "themeChanged"
+  themeChanged = "themeChanged",
+  setHeaderVisibility = 'setHeaderVisibility',
+  setFooterVisibility = 'setFooterVisibility'
 };
