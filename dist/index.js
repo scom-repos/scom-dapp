@@ -1899,7 +1899,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                                 this.$render("i-icon", { name: "external-link-alt", width: "16", height: "16", fill: Theme.text.secondary, display: "inline-block" }),
                                 this.$render("i-label", { caption: "View on Explorer", margin: { left: "0.5rem" }, font: { size: "0.875rem", bold: true } }))))),
                 this.$render("main-alert", { id: "mdMainAlert" }),
-                this.$render("i-hstack", { position: 'absolute', width: "100%", top: "100%", left: "0px", class: "custom-bd" })));
+                this.$render("i-hstack", { position: 'absolute', width: "100%", bottom: "0px", left: "0px", class: "custom-bd" })));
         }
     };
     __decorate([
