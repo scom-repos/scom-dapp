@@ -871,7 +871,7 @@ export class Header extends Module {
         <main-alert id="mdMainAlert"></main-alert>
         <i-hstack
           position='absolute'
-          width="100%" top="100%" left="0px"
+          width="100%" bottom="0px" left="0px"
           class="custom-bd"
         ></i-hstack>
       </i-hstack>
