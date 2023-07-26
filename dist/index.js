@@ -719,13 +719,15 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
             infuraId: state.infuraId,
             multicalls
         };
-        eth_wallet_2.Wallet.getClientInstance().initClientWallet(clientWalletConfig);
+        const clientWallet = eth_wallet_2.Wallet.getClientInstance();
+        clientWallet.initClientWallet(clientWalletConfig);
         const rpcWalletConfig = {
             networks,
+            defaultChainId: clientWallet.chainId,
             infuraId: state.infuraId,
             multicalls
         };
-        const instanceId = eth_wallet_2.Wallet.getClientInstance().initRpcWallet(rpcWalletConfig);
+        const instanceId = clientWallet.initRpcWallet(rpcWalletConfig);
         state.instanceId = instanceId;
         components_3.application.store = state;
     };

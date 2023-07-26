@@ -45,14 +45,16 @@ export const updateNetworks = (options: any) => {
     infuraId: state.infuraId,
     multicalls
   }
-  Wallet.getClientInstance().initClientWallet(clientWalletConfig);
+  const clientWallet = Wallet.getClientInstance();
+  clientWallet.initClientWallet(clientWalletConfig);
 
   const rpcWalletConfig: IRpcWalletConfig = {
     networks,
+    defaultChainId: clientWallet.chainId,
     infuraId: state.infuraId,
     multicalls
   }
-  const instanceId = Wallet.getClientInstance().initRpcWallet(rpcWalletConfig);
+  const instanceId = clientWallet.initRpcWallet(rpcWalletConfig);
   state.instanceId = instanceId;
   application.store = state;
 };
