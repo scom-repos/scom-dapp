@@ -113,7 +113,6 @@ export class Header extends Module {
   constructor(parent?: Container, options?: any) {
     super(parent, options);
     this.$eventBus = application.EventBus;
-    this.registerEvent();
   };
 
   get symbol() {
@@ -201,6 +200,7 @@ export class Header extends Module {
       this.btnConnectWallet.caption = 'Connect Wallet';
     }
     await this.initWallet();
+    this.registerEvent();
     this.updateConnectedStatus(isWalletConnected());
   }
 

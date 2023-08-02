@@ -1586,7 +1586,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 });
             };
             this.$eventBus = components_8.application.EventBus;
-            this.registerEvent();
         }
         ;
         get symbol() {
@@ -1673,6 +1672,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 this.btnConnectWallet.caption = 'Connect Wallet';
             }
             await this.initWallet();
+            this.registerEvent();
             this.updateConnectedStatus((0, wallet_1.isWalletConnected)());
         }
         connectedCallback() {
