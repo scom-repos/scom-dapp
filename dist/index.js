@@ -1414,6 +1414,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 this.walletInfo.networkId = chainId;
                 this.selectedNetwork = (0, network_2.getNetworkInfo)(chainId);
                 let wallet = eth_wallet_5.Wallet.getClientInstance();
+                this.walletInfo.address = wallet.address;
                 const isConnected = wallet.isConnected;
                 this.walletInfo.balance = isConnected ? (0, network_2.formatNumber)((await wallet.balance).toFixed(), 2) : '0';
                 this.updateConnectedStatus(isConnected);
@@ -1425,8 +1426,10 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 var _a, _b, _c;
                 if (isConnected) {
                     this.lblBalance.caption = `${this.walletInfo.balance} ${this.symbol}`;
-                    this.btnWalletDetail.caption = this.shortlyAddress;
-                    this.lblWalletAddress.caption = this.shortlyAddress;
+                    const address = this.walletInfo.address;
+                    const displayedAddress = address ? (0, wallet_1.truncateAddress)(address) : '-';
+                    this.btnWalletDetail.caption = displayedAddress;
+                    this.lblWalletAddress.caption = displayedAddress;
                     const networkInfo = (0, network_2.getNetworkInfo)(eth_wallet_5.Wallet.getInstance().chainId);
                     this.hsViewAccount.visible = !!(networkInfo === null || networkInfo === void 0 ? void 0 : networkInfo.explorerAddressUrl);
                 }
@@ -1443,6 +1446,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                     this.btnNetwork.icon = undefined;
                     this.btnNetwork.caption = (0, network_2.isDefaultNetworkFromWallet)() ? "Unknown Network" : "Unsupported Network";
                 }
+                this.btnNetwork.visible = true;
                 this.btnConnectWallet.visible = !isConnected;
                 this.hsBalance.visible = !this._hideWalletBalance && isConnected;
                 this.pnlWalletDetail.visible = isConnected;
@@ -1596,12 +1600,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             }
             return symbol;
         }
-        get shortlyAddress() {
-            const address = this.walletInfo.address;
-            if (!address)
-                return 'No address selected';
-            return (0, wallet_1.truncateAddress)(address);
-        }
         get hideNetworkButton() {
             return this._hideNetworkButton;
         }
@@ -1619,12 +1617,10 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 this.hsBalance.visible = false;
         }
         async doActionOnWalletConnected(connected) {
-            let wallet = eth_wallet_5.Wallet.getInstance();
-            if (connected) {
-                this.walletInfo.address = wallet.address;
-                this.walletInfo.balance = (0, network_2.formatNumber)((await wallet.balance).toFixed(), 2);
-                this.walletInfo.networkId = wallet.chainId;
-            }
+            let wallet = eth_wallet_5.Wallet.getClientInstance();
+            this.walletInfo.address = wallet.address;
+            this.walletInfo.balance = connected ? (0, network_2.formatNumber)((await wallet.balance).toFixed(), 2) : '0';
+            this.walletInfo.networkId = wallet.chainId;
             this.selectedNetwork = (0, network_2.getNetworkInfo)(wallet.chainId);
             this.updateConnectedStatus(connected);
             this.updateList(connected);
@@ -1637,13 +1633,14 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 const requireLogin = (0, network_2.getRequireLogin)();
                 if (requireLogin)
                     return;
-                this.doActionOnWalletConnected(connected);
+                await this.doActionOnWalletConnected(connected);
             });
             this.$eventBus.register(this, "isAccountLoggedIn" /* EventId.IsAccountLoggedIn */, async (loggedIn) => {
                 const requireLogin = (0, network_2.getRequireLogin)();
                 if (!requireLogin)
                     return;
-                this.doActionOnWalletConnected(loggedIn);
+                let connected = loggedIn && eth_wallet_5.Wallet.getClientInstance().isConnected;
+                await this.doActionOnWalletConnected(connected);
             });
         }
         async init() {
@@ -1673,7 +1670,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             }
             await this.initWallet();
             this.registerEvent();
-            this.updateConnectedStatus((0, wallet_1.isWalletConnected)());
+            this.doActionOnWalletConnected((0, wallet_1.isWalletConnected)());
         }
         connectedCallback() {
             super.connectedCallback();
@@ -1866,7 +1863,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                         this.$render("i-panel", { margin: { right: '0.5rem' } },
                             this.$render("i-switch", { id: "switchTheme", checkedText: '\u263C', uncheckedText: '\u263E', checkedThumbColor: "transparent", uncheckedThumbColor: "transparent", class: "custom-switch", visible: (0, wallet_1.hasThemeButton)(), onChanged: this.onThemeChanged.bind(this) })),
                         this.$render("i-panel", { id: "pnlNetwork" },
-                            this.$render("i-button", { id: "btnNetwork", height: 38, class: "btn-network", margin: { right: '0.5rem' }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, onClick: this.openNetworkModal, caption: "Unsupported Network" })),
+                            this.$render("i-button", { id: "btnNetwork", visible: false, height: 38, class: "btn-network", margin: { right: '0.5rem' }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, onClick: this.openNetworkModal })),
                         this.$render("i-hstack", { id: "hsBalance", height: 38, visible: false, horizontalAlignment: "center", verticalAlignment: "center", background: { color: Theme.colors.primary.main }, border: { radius: 5 }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' } },
                             this.$render("i-label", { id: "lblBalance", font: { color: Theme.colors.primary.contrastText } })),
                         this.$render("i-panel", { id: "pnlWalletDetail", visible: false },
