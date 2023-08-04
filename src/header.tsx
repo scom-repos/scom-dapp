@@ -123,12 +123,6 @@ export class Header extends Module {
     return symbol;
   }
 
-  get shortlyAddress() {
-    const address = this.walletInfo.address;
-    if (!address) return 'No address selected';
-    return truncateAddress(address);
-  }
-
   get hideNetworkButton(): boolean {
     return this._hideNetworkButton;
   }
@@ -148,12 +142,10 @@ export class Header extends Module {
   }
 
   async doActionOnWalletConnected(connected: boolean) {
-    let wallet = Wallet.getInstance();
-    if (connected) {
-      this.walletInfo.address = wallet.address;
-      this.walletInfo.balance = formatNumber((await wallet.balance).toFixed(), 2);
-      this.walletInfo.networkId = wallet.chainId;
-    }
+    let wallet = Wallet.getClientInstance();
+    this.walletInfo.address = wallet.address;
+    this.walletInfo.balance = connected ? formatNumber((await wallet.balance).toFixed(), 2) : '0';
+    this.walletInfo.networkId = wallet.chainId;
     this.selectedNetwork = getNetworkInfo(wallet.chainId);
     this.updateConnectedStatus(connected);
     this.updateList(connected);
@@ -166,12 +158,13 @@ export class Header extends Module {
     this.$eventBus.register(this, EventId.IsWalletDisconnected, async (connected: boolean) => {
       const requireLogin = getRequireLogin();
       if (requireLogin) return;
-      this.doActionOnWalletConnected(connected);
+      await this.doActionOnWalletConnected(connected);
     })
     this.$eventBus.register(this, EventId.IsAccountLoggedIn, async (loggedIn: boolean) => {
       const requireLogin = getRequireLogin();
       if (!requireLogin) return;
-      this.doActionOnWalletConnected(loggedIn);
+      let connected = loggedIn && Wallet.getClientInstance().isConnected;
+      await this.doActionOnWalletConnected(connected);
     })
   }
 
@@ -201,7 +194,7 @@ export class Header extends Module {
     }
     await this.initWallet();
     this.registerEvent();
-    this.updateConnectedStatus(isWalletConnected());
+    this.doActionOnWalletConnected(isWalletConnected());
   }
 
   connectedCallback(): void {
@@ -235,6 +228,7 @@ export class Header extends Module {
     this.walletInfo.networkId = chainId;
     this.selectedNetwork = getNetworkInfo(chainId);
     let wallet = Wallet.getClientInstance();
+    this.walletInfo.address = wallet.address;
     const isConnected = wallet.isConnected;
     this.walletInfo.balance = isConnected ? formatNumber((await wallet.balance).toFixed(), 2) : '0';
     this.updateConnectedStatus(isConnected);
@@ -246,8 +240,10 @@ export class Header extends Module {
   updateConnectedStatus = (isConnected: boolean) => {
     if (isConnected) {
       this.lblBalance.caption = `${this.walletInfo.balance} ${this.symbol}`;
-      this.btnWalletDetail.caption = this.shortlyAddress;
-      this.lblWalletAddress.caption = this.shortlyAddress;
+      const address = this.walletInfo.address;
+      const displayedAddress = address ? truncateAddress(address) : '-';
+      this.btnWalletDetail.caption = displayedAddress;
+      this.lblWalletAddress.caption = displayedAddress;
       const networkInfo = getNetworkInfo(Wallet.getInstance().chainId);
       this.hsViewAccount.visible = !!networkInfo?.explorerAddressUrl;
     } else {
@@ -262,6 +258,7 @@ export class Header extends Module {
       this.btnNetwork.icon = undefined;
       this.btnNetwork.caption = isDefaultNetworkFromWallet() ? "Unknown Network" : "Unsupported Network";
     }
+    this.btnNetwork.visible = true;
     this.btnConnectWallet.visible = !isConnected;
     this.hsBalance.visible = !this._hideWalletBalance && isConnected;
     this.pnlWalletDetail.visible = isConnected;
@@ -669,6 +666,7 @@ export class Header extends Module {
               <i-panel id="pnlNetwork">
                 <i-button
                   id="btnNetwork"
+                  visible={false}
                   height={38}
                   class="btn-network"
                   margin={{ right: '0.5rem' }}
@@ -676,7 +674,6 @@ export class Header extends Module {
                   border={{ radius: 5 }}
                   font={{ color: Theme.colors.primary.contrastText }}
                   onClick={this.openNetworkModal}
-                  caption={"Unsupported Network"}
                 ></i-button>
               </i-panel>
               <i-hstack

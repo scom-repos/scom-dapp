@@ -430,7 +430,6 @@ declare module "@scom/dapp/header.tsx" {
         private walletInfo;
         constructor(parent?: Container, options?: any);
         get symbol(): string;
-        get shortlyAddress(): string;
         get hideNetworkButton(): boolean;
         set hideNetworkButton(value: boolean);
         get hideWalletBalance(): boolean;
