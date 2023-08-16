@@ -188,13 +188,16 @@ export class Header extends Module {
     const requireLogin = getRequireLogin();
     if (requireLogin) {
       this.btnConnectWallet.caption = 'Login';
+      this.doActionOnWalletConnected(false);
+      await this.initWallet();
+      this.registerEvent();
     }
     else {
       this.btnConnectWallet.caption = 'Connect Wallet';
+      await this.initWallet();
+      this.registerEvent();
+      this.doActionOnWalletConnected(isWalletConnected());
     }
-    await this.initWallet();
-    this.registerEvent();
-    this.doActionOnWalletConnected(isWalletConnected());
   }
 
   connectedCallback(): void {
