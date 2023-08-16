@@ -1,10 +1,18 @@
-import { Module, Styles, Container, customModule, application } from '@ijstech/components';
+import { Module, customModule, application, Label } from '@ijstech/components';
 import Assets from '@modules/assets';
 
 @customModule
 export default class Module1 extends Module {
+    private lblTitle: Label;
     private headerVisible = true;
     private footerVisible = true;
+
+    onShow(options: any) {
+        if (options?.title) {
+            this.lblTitle.caption = options.title;
+        }
+    }
+
     toggleHeader() {
         this.headerVisible = !this.headerVisible;
         application.EventBus.dispatch('setHeaderVisibility', this.headerVisible);
@@ -15,7 +23,7 @@ export default class Module1 extends Module {
     }
     render(){
         return <i-panel>
-            <i-label caption='Module 1!'></i-label>
+            <i-label id="lblTitle" caption='Module 1!'></i-label>
             <i-vstack position='absolute' top='45%' gap='0.5rem' zIndex={10}>
                 <i-button
                     width={120}

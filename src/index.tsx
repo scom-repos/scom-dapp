@@ -17,7 +17,7 @@ Styles.Theme.applyTheme(Styles.Theme.darkTheme);
 interface ISCConfig {
 	env: string;
 	moduleDir?: string;
-	modules: { [name: string]: { path: string, dependencies: string[] } };
+	modules: { [name: string]: { path: string, dependencies: string[], params?: any } };
 	dependencies?: { [name: string]: string };
 	menus: IMenu[];
 	routes: IRoute[];
@@ -131,9 +131,10 @@ export default class MainLauncher extends Module {
 				menuObj.moduleObject = await application.loadModule(menu.module, this._options);
 				if (menuObj.moduleObject) menuObj.moduleObject.onLoad();
 			}
+			let moduleParams = this._options.modules[menu.module].params;
 			return {
 				module: menuObj.moduleObject,
-				params: params
+				params: Object.assign({ ...moduleParams }, { ...params })
 			};
 		}
 	};

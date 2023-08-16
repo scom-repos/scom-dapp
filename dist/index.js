@@ -2080,9 +2080,10 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
                     if (menuObj.moduleObject)
                         menuObj.moduleObject.onLoad();
                 }
+                let moduleParams = this._options.modules[menu.module].params;
                 return {
                     module: menuObj.moduleObject,
-                    params: params
+                    params: Object.assign(Object.assign({}, moduleParams), Object.assign({}, params))
                 };
             }
         }
