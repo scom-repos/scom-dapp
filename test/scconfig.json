@@ -8,7 +8,10 @@
       "path": "assets"
     },
     "@modules/module1": {
-      "path": "module1"
+      "path": "module1",
+      "params": {
+        "title": "Module 1 Title"
+      }
     },
     "@modules/module2": {
       "path": "module2"
