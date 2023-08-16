@@ -41,18 +41,17 @@ async function getWalletPluginConfigProvider(
   wallet: Wallet, 
   pluginName: string, 
   packageName?: string,
-  events?: IClientSideProviderEvents, 
   options?: IClientProviderOptions
 ) {
   switch (pluginName) {
     case WalletPlugin.MetaMask:
-      return new MetaMaskProvider(wallet, events, options);
+      return new MetaMaskProvider(wallet, {}, options);
     case WalletPlugin.WalletConnect:
-      return new Web3ModalProvider(wallet, events, options);
+      return new Web3ModalProvider(wallet, {}, options);
     default: {
       if (packageName) {
         const provider: any = await application.loadPackage(packageName, '*');
-        return new provider(wallet, events, options);
+        return new provider(wallet, {}, options);
       }
     }
   }
@@ -85,7 +84,7 @@ async function initWalletPlugin(walletPlugin: IWalletPlugin, networkList: IExten
       useDefaultProvider: true
     }
   }
-  let provider = await getWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, {}, providerOptions);
+  let provider = await getWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, providerOptions);
   setWalletPluginProvider(pluginName, {
     name: pluginName,
     packageName: walletPlugin.packageName,

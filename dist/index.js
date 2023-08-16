@@ -922,16 +922,16 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         walletPluginMap: {},
         walletConnectConfig: null
     };
-    async function getWalletPluginConfigProvider(wallet, pluginName, packageName, events, options) {
+    async function getWalletPluginConfigProvider(wallet, pluginName, packageName, options) {
         switch (pluginName) {
             case WalletPlugin.MetaMask:
-                return new eth_wallet_3.MetaMaskProvider(wallet, events, options);
+                return new eth_wallet_3.MetaMaskProvider(wallet, {}, options);
             case WalletPlugin.WalletConnect:
-                return new eth_wallet_3.Web3ModalProvider(wallet, events, options);
+                return new eth_wallet_3.Web3ModalProvider(wallet, {}, options);
             default: {
                 if (packageName) {
                     const provider = await components_4.application.loadPackage(packageName, '*');
-                    return new provider(wallet, events, options);
+                    return new provider(wallet, {}, options);
                 }
             }
         }
@@ -955,7 +955,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
                 useDefaultProvider: true
             };
         }
-        let provider = await getWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, {}, providerOptions);
+        let provider = await getWalletPluginConfigProvider(wallet, pluginName, walletPlugin.packageName, providerOptions);
         (0, exports.setWalletPluginProvider)(pluginName, {
             name: pluginName,
             packageName: walletPlugin.packageName,
@@ -1664,13 +1664,16 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             const requireLogin = (0, network_2.getRequireLogin)();
             if (requireLogin) {
                 this.btnConnectWallet.caption = 'Login';
+                this.doActionOnWalletConnected(false);
+                await this.initWallet();
+                this.registerEvent();
             }
             else {
                 this.btnConnectWallet.caption = 'Connect Wallet';
+                await this.initWallet();
+                this.registerEvent();
+                this.doActionOnWalletConnected((0, wallet_1.isWalletConnected)());
             }
-            await this.initWallet();
-            this.registerEvent();
-            this.doActionOnWalletConnected((0, wallet_1.isWalletConnected)());
         }
         connectedCallback() {
             super.connectedCallback();
