@@ -439,7 +439,7 @@ declare module "@scom/dapp/header.tsx" {
         registerEvent(): void;
         init(): Promise<void>;
         connectedCallback(): void;
-        disconnectCallback(): void;
+        disconnectedCallback(): void;
         controlMenuDisplay(): void;
         onChainChanged: (chainIdHex: string) => Promise<void>;
         updateConnectedStatus: (isConnected: boolean) => void;
@@ -500,7 +500,7 @@ declare module "@scom/dapp/footer.tsx" {
         private lblVersion;
         init(): void;
         connectedCallback(): void;
-        disconnectCallback(): void;
+        disconnectedCallback(): void;
         updateLogo(): void;
         render(): any;
     }

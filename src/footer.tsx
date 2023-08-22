@@ -57,8 +57,8 @@ export class Footer extends Module {
     window.addEventListener('resize', this.updateLogo);
   }
 
-  disconnectCallback(): void {
-    super.disconnectCallback();
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
     window.removeEventListener('resize', this.updateLogo);
   }
 

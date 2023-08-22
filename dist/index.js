@@ -1679,8 +1679,8 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             super.connectedCallback();
             window.addEventListener('resize', this.controlMenuDisplay.bind(this));
         }
-        disconnectCallback() {
-            super.disconnectCallback();
+        disconnectedCallback() {
+            super.disconnectedCallback();
             window.removeEventListener('resize', this.controlMenuDisplay.bind(this));
         }
         controlMenuDisplay() {
@@ -1955,8 +1955,8 @@ define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@
             super.connectedCallback();
             window.addEventListener('resize', this.updateLogo);
         }
-        disconnectCallback() {
-            super.disconnectCallback();
+        disconnectedCallback() {
+            super.disconnectedCallback();
             window.removeEventListener('resize', this.updateLogo);
         }
         updateLogo() {

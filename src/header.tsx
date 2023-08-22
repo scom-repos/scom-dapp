@@ -205,8 +205,8 @@ export class Header extends Module {
     window.addEventListener('resize', this.controlMenuDisplay.bind(this));
   }
 
-  disconnectCallback(): void {
-    super.disconnectCallback();
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
     window.removeEventListener('resize', this.controlMenuDisplay.bind(this));
   }
 
