@@ -272,7 +272,8 @@ declare module "@scom/dapp/constants.ts" {
         IsWalletDisconnected = "IsWalletDisconnected",
         themeChanged = "themeChanged",
         setHeaderVisibility = "setHeaderVisibility",
-        setFooterVisibility = "setFooterVisibility"
+        setFooterVisibility = "setFooterVisibility",
+        scrollToTop = "scrollToTop"
     }
 }
 /// <amd-module name="@scom/dapp/wallet.ts" />
@@ -539,6 +540,7 @@ declare module "@scom/dapp" {
         mergeTheme: (target: Styles.Theme.ITheme, theme: Styles.Theme.ITheme) => Styles.Theme.ITheme;
         updateThemes(themes?: ITheme): void;
         updateLayout(): void;
+        private scrollToTop;
         render(): Promise<any>;
     }
 }

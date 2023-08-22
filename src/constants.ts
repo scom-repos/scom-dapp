@@ -6,5 +6,6 @@ export const enum EventId {
   IsWalletDisconnected = "IsWalletDisconnected",
   themeChanged = "themeChanged",
   setHeaderVisibility = 'setHeaderVisibility',
-  setFooterVisibility = 'setFooterVisibility'
+  setFooterVisibility = 'setFooterVisibility',
+  scrollToTop = 'scrollToTop'
 };

@@ -2043,6 +2043,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             this.$eventBus.register(this, "setFooterVisibility" /* EventId.setFooterVisibility */, (visible) => {
                 this.footerElm.visible = visible;
             });
+            this.$eventBus.register(this, "scrollToTop" /* EventId.scrollToTop */, this.scrollToTop);
         }
         hideCurrentModule() {
             if (this.currentModule) {
@@ -2105,6 +2106,7 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
                 else
                     this.pnlMain.append(module.module);
                 module.module.onShow(module.params);
+                this.scrollToTop();
             }
             ;
         }
@@ -2145,6 +2147,11 @@ define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/i
             }
             this.headerElm.hideNetworkButton = header.hideNetworkButton;
             this.headerElm.hideWalletBalance = header.hideWalletBalance;
+        }
+        scrollToTop() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+            this.pnlScrollable.scrollTop = 0;
         }
         async render() {
             return (this.$render("i-vstack", { height: "inherit" },
