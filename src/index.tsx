@@ -91,6 +91,7 @@ export default class MainLauncher extends Module {
 		this.$eventBus.register(this, EventId.setFooterVisibility, (visible: boolean) => {
 			this.footerElm.visible = visible;
 		});
+		this.$eventBus.register(this, EventId.scrollToTop, this.scrollToTop);
 	}
 	hideCurrentModule() {
 		if (this.currentModule) {
@@ -152,6 +153,7 @@ export default class MainLauncher extends Module {
 			else
 				this.pnlMain.append(module.module);
 			module.module.onShow(module.params);
+			this.scrollToTop();
 		};
 	};
 	mergeTheme = (target: Styles.Theme.ITheme, theme: Styles.Theme.ITheme) => {
@@ -195,6 +197,11 @@ export default class MainLauncher extends Module {
 		}
 		this.headerElm.hideNetworkButton = header.hideNetworkButton;
 		this.headerElm.hideWalletBalance = header.hideWalletBalance;
+	}
+	private scrollToTop() {
+	  document.body.scrollTop = 0;
+	  document.documentElement.scrollTop = 0;
+	  this.pnlScrollable.scrollTop = 0;
 	}
 	async render() {
 		return (
