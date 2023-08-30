@@ -40,7 +40,7 @@ async function requestLoginSession(walletAddress: string) {
   let result = await response.json();
   return result;
 };
-async function login() {
+async function apiLogin() {
   const wallet = Wallet.getClientInstance();
   let session = await requestLoginSession(wallet.address);
   if (session.success && session.data?.account)
@@ -68,7 +68,7 @@ async function login() {
   let result = await response.json();
   return result;
 };
-async function logout() {
+async function apiLogout() {
   let response = await fetch(API_BASE_URL + '/logout', {
     method: 'POST',
     credentials: 'include',
@@ -83,6 +83,6 @@ async function logout() {
 
 export {
   checkLoginSession,
-  login,
-  logout
+  apiLogin,
+  apiLogout
 }

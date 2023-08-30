@@ -36,7 +36,7 @@ import {
 } from './network';
 import { getSupportedWalletProviders, switchNetwork, truncateAddress, hasWallet, isWalletConnected, hasMetaMask, hasThemeButton, initWalletPlugins, WalletPlugin, getWalletPluginProvider, logoutWallet, connectWallet } from './wallet';
 import { compile } from './pathToRegexp'
-import { checkLoginSession, login, logout } from './utils';
+import { checkLoginSession, apiLogin, apiLogout } from './utils';
 import { Alert } from './alert';
 import { EventId } from './constants';
 import { IMenu, IExtendedNetwork } from './interface';
@@ -155,11 +155,11 @@ export class Header extends Module {
 
   registerEvent() {
     this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
-    this.$eventBus.register(this, EventId.IsWalletDisconnected, async (connected: boolean) => {
-      const requireLogin = getRequireLogin();
-      if (requireLogin) return;
-      await this.doActionOnWalletConnected(connected);
-    })
+    // this.$eventBus.register(this, EventId.IsWalletDisconnected, async () => {
+    //   const requireLogin = getRequireLogin();
+    //   if (requireLogin) return;
+    //   await this.doActionOnWalletConnected(false);
+    // })
     this.$eventBus.register(this, EventId.IsAccountLoggedIn, async (loggedIn: boolean) => {
       const requireLogin = getRequireLogin();
       if (!requireLogin) return;
@@ -182,7 +182,16 @@ export class Header extends Module {
     this.renderDesktopMenu();
     this.controlMenuDisplay();
     this.renderNetworks();
-    this.initData();
+    this.registerEvent();
+
+    let selectedProvider = localStorage.getItem('walletProvider');
+    if (!selectedProvider && hasMetaMask()) {
+      selectedProvider = WalletPlugin.MetaMask;
+    }
+    if (!Wallet.getClientInstance().chainId) {
+      Wallet.getClientInstance().chainId = getDefaultChainId();
+    }
+
     const themeType = document.body.style.getPropertyValue('--theme')
     this.switchTheme.checked = themeType === 'light';
     const requireLogin = getRequireLogin();
@@ -190,12 +199,12 @@ export class Header extends Module {
       this.btnConnectWallet.caption = 'Login';
       this.doActionOnWalletConnected(false);
       await this.initWallet();
-      this.registerEvent();
+      await connectWallet(selectedProvider, false);
     }
     else {
       this.btnConnectWallet.caption = 'Connect Wallet';
       await this.initWallet();
-      this.registerEvent();
+      await connectWallet(selectedProvider, false);
       this.doActionOnWalletConnected(isWalletConnected());
     }
   }
@@ -333,7 +342,7 @@ export class Header extends Module {
     if (!this.isLoginRequestSent) {
       try {
         this.isLoginRequestSent = true;
-        const loginAPIResult = await login();
+        const loginAPIResult = await apiLogin();
         if (loginAPIResult.error || !loginAPIResult.success) {
           errMsg = loginAPIResult.error?.message || 'Login failed';
         } else {
@@ -352,11 +361,11 @@ export class Header extends Module {
     }
   }
 
-  logout = async (target: Control, event: Event) => {
+  handleLogoutClick = async (target: Control, event: Event) => {
     if (event) event.stopPropagation();
     this.mdWalletDetail.visible = false;
     if (getRequireLogin())  {
-      await logout();
+      await apiLogout();
       localStorage.removeItem('loggedInAccount');
       application.EventBus.dispatch(EventId.IsAccountLoggedIn, false);
     }
@@ -455,6 +464,10 @@ export class Header extends Module {
         }
         localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.name || '');
       }
+      else {
+        localStorage.removeItem('loggedInAccount');
+        application.EventBus.dispatch(EventId.IsAccountLoggedIn, false);
+      }
     }
     
     let wallet = Wallet.getClientInstance();
@@ -519,18 +532,6 @@ export class Header extends Module {
       this.networkMapper.set(network.chainId, hsNetwork);
       return hsNetwork;
     }));
-  }
-
-  async initData() {
-		let selectedProvider = localStorage.getItem('walletProvider');
-		if (!selectedProvider && hasMetaMask()) {
-			selectedProvider = WalletPlugin.MetaMask;
-		}
-		if (!Wallet.getClientInstance().chainId) {
-			Wallet.getClientInstance().chainId = getDefaultChainId();
-		}
-
-    await connectWallet(selectedProvider, false);
   }
 
   getMenuPath(url: string, params: any) {
@@ -739,7 +740,7 @@ export class Header extends Module {
                       font={{ color: Theme.colors.primary.contrastText }}
                       background={{ color: Theme.colors.error.light }}
                       padding={{ top: '0.5rem', bottom: '0.5rem' }}
-                      onClick={this.logout}
+                      onClick={this.handleLogoutClick}
                     ></i-button>
                   </i-vstack>
                 </i-modal>
@@ -841,7 +842,7 @@ export class Header extends Module {
                 background={{ color: Theme.colors.error.light }}
                 padding={{ top: 6, bottom: 6, left: 10, right: 10 }}
                 border={{ radius: 5 }}
-                onClick={this.logout}
+                onClick={this.handleLogoutClick}
               />
             </i-hstack>
             <i-label id="lblWalletAddress" font={{ size: '1.25rem', bold: true, color: Theme.colors.primary.main }} lineHeight={1.5} />
