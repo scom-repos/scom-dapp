@@ -325,9 +325,9 @@ declare module "@scom/dapp/header.css.ts" {
 /// <amd-module name="@scom/dapp/utils.ts" />
 declare module "@scom/dapp/utils.ts" {
     function checkLoginSession(walletAddress: string): Promise<any>;
-    function login(): Promise<any>;
-    function logout(): Promise<any>;
-    export { checkLoginSession, login, logout };
+    function apiLogin(): Promise<any>;
+    function apiLogout(): Promise<any>;
+    export { checkLoginSession, apiLogin, apiLogout };
 }
 /// <amd-module name="@scom/dapp/alert.css.ts" />
 declare module "@scom/dapp/alert.css.ts" {
@@ -451,7 +451,7 @@ declare module "@scom/dapp/header.tsx" {
         openAccountModal: (target: Control, event: Event) => void;
         openSwitchModal: (target: Control, event: Event) => void;
         login: () => Promise<ILoginResult>;
-        logout: (target: Control, event: Event) => Promise<void>;
+        handleLogoutClick: (target: Control, event: Event) => Promise<void>;
         viewOnExplorerByAddress(): void;
         switchNetwork(chainId: number): Promise<void>;
         openLink(link: any): Window;
@@ -462,7 +462,6 @@ declare module "@scom/dapp/header.tsx" {
         keepSessionAlive(account: string, expireAt: number): void;
         initWallet: () => Promise<void>;
         renderNetworks(): void;
-        initData(): Promise<void>;
         getMenuPath(url: string, params: any): string;
         _getMenuData(list: IMenu[], mode: string, validMenuItemsFn: (item: IMenu) => boolean): IMenuItem[];
         getMenuData(list: IMenu[], mode: string): any;
