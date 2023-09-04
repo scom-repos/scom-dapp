@@ -430,9 +430,10 @@ export class Header extends Module {
       
     const onAccountChanged = async (payload: Record<string, any>) => {
       const { userTriggeredConnect, account } = payload;
+      let requireLogin = getRequireLogin();
       let connected = !!account;
+
       if (connected) {
-        let requireLogin = getRequireLogin();
         if (requireLogin) {
           if (userTriggeredConnect) {
             let loginResult = await this.login();
@@ -462,11 +463,19 @@ export class Header extends Module {
             }
           }
         }
+        else {
+          await this.doActionOnWalletConnected(connected);
+        }
         localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.name || '');
       }
       else {
-        localStorage.removeItem('loggedInAccount');
-        application.EventBus.dispatch(EventId.IsAccountLoggedIn, false);
+        if (requireLogin) {
+          localStorage.removeItem('loggedInAccount');
+          application.EventBus.dispatch(EventId.IsAccountLoggedIn, false);
+        }
+        else {
+          await this.doActionOnWalletConnected(connected);
+        }
       }
     }
     
