@@ -1535,9 +1535,9 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 const onAccountChanged = async (payload) => {
                     var _a, _b;
                     const { userTriggeredConnect, account } = payload;
+                    let requireLogin = (0, network_2.getRequireLogin)();
                     let connected = !!account;
                     if (connected) {
-                        let requireLogin = (0, network_2.getRequireLogin)();
                         if (requireLogin) {
                             if (userTriggeredConnect) {
                                 let loginResult = await this.login();
@@ -1567,11 +1567,19 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                                 }
                             }
                         }
+                        else {
+                            await this.doActionOnWalletConnected(connected);
+                        }
                         localStorage.setItem('walletProvider', ((_b = (_a = eth_wallet_5.Wallet.getClientInstance()) === null || _a === void 0 ? void 0 : _a.clientSideProvider) === null || _b === void 0 ? void 0 : _b.name) || '');
                     }
                     else {
-                        localStorage.removeItem('loggedInAccount');
-                        components_8.application.EventBus.dispatch("isAccountLoggedIn" /* EventId.IsAccountLoggedIn */, false);
+                        if (requireLogin) {
+                            localStorage.removeItem('loggedInAccount');
+                            components_8.application.EventBus.dispatch("isAccountLoggedIn" /* EventId.IsAccountLoggedIn */, false);
+                        }
+                        else {
+                            await this.doActionOnWalletConnected(connected);
+                        }
                     }
                 };
                 let wallet = eth_wallet_5.Wallet.getClientInstance();
