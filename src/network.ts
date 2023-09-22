@@ -1,7 +1,5 @@
 import { Erc20, Wallet, ISendTxEventsOptions, INetwork, IClientWalletConfig, IRpcWalletConfig } from '@ijstech/eth-wallet';
-import { formatNumber } from './helper';
 
-export { formatNumber };
 import { IExtendedNetwork } from './interface';
 import getNetworkList from '@scom/scom-network-list';
 import {getMulticallInfoList, IMulticallInfo} from '@scom/scom-multicall';
