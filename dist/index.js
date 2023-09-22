@@ -570,129 +570,10 @@ define("@scom/dapp/index.css.ts", ["require", "exports", "@ijstech/components", 
         fontStyle: 'normal'
     });
 });
-define("@scom/dapp/helper.ts", ["require", "exports", "@ijstech/eth-wallet"], function (require, exports, eth_wallet_1) {
+define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@scom/scom-network-list", "@scom/scom-multicall", "@ijstech/components"], function (require, exports, eth_wallet_1, scom_network_list_1, scom_multicall_1, components_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getParamsFromUrl = exports.abbreviateNum = exports.toWeiInv = exports.getAPI = exports.limitDecimals = exports.formatNumberWithSeparators = exports.formatNumber = void 0;
-    const formatNumber = (value, decimals) => {
-        let val = value;
-        const minValue = '0.0000001';
-        if (typeof value === 'string') {
-            val = new eth_wallet_1.BigNumber(value).toNumber();
-        }
-        else if (typeof value === 'object') {
-            val = value.toNumber();
-        }
-        if (val != 0 && new eth_wallet_1.BigNumber(val).lt(minValue)) {
-            return `<${minValue}`;
-        }
-        return (0, exports.formatNumberWithSeparators)(val, decimals || 4);
-    };
-    exports.formatNumber = formatNumber;
-    const formatNumberWithSeparators = (value, precision) => {
-        if (!value)
-            value = 0;
-        if (precision) {
-            let outputStr = '';
-            if (value >= 1) {
-                outputStr = value.toLocaleString('en-US', { maximumFractionDigits: precision });
-            }
-            else {
-                outputStr = value.toLocaleString('en-US', { maximumSignificantDigits: precision });
-            }
-            if (outputStr.length > 18) {
-                outputStr = outputStr.substr(0, 18) + '...';
-            }
-            return outputStr;
-            // let parts = parseFloat(value.toPrecision(precision)).toString().split(".");
-            // parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            // return parts.join(".");
-        }
-        else {
-            return value.toLocaleString('en-US');
-            // let parts = value.toString().split(".");
-            // parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            // return parts.join(".");
-        }
-    };
-    exports.formatNumberWithSeparators = formatNumberWithSeparators;
-    const limitDecimals = (value, decimals) => {
-        let val = value;
-        if (typeof value !== 'string') {
-            val = val.toString();
-        }
-        let chart;
-        if (val.includes('.')) {
-            chart = '.';
-        }
-        else if (val.includes(',')) {
-            chart = ',';
-        }
-        else {
-            return value;
-        }
-        const parts = val.split(chart);
-        let decimalsPart = parts[1];
-        if (decimalsPart && decimalsPart.length > decimals) {
-            parts[1] = decimalsPart.substr(0, decimals);
-        }
-        return parts.join(chart);
-    };
-    exports.limitDecimals = limitDecimals;
-    async function getAPI(url, paramsObj) {
-        let queries = '';
-        if (paramsObj) {
-            try {
-                queries = new URLSearchParams(paramsObj).toString();
-            }
-            catch (err) {
-                console.log('err', err);
-            }
-        }
-        let fullURL = url + (queries ? `?${queries}` : '');
-        const response = await fetch(fullURL, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            },
-        });
-        return response.json();
-    }
-    exports.getAPI = getAPI;
-    const toWeiInv = (n, unit) => {
-        if (new eth_wallet_1.BigNumber(n).eq(0))
-            return new eth_wallet_1.BigNumber('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
-        return new eth_wallet_1.BigNumber('1').shiftedBy((unit || 18) * 2).idiv(new eth_wallet_1.BigNumber(n).shiftedBy(unit || 18));
-    };
-    exports.toWeiInv = toWeiInv;
-    const abbreviateNum = (value) => {
-        let newValue = value;
-        const suffixes = ["", "K", "M", "B", "T"];
-        let suffixIdx = 0;
-        while (newValue >= 1000) {
-            newValue /= 1000;
-            suffixIdx++;
-        }
-        if (suffixIdx >= suffixes.length) {
-            return value.toString();
-        }
-        return (0, exports.formatNumber)(newValue, 2) + suffixes[suffixIdx];
-    };
-    exports.abbreviateNum = abbreviateNum;
-    const getParamsFromUrl = () => {
-        const startIdx = window.location.href.indexOf("?");
-        const search = window.location.href.substring(startIdx, window.location.href.length);
-        const queryString = search;
-        const urlParams = new URLSearchParams(queryString);
-        return urlParams;
-    };
-    exports.getParamsFromUrl = getParamsFromUrl;
-});
-define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@scom/dapp/helper.ts", "@scom/scom-network-list", "@scom/scom-multicall", "@ijstech/components"], function (require, exports, eth_wallet_2, helper_1, scom_network_list_1, scom_multicall_1, components_3) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getLoggedInAccount = exports.getIsLoggedIn = exports.getRequireLogin = exports.isDefaultNetworkFromWallet = exports.getEnv = exports.getInfuraId = exports.isValidEnv = exports.getSiteSupportedNetworks = exports.getDefaultChainId = exports.getNetworkType = exports.viewOnExplorerByAddress = exports.viewOnExplorerByTxHash = exports.getNetworkInfo = exports.getErc20 = exports.getWalletProvider = exports.getWallet = exports.getChainId = exports.registerSendTxEvents = exports.updateNetworks = exports.formatNumber = void 0;
-    Object.defineProperty(exports, "formatNumber", { enumerable: true, get: function () { return helper_1.formatNumber; } });
+    exports.getLoggedInAccount = exports.getIsLoggedIn = exports.getRequireLogin = exports.isDefaultNetworkFromWallet = exports.getEnv = exports.getInfuraId = exports.isValidEnv = exports.getSiteSupportedNetworks = exports.getDefaultChainId = exports.getNetworkType = exports.viewOnExplorerByAddress = exports.viewOnExplorerByTxHash = exports.getNetworkInfo = exports.getErc20 = exports.getWalletProvider = exports.getWallet = exports.getChainId = exports.registerSendTxEvents = exports.updateNetworks = void 0;
     ;
     const updateNetworks = (options) => {
         if (options.env) {
@@ -719,7 +600,7 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
             infuraId: state.infuraId,
             multicalls
         };
-        const clientWallet = eth_wallet_2.Wallet.getClientInstance();
+        const clientWallet = eth_wallet_1.Wallet.getClientInstance();
         clientWallet.initClientWallet(clientWalletConfig);
         const rpcWalletConfig = {
             networks,
@@ -733,7 +614,7 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
     };
     exports.updateNetworks = updateNetworks;
     function registerSendTxEvents(sendTxEventHandlers) {
-        const wallet = eth_wallet_2.Wallet.getClientInstance();
+        const wallet = eth_wallet_1.Wallet.getClientInstance();
         wallet.registerSendTxEvents({
             transactionHash: (error, receipt) => {
                 if (sendTxEventHandlers.transactionHash) {
@@ -750,12 +631,12 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
     exports.registerSendTxEvents = registerSendTxEvents;
     ;
     function getChainId() {
-        return eth_wallet_2.Wallet.getInstance().chainId;
+        return eth_wallet_1.Wallet.getInstance().chainId;
     }
     exports.getChainId = getChainId;
     ;
     function getWallet() {
-        return eth_wallet_2.Wallet.getInstance();
+        return eth_wallet_1.Wallet.getInstance();
     }
     exports.getWallet = getWallet;
     ;
@@ -766,7 +647,7 @@ define("@scom/dapp/network.ts", ["require", "exports", "@ijstech/eth-wallet", "@
     ;
     function getErc20(address) {
         const wallet = getWallet();
-        return new eth_wallet_2.Erc20(wallet, address);
+        return new eth_wallet_1.Erc20(wallet, address);
     }
     exports.getErc20 = getErc20;
     ;
@@ -907,10 +788,10 @@ define("@scom/dapp/constants.ts", ["require", "exports"], function (require, exp
     Object.defineProperty(exports, "__esModule", { value: true });
     ;
 });
-define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/dapp/network.ts"], function (require, exports, components_4, eth_wallet_3, network_1) {
+define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/dapp/network.ts"], function (require, exports, components_4, eth_wallet_2, network_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getWalletConnectConfig = exports.setWalletConnectConfig = exports.getWalletPluginProvider = exports.getWalletPluginMap = exports.setWalletPluginProvider = exports.hasThemeButton = exports.toggleThemeButton = exports.updateWalletConfig = exports.switchNetwork = exports.hasMetaMask = exports.hasWallet = exports.isWalletConnected = exports.getSupportedWalletProviders = exports.truncateAddress = exports.logoutWallet = exports.connectWallet = exports.initWalletPlugins = exports.WalletPlugin = void 0;
+    exports.getWalletConnectConfig = exports.setWalletConnectConfig = exports.getWalletPluginProvider = exports.getWalletPluginMap = exports.setWalletPluginProvider = exports.hasThemeButton = exports.toggleThemeButton = exports.updateWalletConfig = exports.switchNetwork = exports.hasMetaMask = exports.hasWallet = exports.isWalletConnected = exports.getSupportedWalletProviders = exports.logoutWallet = exports.connectWallet = exports.initWalletPlugins = exports.WalletPlugin = void 0;
     var WalletPlugin;
     (function (WalletPlugin) {
         WalletPlugin["MetaMask"] = "metamask";
@@ -925,9 +806,9 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
     async function getWalletPluginConfigProvider(wallet, pluginName, packageName, options) {
         switch (pluginName) {
             case WalletPlugin.MetaMask:
-                return new eth_wallet_3.MetaMaskProvider(wallet, {}, options);
+                return new eth_wallet_2.MetaMaskProvider(wallet, {}, options);
             case WalletPlugin.WalletConnect:
-                return new eth_wallet_3.Web3ModalProvider(wallet, {}, options);
+                return new eth_wallet_2.Web3ModalProvider(wallet, {}, options);
             default: {
                 if (packageName) {
                     const provider = await components_4.application.loadPackage(packageName, '*');
@@ -937,7 +818,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         }
     }
     async function initWalletPlugin(walletPlugin, networkList, rpcs) {
-        let wallet = eth_wallet_3.Wallet.getClientInstance();
+        let wallet = eth_wallet_2.Wallet.getClientInstance();
         let pluginName = walletPlugin.name;
         let providerOptions;
         if (pluginName == WalletPlugin.WalletConnect) {
@@ -978,7 +859,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
     exports.initWalletPlugins = initWalletPlugins;
     async function connectWallet(walletPluginName, userTriggeredConnect) {
         // let walletProvider = localStorage.getItem('walletProvider') || '';
-        let wallet = eth_wallet_3.Wallet.getClientInstance();
+        let wallet = eth_wallet_2.Wallet.getClientInstance();
         if (!wallet.chainId) {
             // wallet.chainId = getDefaultChainId();
         }
@@ -1005,25 +886,23 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
     }
     exports.connectWallet = connectWallet;
     async function logoutWallet() {
-        const wallet = eth_wallet_3.Wallet.getClientInstance();
+        const wallet = eth_wallet_2.Wallet.getClientInstance();
         await wallet.disconnect();
         localStorage.setItem('walletProvider', '');
         // application.EventBus.dispatch(EventId.IsWalletDisconnected);
     }
     exports.logoutWallet = logoutWallet;
-    const truncateAddress = (address) => {
-        if (address === undefined || address === null)
-            return '';
-        return address.substring(0, 6) + '...' + address.substring(address.length - 4);
-    };
-    exports.truncateAddress = truncateAddress;
+    // export const truncateAddress = (address: string) => {
+    //   if (address === undefined || address === null) return '';
+    //   return address.substring(0, 6) + '...' + address.substring(address.length - 4);
+    // }
     const getSupportedWalletProviders = () => {
         const walletPluginMap = (0, exports.getWalletPluginMap)();
         return state.wallets.map(v => walletPluginMap[v.name].provider);
     };
     exports.getSupportedWalletProviders = getSupportedWalletProviders;
     function isWalletConnected() {
-        const wallet = eth_wallet_3.Wallet.getClientInstance();
+        const wallet = eth_wallet_2.Wallet.getClientInstance();
         return wallet.isConnected;
     }
     exports.isWalletConnected = isWalletConnected;
@@ -1046,7 +925,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
     };
     exports.hasMetaMask = hasMetaMask;
     async function switchNetwork(chainId) {
-        const wallet = eth_wallet_3.Wallet.getClientInstance();
+        const wallet = eth_wallet_2.Wallet.getClientInstance();
         await wallet.switchNetwork(chainId);
         if (!isWalletConnected()) {
             components_4.application.EventBus.dispatch("chainChanged" /* EventId.chainChanged */, chainId);
@@ -1210,7 +1089,7 @@ define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"]
         }
     });
 });
-define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], function (require, exports, eth_wallet_4) {
+define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], function (require, exports, eth_wallet_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.apiLogout = exports.apiLogin = exports.checkLoginSession = void 0;
@@ -1258,12 +1137,12 @@ define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], fun
     ;
     async function apiLogin() {
         var _a;
-        const wallet = eth_wallet_4.Wallet.getClientInstance();
+        const wallet = eth_wallet_3.Wallet.getClientInstance();
         let session = await requestLoginSession(wallet.address);
         if (session.success && ((_a = session.data) === null || _a === void 0 ? void 0 : _a.account))
             return { success: true };
         let msg = constructPersonalSignMessage(wallet.address, session.data.nonce);
-        await eth_wallet_4.Wallet.initWeb3();
+        await eth_wallet_3.Wallet.initWeb3();
         let signature = await wallet.signMessage(msg);
         let chainId = await wallet.getChainId();
         let body = JSON.stringify({
@@ -1394,7 +1273,7 @@ define("@scom/dapp/alert.tsx", ["require", "exports", "@ijstech/components", "@s
     exports.Alert = Alert;
     ;
 });
-define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/dapp/header.css.ts", "@scom/dapp/assets.ts", "@scom/dapp/network.ts", "@scom/dapp/wallet.ts", "@scom/dapp/pathToRegexp.ts", "@scom/dapp/utils.ts"], function (require, exports, components_8, eth_wallet_5, header_css_1, assets_2, network_2, wallet_1, pathToRegexp_1, utils_1) {
+define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/dapp/header.css.ts", "@scom/dapp/assets.ts", "@scom/dapp/network.ts", "@scom/dapp/wallet.ts", "@scom/dapp/pathToRegexp.ts", "@scom/dapp/utils.ts"], function (require, exports, components_8, eth_wallet_4, header_css_1, assets_2, network_2, wallet_1, pathToRegexp_1, utils_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Header = void 0;
@@ -1413,10 +1292,10 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 const chainId = Number(chainIdHex);
                 this.walletInfo.networkId = chainId;
                 this.selectedNetwork = (0, network_2.getNetworkInfo)(chainId);
-                let wallet = eth_wallet_5.Wallet.getClientInstance();
+                let wallet = eth_wallet_4.Wallet.getClientInstance();
                 this.walletInfo.address = wallet.address;
                 const isConnected = wallet.isConnected;
-                this.walletInfo.balance = isConnected ? (0, network_2.formatNumber)((await wallet.balance).toFixed(), 2) : '0';
+                this.walletInfo.balance = isConnected ? components_8.FormatUtils.formatNumber((await wallet.balance).toFixed(), { decimalFigures: 2 }) : '0';
                 this.updateConnectedStatus(isConnected);
                 this.updateList(isConnected);
                 this.renderMobileMenu();
@@ -1427,10 +1306,10 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 if (isConnected) {
                     this.lblBalance.caption = `${this.walletInfo.balance} ${this.symbol}`;
                     const address = this.walletInfo.address;
-                    const displayedAddress = address ? (0, wallet_1.truncateAddress)(address) : '-';
+                    const displayedAddress = address ? components_8.FormatUtils.truncateWalletAddress(address) : '-';
                     this.btnWalletDetail.caption = displayedAddress;
                     this.lblWalletAddress.caption = displayedAddress;
-                    const networkInfo = (0, network_2.getNetworkInfo)(eth_wallet_5.Wallet.getInstance().chainId);
+                    const networkInfo = (0, network_2.getNetworkInfo)(eth_wallet_4.Wallet.getInstance().chainId);
                     this.hsViewAccount.visible = !!(networkInfo === null || networkInfo === void 0 ? void 0 : networkInfo.explorerAddressUrl);
                 }
                 else {
@@ -1570,7 +1449,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                         else {
                             await this.doActionOnWalletConnected(connected);
                         }
-                        localStorage.setItem('walletProvider', ((_b = (_a = eth_wallet_5.Wallet.getClientInstance()) === null || _a === void 0 ? void 0 : _a.clientSideProvider) === null || _b === void 0 ? void 0 : _b.name) || '');
+                        localStorage.setItem('walletProvider', ((_b = (_a = eth_wallet_4.Wallet.getClientInstance()) === null || _a === void 0 ? void 0 : _a.clientSideProvider) === null || _b === void 0 ? void 0 : _b.name) || '');
                     }
                     else {
                         if (requireLogin) {
@@ -1582,10 +1461,10 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                         }
                     }
                 };
-                let wallet = eth_wallet_5.Wallet.getClientInstance();
+                let wallet = eth_wallet_4.Wallet.getClientInstance();
                 this.wallet = wallet;
-                wallet.registerWalletEvent(this, eth_wallet_5.Constants.ClientWalletEvent.AccountsChanged, onAccountChanged);
-                wallet.registerWalletEvent(this, eth_wallet_5.Constants.ClientWalletEvent.ChainChanged, this.onChainChanged);
+                wallet.registerWalletEvent(this, eth_wallet_4.Constants.ClientWalletEvent.AccountsChanged, onAccountChanged);
+                wallet.registerWalletEvent(this, eth_wallet_4.Constants.ClientWalletEvent.ChainChanged, this.onChainChanged);
                 await (0, wallet_1.initWalletPlugins)();
                 this.gridWalletList.clearInnerHTML();
                 this.walletMapper = new Map();
@@ -1629,9 +1508,9 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 this.hsBalance.visible = false;
         }
         async doActionOnWalletConnected(connected) {
-            let wallet = eth_wallet_5.Wallet.getClientInstance();
+            let wallet = eth_wallet_4.Wallet.getClientInstance();
             this.walletInfo.address = wallet.address;
-            this.walletInfo.balance = connected ? (0, network_2.formatNumber)((await wallet.balance).toFixed(), 2) : '0';
+            this.walletInfo.balance = connected ? components_8.FormatUtils.formatNumber((await wallet.balance).toFixed(), { decimalFigures: 2 }) : '0';
             this.walletInfo.networkId = wallet.chainId;
             this.selectedNetwork = (0, network_2.getNetworkInfo)(wallet.chainId);
             this.updateConnectedStatus(connected);
@@ -1650,7 +1529,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 const requireLogin = (0, network_2.getRequireLogin)();
                 if (!requireLogin)
                     return;
-                let connected = loggedIn && eth_wallet_5.Wallet.getClientInstance().isConnected;
+                let connected = loggedIn && eth_wallet_4.Wallet.getClientInstance().isConnected;
                 await this.doActionOnWalletConnected(connected);
             });
         }
@@ -1674,8 +1553,8 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             if (!selectedProvider && (0, wallet_1.hasMetaMask)()) {
                 selectedProvider = wallet_1.WalletPlugin.MetaMask;
             }
-            if (!eth_wallet_5.Wallet.getClientInstance().chainId) {
-                eth_wallet_5.Wallet.getClientInstance().chainId = (0, network_2.getDefaultChainId)();
+            if (!eth_wallet_4.Wallet.getClientInstance().chainId) {
+                eth_wallet_4.Wallet.getClientInstance().chainId = (0, network_2.getDefaultChainId)();
             }
             const themeType = document.body.style.getPropertyValue('--theme');
             this.switchTheme.checked = themeType === 'light';
@@ -1718,7 +1597,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         }
         updateDot(connected, type) {
             var _a, _b, _c;
-            const wallet = eth_wallet_5.Wallet.getClientInstance();
+            const wallet = eth_wallet_4.Wallet.getClientInstance();
             if (type === 'network') {
                 if (this.currActiveNetworkId !== undefined && this.currActiveNetworkId !== null && this.networkMapper.has(this.currActiveNetworkId)) {
                     this.networkMapper.get(this.currActiveNetworkId).classList.remove('is-actived');
@@ -1749,7 +1628,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.updateDot(isConnected, 'network');
         }
         viewOnExplorerByAddress() {
-            (0, network_2.viewOnExplorerByAddress)(eth_wallet_5.Wallet.getInstance().chainId, this.walletInfo.address);
+            (0, network_2.viewOnExplorerByAddress)(eth_wallet_4.Wallet.getInstance().chainId, this.walletInfo.address);
         }
         async switchNetwork(chainId) {
             if (!chainId || (0, network_2.isDefaultNetworkFromWallet)())
@@ -1764,10 +1643,10 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         isWalletActive(walletPlugin) {
             var _a;
             const provider = (0, wallet_1.getWalletPluginProvider)(walletPlugin);
-            return provider ? provider.installed() && ((_a = eth_wallet_5.Wallet.getClientInstance().clientSideProvider) === null || _a === void 0 ? void 0 : _a.name) === walletPlugin : false;
+            return provider ? provider.installed() && ((_a = eth_wallet_4.Wallet.getClientInstance().clientSideProvider) === null || _a === void 0 ? void 0 : _a.name) === walletPlugin : false;
         }
         isNetworkActive(chainId) {
-            return eth_wallet_5.Wallet.getInstance().chainId === chainId;
+            return eth_wallet_4.Wallet.getInstance().chainId === chainId;
         }
         keepSessionAlive(account, expireAt) {
             if (this.keepAliveInterval) {
@@ -1828,7 +1707,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
         }
         getMenuData(list, mode) {
             var _a;
-            let wallet = eth_wallet_5.Wallet.getClientInstance();
+            let wallet = eth_wallet_4.Wallet.getClientInstance();
             let isLoggedIn = (item) => !item.isLoginRequired || (0, network_2.getIsLoggedIn)(wallet.address);
             let chainId = ((_a = this.selectedNetwork) === null || _a === void 0 ? void 0 : _a.chainId) || wallet.chainId;
             let validMenuItemsFn;

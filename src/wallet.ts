@@ -1,7 +1,7 @@
 import {
   application
 } from '@ijstech/components';
-import {IClientProviderOptions, IClientSideProvider, IClientSideProviderEvents,  MetaMaskProvider, Wallet, Web3ModalProvider } from '@ijstech/eth-wallet';
+import {IClientProviderOptions, IClientSideProvider,  MetaMaskProvider, Wallet, Web3ModalProvider } from '@ijstech/eth-wallet';
 import { EventId } from './constants';
 import { getDefaultChainId, getInfuraId, getSiteSupportedNetworks } from './network';
 import { IWallet } from '@ijstech/eth-wallet';
@@ -138,11 +138,6 @@ export async function logoutWallet() {
   await wallet.disconnect();
   localStorage.setItem('walletProvider', '');
   // application.EventBus.dispatch(EventId.IsWalletDisconnected);
-}
-
-export const truncateAddress = (address: string) => {
-  if (address === undefined || address === null) return '';
-  return address.substring(0, 6) + '...' + address.substring(address.length - 4);
 }
 
 export const getSupportedWalletProviders = (): IClientSideProvider[] => {

@@ -214,22 +214,9 @@ declare module "@scom/dapp/index.css.ts" {
     const _default_1: string;
     export default _default_1;
 }
-/// <amd-module name="@scom/dapp/helper.ts" />
-declare module "@scom/dapp/helper.ts" {
-    import { BigNumber } from "@ijstech/eth-wallet";
-    export const formatNumber: (value: any, decimals?: number) => string;
-    export const formatNumberWithSeparators: (value: number, precision?: number) => string;
-    export const limitDecimals: (value: any, decimals: number) => any;
-    export function getAPI(url: string, paramsObj?: any): Promise<any>;
-    export const toWeiInv: (n: string, unit?: number) => BigNumber;
-    export const abbreviateNum: (value: number) => string;
-    export const getParamsFromUrl: () => URLSearchParams;
-}
 /// <amd-module name="@scom/dapp/network.ts" />
 declare module "@scom/dapp/network.ts" {
     import { Erc20, ISendTxEventsOptions } from '@ijstech/eth-wallet';
-    import { formatNumber } from "@scom/dapp/helper.ts";
-    export { formatNumber };
     import { IExtendedNetwork } from "@scom/dapp/interface.ts";
     export interface ITokenObject {
         address?: string;
@@ -302,7 +289,6 @@ declare module "@scom/dapp/wallet.ts" {
     export function initWalletPlugins(): Promise<void>;
     export function connectWallet(walletPluginName: string, userTriggeredConnect: boolean): Promise<IWallet>;
     export function logoutWallet(): Promise<void>;
-    export const truncateAddress: (address: string) => string;
     export const getSupportedWalletProviders: () => IClientSideProvider[];
     export function isWalletConnected(): boolean;
     export const hasWallet: () => boolean;

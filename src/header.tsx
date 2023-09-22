@@ -17,13 +17,13 @@ import {
   Container,
   IMenuItem,
   Image,
-  Switch
+  Switch,
+  FormatUtils
 } from '@ijstech/components';
 import { Constants, Wallet, IClientWallet} from "@ijstech/eth-wallet";
 import styleClass from './header.css';
 import Assets, { assets } from './assets';
 import {
-  formatNumber, 
   isValidEnv, 
   isDefaultNetworkFromWallet, 
   getRequireLogin,
@@ -34,7 +34,7 @@ import {
   viewOnExplorerByAddress,
   getIsLoggedIn
 } from './network';
-import { getSupportedWalletProviders, switchNetwork, truncateAddress, hasWallet, isWalletConnected, hasMetaMask, hasThemeButton, initWalletPlugins, WalletPlugin, getWalletPluginProvider, logoutWallet, connectWallet } from './wallet';
+import { getSupportedWalletProviders, switchNetwork, isWalletConnected, hasMetaMask, hasThemeButton, initWalletPlugins, WalletPlugin, getWalletPluginProvider, logoutWallet, connectWallet } from './wallet';
 import { compile } from './pathToRegexp'
 import { checkLoginSession, apiLogin, apiLogout } from './utils';
 import { Alert } from './alert';
@@ -144,7 +144,7 @@ export class Header extends Module {
   async doActionOnWalletConnected(connected: boolean) {
     let wallet = Wallet.getClientInstance();
     this.walletInfo.address = wallet.address;
-    this.walletInfo.balance = connected ? formatNumber((await wallet.balance).toFixed(), 2) : '0';
+    this.walletInfo.balance = connected ? FormatUtils.formatNumber((await wallet.balance).toFixed(), {decimalFigures: 2}) : '0';
     this.walletInfo.networkId = wallet.chainId;
     this.selectedNetwork = getNetworkInfo(wallet.chainId);
     this.updateConnectedStatus(connected);
@@ -242,7 +242,7 @@ export class Header extends Module {
     let wallet = Wallet.getClientInstance();
     this.walletInfo.address = wallet.address;
     const isConnected = wallet.isConnected;
-    this.walletInfo.balance = isConnected ? formatNumber((await wallet.balance).toFixed(), 2) : '0';
+    this.walletInfo.balance = isConnected ? FormatUtils.formatNumber((await wallet.balance).toFixed(), {decimalFigures: 2}) : '0';
     this.updateConnectedStatus(isConnected);
     this.updateList(isConnected);
     this.renderMobileMenu();
@@ -253,7 +253,7 @@ export class Header extends Module {
     if (isConnected) {
       this.lblBalance.caption = `${this.walletInfo.balance} ${this.symbol}`;
       const address = this.walletInfo.address;
-      const displayedAddress = address ? truncateAddress(address) : '-';
+      const displayedAddress = address ? FormatUtils.truncateWalletAddress(address) : '-';
       this.btnWalletDetail.caption = displayedAddress;
       this.lblWalletAddress.caption = displayedAddress;
       const networkInfo = getNetworkInfo(Wallet.getInstance().chainId);
