@@ -822,7 +822,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         let pluginName = walletPlugin.name;
         let providerOptions;
         if (pluginName == WalletPlugin.WalletConnect) {
-            await components_4.application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
+            // await application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
             let walletConnectConfig = (0, exports.getWalletConnectConfig)();
             let mainChainId = (0, network_1.getDefaultChainId)();
             let optionalChains = networkList.map((network) => network.chainId).filter((chainId) => chainId !== mainChainId);
@@ -892,10 +892,6 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         // application.EventBus.dispatch(EventId.IsWalletDisconnected);
     }
     exports.logoutWallet = logoutWallet;
-    // export const truncateAddress = (address: string) => {
-    //   if (address === undefined || address === null) return '';
-    //   return address.substring(0, 6) + '...' + address.substring(address.length - 4);
-    // }
     const getSupportedWalletProviders = () => {
         const walletPluginMap = (0, exports.getWalletPluginMap)();
         return state.wallets.map(v => walletPluginMap[v.name].provider);
@@ -1411,6 +1407,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.initWallet = async () => {
                 if (this.wallet)
                     return;
+                await components_8.application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
                 const onAccountChanged = async (payload) => {
                     var _a, _b;
                     const { userTriggeredConnect, account } = payload;

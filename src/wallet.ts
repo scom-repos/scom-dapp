@@ -62,7 +62,7 @@ async function initWalletPlugin(walletPlugin: IWalletPlugin, networkList: IExten
   let pluginName = walletPlugin.name;
   let providerOptions;
   if (pluginName == WalletPlugin.WalletConnect) {
-    await application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
+    // await application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
     let walletConnectConfig = getWalletConnectConfig();
     let mainChainId = getDefaultChainId();
     let optionalChains = networkList.map((network) => network.chainId).filter((chainId) => chainId !== mainChainId);

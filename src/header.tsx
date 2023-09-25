@@ -427,7 +427,7 @@ export class Header extends Module {
   initWallet = async () => {
     if (this.wallet)
       return;
-      
+    await application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
     const onAccountChanged = async (payload: Record<string, any>) => {
       const { userTriggeredConnect, account } = payload;
       let requireLogin = getRequireLogin();
