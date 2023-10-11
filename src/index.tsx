@@ -12,7 +12,8 @@ import { Header } from './header';
 import { Footer } from './footer';
 import { IBreakpoints, IFooter, IHeader, IMenu, IExtendedNetwork } from './interface';
 import { EventId } from './constants';
-Styles.Theme.applyTheme(Styles.Theme.darkTheme);
+import { DarkTheme } from './theme';
+Styles.Theme.applyTheme(DarkTheme);
 
 interface ISCConfig {
 	env: string;

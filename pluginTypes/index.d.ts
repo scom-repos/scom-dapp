@@ -490,6 +490,24 @@ declare module "@scom/dapp/footer.tsx" {
         render(): any;
     }
 }
+/// <amd-module name="@scom/dapp/theme/light.theme.ts" />
+declare module "@scom/dapp/theme/light.theme.ts" {
+    import { Styles } from '@ijstech/components';
+    const Theme: Styles.Theme.ITheme;
+    export default Theme;
+}
+/// <amd-module name="@scom/dapp/theme/dark.theme.ts" />
+declare module "@scom/dapp/theme/dark.theme.ts" {
+    import { Styles } from '@ijstech/components';
+    const Theme: Styles.Theme.ITheme;
+    export default Theme;
+}
+/// <amd-module name="@scom/dapp/theme/index.ts" />
+declare module "@scom/dapp/theme/index.ts" {
+    import LightTheme from "@scom/dapp/theme/light.theme.ts";
+    import DarkTheme from "@scom/dapp/theme/dark.theme.ts";
+    export { LightTheme, DarkTheme };
+}
 /// <amd-module name="@scom/dapp" />
 declare module "@scom/dapp" {
     import { Module, Styles, Container } from '@ijstech/components';

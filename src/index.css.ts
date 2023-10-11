@@ -1,26 +1,25 @@
 import { Styles } from '@ijstech/components';
 import Assets from './assets';
 
-Styles.Theme.darkTheme.background.default = '#192F51';
-Styles.Theme.darkTheme.background.paper = '#0090DA';
-Styles.Theme.darkTheme.colors.primary.dark = '#192F51';
-Styles.Theme.darkTheme.colors.primary.light = '#0090DA';
-Styles.Theme.darkTheme.colors.primary.main = '#192F51';
-Styles.Theme.darkTheme.colors.secondary.dark = '#939393';
-Styles.Theme.darkTheme.colors.secondary.light = '#EBEBEB';
-Styles.Theme.darkTheme.colors.secondary.main = '#B8B8B8';
-Styles.Theme.darkTheme.text.primary = '#fff';
-Styles.Theme.darkTheme.text.secondary = '#939393';
-// Styles.Theme.darkTheme.typography.fontFamily = 'Poppins';
-Styles.Theme.darkTheme.colors.warning.dark = '#f57c00';
-Styles.Theme.darkTheme.colors.warning.light = '#F6C958';
-Styles.Theme.darkTheme.colors.warning.main = '#ffa726';
-Styles.Theme.darkTheme.colors.error.light = '#FD7C6B';
-Styles.Theme.darkTheme.divider = '#EBEBEB';
-// Styles.Theme.darkTheme.typography.fontSize = '16px';
-Styles.Theme.darkTheme.background.modal = '#fff';
+// Styles.Theme.darkTheme.background.default = '#192F51';
+// Styles.Theme.darkTheme.background.paper = '#0090DA';
+// Styles.Theme.darkTheme.colors.primary.dark = '#192F51';
+// Styles.Theme.darkTheme.colors.primary.light = '#0090DA';
+// Styles.Theme.darkTheme.colors.primary.main = '#192F51';
+// Styles.Theme.darkTheme.colors.secondary.dark = '#939393';
+// Styles.Theme.darkTheme.colors.secondary.light = '#EBEBEB';
+// Styles.Theme.darkTheme.colors.secondary.main = '#B8B8B8';
+// Styles.Theme.darkTheme.text.primary = '#fff';
+// Styles.Theme.darkTheme.text.secondary = '#939393';
+// // Styles.Theme.darkTheme.typography.fontFamily = 'Poppins';
+// Styles.Theme.darkTheme.colors.warning.dark = '#f57c00';
+// Styles.Theme.darkTheme.colors.warning.light = '#F6C958';
+// Styles.Theme.darkTheme.colors.warning.main = '#ffa726';
+// Styles.Theme.darkTheme.colors.error.light = '#FD7C6B';
+// Styles.Theme.darkTheme.divider = '#EBEBEB';
+// // Styles.Theme.darkTheme.typography.fontSize = '16px';
+// Styles.Theme.darkTheme.background.modal = '#fff';
 
-const Theme = Styles.Theme.ThemeVars;
 export default Styles.style({
     $nest: {
         '*': {
