@@ -152,7 +152,7 @@ export class Header extends Module {
     this.renderMobileMenu();
     this.renderDesktopMenu();
   }
-
+  
   registerEvent() {
     this.$eventBus.register(this, EventId.ConnectWallet, this.openConnectModal)
     // this.$eventBus.register(this, EventId.IsWalletDisconnected, async () => {
@@ -166,6 +166,9 @@ export class Header extends Module {
       let connected = loggedIn && Wallet.getClientInstance().isConnected;
       await this.doActionOnWalletConnected(connected);
     })
+    this.$eventBus.register(this, EventId.chainChanged, async (chainId: number) => {
+      await this.handleChainChanged(chainId);
+    });
   }
 
   async init() {
@@ -235,8 +238,7 @@ export class Header extends Module {
     }
   }
 
-  onChainChanged = async (chainIdHex: string) => {
-    const chainId = Number(chainIdHex);
+  handleChainChanged = async (chainId: number) => {
     this.walletInfo.networkId = chainId;
     this.selectedNetwork = getNetworkInfo(chainId);
     let wallet = Wallet.getClientInstance();
@@ -427,7 +429,6 @@ export class Header extends Module {
   initWallet = async () => {
     if (this.wallet)
       return;
-    await application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
     const onAccountChanged = async (payload: Record<string, any>) => {
       const { userTriggeredConnect, account } = payload;
       let requireLogin = getRequireLogin();
@@ -482,7 +483,10 @@ export class Header extends Module {
     let wallet = Wallet.getClientInstance();
     this.wallet = wallet;
     wallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, onAccountChanged);
-    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, this.onChainChanged);
+    wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, async (chainIdHex: string) => {
+      const chainId = Number(chainIdHex);
+      await this.handleChainChanged(chainId);
+    });
     await initWalletPlugins();
     this.gridWalletList.clearInnerHTML();
     this.walletMapper = new Map();

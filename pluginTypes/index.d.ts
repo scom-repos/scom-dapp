@@ -427,7 +427,7 @@ declare module "@scom/dapp/header.tsx" {
         connectedCallback(): void;
         disconnectedCallback(): void;
         controlMenuDisplay(): void;
-        onChainChanged: (chainIdHex: string) => Promise<void>;
+        handleChainChanged: (chainId: number) => Promise<void>;
         updateConnectedStatus: (isConnected: boolean) => void;
         updateDot(connected: boolean, type: 'network' | 'wallet'): void;
         updateList(isConnected: boolean): void;
