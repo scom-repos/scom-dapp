@@ -821,7 +821,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         let pluginName = walletPlugin.name;
         let providerOptions;
         if (pluginName == WalletPlugin.WalletConnect) {
-            // await application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
+            await components_4.application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
             let walletConnectConfig = (0, exports.getWalletConnectConfig)();
             let mainChainId = (0, network_1.getDefaultChainId)();
             let optionalChains = networkList.map((network) => network.chainId).filter((chainId) => chainId !== mainChainId);
@@ -1283,8 +1283,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 balance: '',
                 networkId: 0
             };
-            this.onChainChanged = async (chainIdHex) => {
-                const chainId = Number(chainIdHex);
+            this.handleChainChanged = async (chainId) => {
                 this.walletInfo.networkId = chainId;
                 this.selectedNetwork = (0, network_2.getNetworkInfo)(chainId);
                 let wallet = eth_wallet_4.Wallet.getClientInstance();
@@ -1406,7 +1405,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.initWallet = async () => {
                 if (this.wallet)
                     return;
-                await components_8.application.loadPackage('@ijstech/eth-wallet-web3modal', '*');
                 const onAccountChanged = async (payload) => {
                     var _a, _b;
                     const { userTriggeredConnect, account } = payload;
@@ -1460,7 +1458,10 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 let wallet = eth_wallet_4.Wallet.getClientInstance();
                 this.wallet = wallet;
                 wallet.registerWalletEvent(this, eth_wallet_4.Constants.ClientWalletEvent.AccountsChanged, onAccountChanged);
-                wallet.registerWalletEvent(this, eth_wallet_4.Constants.ClientWalletEvent.ChainChanged, this.onChainChanged);
+                wallet.registerWalletEvent(this, eth_wallet_4.Constants.ClientWalletEvent.ChainChanged, async (chainIdHex) => {
+                    const chainId = Number(chainIdHex);
+                    await this.handleChainChanged(chainId);
+                });
                 await (0, wallet_1.initWalletPlugins)();
                 this.gridWalletList.clearInnerHTML();
                 this.walletMapper = new Map();
@@ -1527,6 +1528,9 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                     return;
                 let connected = loggedIn && eth_wallet_4.Wallet.getClientInstance().isConnected;
                 await this.doActionOnWalletConnected(connected);
+            });
+            this.$eventBus.register(this, "chainChanged" /* EventId.chainChanged */, async (chainId) => {
+                await this.handleChainChanged(chainId);
             });
         }
         async init() {
