@@ -80,9 +80,42 @@ async function apiLogout() {
   let result = await response.json();
   return result;
 }
+async function sendAuthCode(email: string) {
+  let response = await fetch(API_BASE_URL + '/sendAuthCode', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email
+    })
+  });
+  let result = await response.json();
+  return result;
+}
+async function verifyAuthCode(email: string, authCode: string) {
+  let response = await fetch(API_BASE_URL + '/verifyAuthCode', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email,
+      authCode
+    })
+  });
+  let result = await response.json();
+  return result;
+}
 
 export {
   checkLoginSession,
   apiLogin,
-  apiLogout
+  apiLogout,
+  sendAuthCode,
+  verifyAuthCode
 }

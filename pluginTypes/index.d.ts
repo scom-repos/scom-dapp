@@ -265,7 +265,7 @@ declare module "@scom/dapp/constants.ts" {
 }
 /// <amd-module name="@scom/dapp/wallet.ts" />
 declare module "@scom/dapp/wallet.ts" {
-    import { IClientSideProvider } from '@ijstech/eth-wallet';
+    import { IClientSideProvider, IConnectWalletEventPayload } from '@ijstech/eth-wallet';
     import { IWallet } from '@ijstech/eth-wallet';
     export interface IWalletConnectMetadata {
         name: string;
@@ -279,7 +279,8 @@ declare module "@scom/dapp/wallet.ts" {
     }
     export enum WalletPlugin {
         MetaMask = "metamask",
-        WalletConnect = "walletconnect"
+        WalletConnect = "walletconnect",
+        Email = "email"
     }
     export interface IWalletPlugin {
         name: string;
@@ -287,7 +288,7 @@ declare module "@scom/dapp/wallet.ts" {
         provider: IClientSideProvider;
     }
     export function initWalletPlugins(): Promise<void>;
-    export function connectWallet(walletPluginName: string, userTriggeredConnect: boolean): Promise<IWallet>;
+    export function connectWallet(walletPluginName: string, eventPayload?: IConnectWalletEventPayload): Promise<IWallet>;
     export function logoutWallet(): Promise<void>;
     export const getSupportedWalletProviders: () => IClientSideProvider[];
     export function isWalletConnected(): boolean;
@@ -313,7 +314,9 @@ declare module "@scom/dapp/utils.ts" {
     function checkLoginSession(walletAddress: string): Promise<any>;
     function apiLogin(): Promise<any>;
     function apiLogout(): Promise<any>;
-    export { checkLoginSession, apiLogin, apiLogout };
+    function sendAuthCode(email: string): Promise<any>;
+    function verifyAuthCode(email: string, authCode: string): Promise<any>;
+    export { checkLoginSession, apiLogin, apiLogout, sendAuthCode, verifyAuthCode };
 }
 /// <amd-module name="@scom/dapp/alert.css.ts" />
 declare module "@scom/dapp/alert.css.ts" {
@@ -390,8 +393,9 @@ declare module "@scom/dapp/header.tsx" {
         private mdWalletDetail;
         private btnConnectWallet;
         private mdNetwork;
-        private mdConnect;
+        private mdConnectWallet;
         private mdAccount;
+        private mdEmailLogin;
         private lblNetworkDesc;
         private lblWalletAddress;
         private hsViewAccount;
@@ -414,6 +418,11 @@ declare module "@scom/dapp/header.tsx" {
         private isLoginRequestSent;
         private wallet;
         private keepAliveInterval;
+        private lbEmailLoginMsg;
+        private pnlInputEmailAddress;
+        private pnlInputAuthCode;
+        private inputEmailAddress;
+        private inputAuthCode;
         private walletInfo;
         constructor(parent?: Container, options?: any);
         get symbol(): string;
@@ -455,6 +464,8 @@ declare module "@scom/dapp/header.tsx" {
         renderDesktopMenu(): void;
         toggleMenu(): void;
         onThemeChanged(): void;
+        handleSendAuthCode(): Promise<void>;
+        handleEmailLogin(): Promise<void>;
         render(): any;
     }
 }

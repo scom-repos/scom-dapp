@@ -1,7 +1,7 @@
 import {
   application
 } from '@ijstech/components';
-import {IClientProviderOptions, IClientSideProvider,  MetaMaskProvider, Wallet, Web3ModalProvider } from '@ijstech/eth-wallet';
+import {IClientProviderOptions, IClientSideProvider,  IConnectWalletEventPayload,  MetaMaskProvider, Wallet, Web3ModalProvider } from '@ijstech/eth-wallet';
 import { EventId } from './constants';
 import { getDefaultChainId, getInfuraId, getSiteSupportedNetworks } from './network';
 import { IWallet } from '@ijstech/eth-wallet';
@@ -22,6 +22,7 @@ export interface IWalletConnectConfig {
 export enum WalletPlugin {
   MetaMask = 'metamask',
   WalletConnect = 'walletconnect',
+  Email = 'email',
 }
 
 export interface IWalletPlugin {
@@ -47,7 +48,7 @@ async function getWalletPluginConfigProvider(
     case WalletPlugin.MetaMask:
       return new MetaMaskProvider(wallet, {}, options);
     case WalletPlugin.WalletConnect:
-      return new Web3ModalProvider(wallet, {}, options);
+      return new Web3ModalProvider(wallet, {}, options);      
     default: {
       if (packageName) {
         const provider: any = await application.loadPackage(packageName, '*');
@@ -106,7 +107,7 @@ export async function initWalletPlugins() {
   }
 }
 
-export async function connectWallet(walletPluginName: string, userTriggeredConnect: boolean):Promise<IWallet> {
+export async function connectWallet(walletPluginName: string, eventPayload?: IConnectWalletEventPayload):Promise<IWallet> {
   // let walletProvider = localStorage.getItem('walletProvider') || '';
   let wallet = Wallet.getClientInstance();
   if (!wallet.chainId) {
@@ -126,9 +127,7 @@ export async function connectWallet(walletPluginName: string, userTriggeredConne
     }
   }
   if (provider?.installed()) {
-    await wallet.connect(provider, {
-      userTriggeredConnect
-    });
+    await wallet.connect(provider, eventPayload);
   }
   return wallet;
 }
