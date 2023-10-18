@@ -795,6 +795,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
     (function (WalletPlugin) {
         WalletPlugin["MetaMask"] = "metamask";
         WalletPlugin["WalletConnect"] = "walletconnect";
+        WalletPlugin["Email"] = "email";
     })(WalletPlugin = exports.WalletPlugin || (exports.WalletPlugin = {}));
     const state = {
         wallets: [],
@@ -856,7 +857,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
         }
     }
     exports.initWalletPlugins = initWalletPlugins;
-    async function connectWallet(walletPluginName, userTriggeredConnect) {
+    async function connectWallet(walletPluginName, eventPayload) {
         // let walletProvider = localStorage.getItem('walletProvider') || '';
         let wallet = eth_wallet_2.Wallet.getClientInstance();
         if (!wallet.chainId) {
@@ -877,9 +878,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
             }
         }
         if (provider === null || provider === void 0 ? void 0 : provider.installed()) {
-            await wallet.connect(provider, {
-                userTriggeredConnect
-            });
+            await wallet.connect(provider, eventPayload);
         }
         return wallet;
     }
@@ -1087,7 +1086,7 @@ define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"]
 define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], function (require, exports, eth_wallet_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.apiLogout = exports.apiLogin = exports.checkLoginSession = void 0;
+    exports.verifyAuthCode = exports.sendAuthCode = exports.apiLogout = exports.apiLogin = exports.checkLoginSession = void 0;
     const API_BASE_URL = '/api/account/v0';
     function constructPersonalSignMessage(walletAddress, uuid) {
         let messageChunks = [
@@ -1173,6 +1172,39 @@ define("@scom/dapp/utils.ts", ["require", "exports", "@ijstech/eth-wallet"], fun
         return result;
     }
     exports.apiLogout = apiLogout;
+    async function sendAuthCode(email) {
+        let response = await fetch(API_BASE_URL + '/sendAuthCode', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email
+            })
+        });
+        let result = await response.json();
+        return result;
+    }
+    exports.sendAuthCode = sendAuthCode;
+    async function verifyAuthCode(email, authCode) {
+        let response = await fetch(API_BASE_URL + '/verifyAuthCode', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email,
+                authCode
+            })
+        });
+        let result = await response.json();
+        return result;
+    }
+    exports.verifyAuthCode = verifyAuthCode;
 });
 define("@scom/dapp/alert.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_6) {
     "use strict";
@@ -1326,8 +1358,8 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             };
             this.openConnectModal = () => {
                 this.initWallet();
-                this.mdConnect.title = "Connect wallet";
-                this.mdConnect.visible = true;
+                this.mdConnectWallet.title = "Connect wallet";
+                this.mdConnectWallet.visible = true;
             };
             this.openNetworkModal = () => {
                 if ((0, network_2.isDefaultNetworkFromWallet)())
@@ -1345,8 +1377,8 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.openSwitchModal = (target, event) => {
                 event.stopPropagation();
                 this.mdWalletDetail.visible = false;
-                this.mdConnect.title = "Switch wallet";
-                this.mdConnect.visible = true;
+                this.mdConnectWallet.title = "Switch wallet";
+                this.mdConnectWallet.visible = true;
             };
             this.login = async () => {
                 var _a;
@@ -1390,14 +1422,23 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             };
             this.connectToProviderFunc = async (walletPlugin) => {
                 const provider = (0, wallet_1.getWalletPluginProvider)(walletPlugin);
-                if (provider === null || provider === void 0 ? void 0 : provider.installed()) {
-                    await (0, wallet_1.connectWallet)(walletPlugin, true);
+                if (walletPlugin === wallet_1.WalletPlugin.Email) {
+                    this.mdEmailLogin.visible = true;
+                    this.mdEmailLogin.title = 'Enter your email';
+                    this.lbEmailLoginMsg.caption = 'A verification code will be sent to the email address you provide.';
+                    this.pnlInputEmailAddress.visible = true;
+                    this.pnlInputAuthCode.visible = false;
+                }
+                else if (provider === null || provider === void 0 ? void 0 : provider.installed()) {
+                    await (0, wallet_1.connectWallet)(walletPlugin, {
+                        userTriggeredConnect: true
+                    });
                 }
                 else {
                     let homepage = provider.homepage;
                     this.openLink(homepage);
                 }
-                this.mdConnect.visible = false;
+                this.mdConnectWallet.visible = false;
             };
             this.copyWalletAddress = () => {
                 components_8.application.copyToClipboard(this.walletInfo.address || "");
@@ -1443,7 +1484,8 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                         else {
                             await this.doActionOnWalletConnected(connected);
                         }
-                        localStorage.setItem('walletProvider', ((_b = (_a = eth_wallet_4.Wallet.getClientInstance()) === null || _a === void 0 ? void 0 : _a.clientSideProvider) === null || _b === void 0 ? void 0 : _b.name) || '');
+                        const walletProviderName = ((_b = (_a = eth_wallet_4.Wallet.getClientInstance()) === null || _a === void 0 ? void 0 : _a.clientSideProvider) === null || _b === void 0 ? void 0 : _b.name) || '';
+                        localStorage.setItem('walletProvider', walletProviderName);
                     }
                     else {
                         if (requireLogin) {
@@ -1470,9 +1512,10 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                     const isActive = this.isWalletActive(wallet.name);
                     if (isActive)
                         this.currActiveWallet = wallet.name;
+                    const imageUrl = wallet.image;
                     const hsWallet = (this.$render("i-hstack", { class: isActive ? 'is-actived list-item' : 'list-item', verticalAlignment: 'center', gap: 12, background: { color: Theme.colors.secondary.light }, border: { radius: 10 }, position: "relative", padding: { top: '0.5rem', bottom: '0.5rem', left: '0.5rem', right: '0.5rem' }, horizontalAlignment: "space-between", onClick: () => this.connectToProviderFunc(wallet.name) },
                         this.$render("i-label", { caption: wallet.displayName, margin: { left: '1rem' }, wordBreak: "break-word", font: { size: '.875rem', bold: true, color: Theme.colors.primary.dark } }),
-                        this.$render("i-image", { width: 34, height: "auto", url: wallet.image })));
+                        this.$render("i-image", { width: 34, height: "auto", url: imageUrl })));
                     this.walletMapper.set(wallet.name, hsWallet);
                     this.gridWalletList.append(hsWallet);
                 });
@@ -1563,12 +1606,18 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 this.btnConnectWallet.caption = 'Login';
                 this.doActionOnWalletConnected(false);
                 await this.initWallet();
-                await (0, wallet_1.connectWallet)(selectedProvider, false);
+                const loggedInAccount = (0, network_2.getLoggedInAccount)();
+                await (0, wallet_1.connectWallet)(selectedProvider, {
+                    userTriggeredConnect: false,
+                    loggedInAccount
+                });
             }
             else {
                 this.btnConnectWallet.caption = 'Connect Wallet';
                 await this.initWallet();
-                await (0, wallet_1.connectWallet)(selectedProvider, false);
+                await (0, wallet_1.connectWallet)(selectedProvider, {
+                    userTriggeredConnect: false,
+                });
                 this.doActionOnWalletConnected((0, wallet_1.isWalletConnected)());
             }
         }
@@ -1738,6 +1787,22 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             components_8.application.EventBus.dispatch("themeChanged" /* EventId.themeChanged */, themeType);
             this.controlMenuDisplay();
         }
+        async handleSendAuthCode() {
+            await (0, utils_1.sendAuthCode)(this.inputEmailAddress.value);
+            this.mdEmailLogin.title = 'Check your email';
+            this.lbEmailLoginMsg.caption = 'Please enter the 6-digit verification code that was sent. The code is valid for 5 minutes.';
+            this.pnlInputEmailAddress.visible = false;
+            this.pnlInputAuthCode.visible = true;
+        }
+        async handleEmailLogin() {
+            await (0, wallet_1.connectWallet)(wallet_1.WalletPlugin.Email, {
+                userTriggeredConnect: true,
+                verifyAuthCode: utils_1.verifyAuthCode,
+                email: this.inputEmailAddress.value,
+                authCode: this.inputAuthCode.value
+            });
+            this.mdEmailLogin.visible = false;
+        }
         render() {
             return (this.$render("i-hstack", { height: 60, position: "relative", padding: { top: '0.5rem', bottom: '0.5rem', left: '1rem', right: '1rem' }, background: { color: Theme.background.paper }, verticalAlignment: "center" },
                 this.$render("i-grid-layout", { width: '100%', position: "relative", verticalAlignment: 'center', templateColumns: ["1fr", "auto"] },
@@ -1769,7 +1834,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                         this.$render("i-label", { id: 'lblNetworkDesc', margin: { top: '1rem' }, font: { size: '.875rem' }, wordBreak: "break-word", caption: 'We support the following networks, please click to connect.' }),
                         this.$render("i-hstack", { margin: { left: '-1.25rem', right: '-1.25rem' }, height: '100%' },
                             this.$render("i-grid-layout", { id: 'gridNetworkGroup', font: { color: '#f05e61' }, height: "calc(100% - 160px)", width: "100%", overflow: { y: 'auto' }, margin: { top: '1.5rem' }, padding: { left: '1.25rem', right: '1.25rem' }, columnsPerRow: 1, templateRows: ['max-content'], class: 'list-view', gap: { row: '0.5rem' } })))),
-                this.$render("i-modal", { id: 'mdConnect', title: 'Connect Wallet', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
+                this.$render("i-modal", { id: 'mdConnectWallet', title: 'Connect Wallet', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
                     this.$render("i-vstack", { padding: { left: '1rem', right: '1rem', bottom: '2rem' }, lineHeight: 1.5 },
                         this.$render("i-label", { font: { size: '.875rem' }, caption: 'Recommended wallet for Chrome', margin: { top: '1rem' }, wordBreak: "break-word" }),
                         this.$render("i-panel", null,
@@ -1787,6 +1852,17 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                             this.$render("i-hstack", { id: "hsViewAccount", class: "pointer", verticalAlignment: "center", onClick: this.viewOnExplorerByAddress.bind(this) },
                                 this.$render("i-icon", { name: "external-link-alt", width: "16", height: "16", fill: Theme.text.secondary, display: "inline-block" }),
                                 this.$render("i-label", { caption: "View on Explorer", margin: { left: "0.5rem" }, font: { size: "0.875rem", bold: true } }))))),
+                this.$render("i-modal", { id: 'mdEmailLogin', width: 600, closeIcon: { name: 'times' }, border: { radius: 10 } },
+                    this.$render("i-hstack", { margin: { bottom: '2rem' } },
+                        this.$render("i-label", { id: "lbEmailLoginMsg", font: { size: '1rem' } })),
+                    this.$render("i-vstack", { id: "pnlInputEmailAddress", padding: { left: '1rem', right: '1rem', bottom: '2rem' }, lineHeight: 1.5 },
+                        this.$render("i-label", { caption: 'Email' }),
+                        this.$render("i-input", { width: "100%", id: 'inputEmailAddress', margin: { bottom: '1rem' } }),
+                        this.$render("i-button", { caption: 'Send verification code', onClick: this.handleSendAuthCode, width: '100%' })),
+                    this.$render("i-vstack", { id: "pnlInputAuthCode", padding: { left: '1rem', right: '1rem', bottom: '2rem' }, lineHeight: 1.5, visible: false },
+                        this.$render("i-label", { caption: 'Verification code' }),
+                        this.$render("i-input", { width: "100%", id: 'inputAuthCode', margin: { bottom: '1rem' } }),
+                        this.$render("i-button", { caption: 'Verify code', onClick: this.handleEmailLogin, width: '100%' }))),
                 this.$render("main-alert", { id: "mdMainAlert" }),
                 this.$render("i-hstack", { position: 'absolute', width: "100%", bottom: "0px", left: "0px", class: "custom-bd" })));
         }

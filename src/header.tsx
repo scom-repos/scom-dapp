@@ -18,7 +18,9 @@ import {
   IMenuItem,
   Image,
   Switch,
-  FormatUtils
+  FormatUtils,
+  Input,
+  VStack
 } from '@ijstech/components';
 import { Constants, Wallet, IClientWallet} from "@ijstech/eth-wallet";
 import styleClass from './header.css';
@@ -32,11 +34,12 @@ import {
   getWalletProvider,
   getDefaultChainId,
   viewOnExplorerByAddress,
-  getIsLoggedIn
+  getIsLoggedIn,
+  getLoggedInAccount
 } from './network';
 import { getSupportedWalletProviders, switchNetwork, isWalletConnected, hasMetaMask, hasThemeButton, initWalletPlugins, WalletPlugin, getWalletPluginProvider, logoutWallet, connectWallet } from './wallet';
 import { compile } from './pathToRegexp'
-import { checkLoginSession, apiLogin, apiLogout } from './utils';
+import { checkLoginSession, apiLogin, apiLogout, sendAuthCode, verifyAuthCode } from './utils';
 import { Alert } from './alert';
 import { EventId } from './constants';
 import { IMenu, IExtendedNetwork } from './interface';
@@ -77,8 +80,9 @@ export class Header extends Module {
   private mdWalletDetail: Modal;
   private btnConnectWallet: Button;
   private mdNetwork: Modal;
-  private mdConnect: Modal;
+  private mdConnectWallet: Modal;
   private mdAccount: Modal;
+  private mdEmailLogin: Modal;
   private lblNetworkDesc: Label;
   private lblWalletAddress: Label;
   private hsViewAccount: HStack;
@@ -102,6 +106,11 @@ export class Header extends Module {
   private isLoginRequestSent: Boolean;
   private wallet: IClientWallet;
   private keepAliveInterval: any;
+  private lbEmailLoginMsg: Label;
+  private pnlInputEmailAddress: VStack;
+  private pnlInputAuthCode: VStack;
+  private inputEmailAddress: Input;
+  private inputAuthCode: Input;
 
   @observable()
   private walletInfo = {
@@ -202,12 +211,18 @@ export class Header extends Module {
       this.btnConnectWallet.caption = 'Login';
       this.doActionOnWalletConnected(false);
       await this.initWallet();
-      await connectWallet(selectedProvider, false);
+      const loggedInAccount = getLoggedInAccount();
+      await connectWallet(selectedProvider, {
+        userTriggeredConnect: false,
+        loggedInAccount
+      });
     }
     else {
       this.btnConnectWallet.caption = 'Connect Wallet';
       await this.initWallet();
-      await connectWallet(selectedProvider, false);
+      await connectWallet(selectedProvider, {
+        userTriggeredConnect: false,
+      });
       this.doActionOnWalletConnected(isWalletConnected());
     }
   }
@@ -311,8 +326,8 @@ export class Header extends Module {
 
   openConnectModal = () => {
     this.initWallet();
-    this.mdConnect.title = "Connect wallet"
-    this.mdConnect.visible = true;
+    this.mdConnectWallet.title = "Connect wallet"
+    this.mdConnectWallet.visible = true;
   }
 
   openNetworkModal = () => {
@@ -333,8 +348,8 @@ export class Header extends Module {
   openSwitchModal = (target: Control, event: Event) => {
     event.stopPropagation();
     this.mdWalletDetail.visible = false;
-    this.mdConnect.title = "Switch wallet";
-    this.mdConnect.visible = true;
+    this.mdConnectWallet.title = "Switch wallet";
+    this.mdConnectWallet.visible = true;
   }
 
   login = async (): Promise<ILoginResult> => {
@@ -391,14 +406,23 @@ export class Header extends Module {
 
   connectToProviderFunc = async (walletPlugin: string) => {
     const provider = getWalletPluginProvider(walletPlugin);
-    if (provider?.installed()) {
-      await connectWallet(walletPlugin, true);
+    if (walletPlugin === WalletPlugin.Email) {
+      this.mdEmailLogin.visible = true;
+      this.mdEmailLogin.title = 'Enter your email';
+      this.lbEmailLoginMsg.caption = 'A verification code will be sent to the email address you provide.';
+      this.pnlInputEmailAddress.visible = true;
+      this.pnlInputAuthCode.visible = false;
+    }
+    else if (provider?.installed()) {
+      await connectWallet(walletPlugin, {
+        userTriggeredConnect: true
+      });
     }
     else {
       let homepage = provider.homepage;
       this.openLink(homepage);
     }
-    this.mdConnect.visible = false;
+    this.mdConnectWallet.visible = false;
   }
 
   copyWalletAddress = () => {
@@ -467,7 +491,8 @@ export class Header extends Module {
         else {
           await this.doActionOnWalletConnected(connected);
         }
-        localStorage.setItem('walletProvider', Wallet.getClientInstance()?.clientSideProvider?.name || '');
+        const walletProviderName = Wallet.getClientInstance()?.clientSideProvider?.name || '';
+        localStorage.setItem('walletProvider', walletProviderName);
       }
       else {
         if (requireLogin) {
@@ -487,6 +512,8 @@ export class Header extends Module {
       const chainId = Number(chainIdHex);
       await this.handleChainChanged(chainId);
     });
+
+
     await initWalletPlugins();
     this.gridWalletList.clearInnerHTML();
     this.walletMapper = new Map();
@@ -494,6 +521,7 @@ export class Header extends Module {
     walletList.forEach((wallet) => {
       const isActive = this.isWalletActive(wallet.name);
       if (isActive) this.currActiveWallet = wallet.name;
+      const imageUrl = wallet.image;
       const hsWallet = (
         <i-hstack
           class={isActive ? 'is-actived list-item' : 'list-item'}
@@ -511,7 +539,7 @@ export class Header extends Module {
             wordBreak="break-word"
             font={{ size: '.875rem', bold: true, color: Theme.colors.primary.dark }}
           />
-          <i-image width={34} height="auto" url={wallet.image} />
+          <i-image width={34} height="auto" url={imageUrl} />
         </i-hstack>
       );
       this.walletMapper.set(wallet.name, hsWallet);
@@ -612,6 +640,24 @@ export class Header extends Module {
     document.body.style.setProperty('--theme', themeType)
     application.EventBus.dispatch(EventId.themeChanged, themeType);
     this.controlMenuDisplay();
+  }
+
+  async handleSendAuthCode() {
+    await sendAuthCode(this.inputEmailAddress.value);
+    this.mdEmailLogin.title = 'Check your email';
+    this.lbEmailLoginMsg.caption = 'Please enter the 6-digit verification code that was sent. The code is valid for 5 minutes.';
+    this.pnlInputEmailAddress.visible = false;
+    this.pnlInputAuthCode.visible = true;
+  }
+
+  async handleEmailLogin() {
+    await connectWallet(WalletPlugin.Email, {
+      userTriggeredConnect: true,
+      verifyAuthCode: verifyAuthCode,
+      email: this.inputEmailAddress.value,
+      authCode: this.inputAuthCode.value
+    });
+    this.mdEmailLogin.visible = false;
   }
 
   render() {
@@ -810,7 +856,7 @@ export class Header extends Module {
           </i-vstack>
         </i-modal>
         <i-modal
-          id='mdConnect'
+          id='mdConnectWallet'
           title='Connect Wallet'
           class='os-modal'
           width={440}
@@ -880,6 +926,26 @@ export class Header extends Module {
                 <i-label caption="View on Explorer" margin={{ left: "0.5rem" }} font={{ size: "0.875rem", bold: true }} />
               </i-hstack>
             </i-hstack>
+          </i-vstack>
+        </i-modal>
+        <i-modal
+          id='mdEmailLogin'
+          width={600}
+          closeIcon={{ name: 'times' }}
+          border={{ radius: 10 }}
+        >
+          <i-hstack margin={{ bottom: '2rem' }}>
+            <i-label id="lbEmailLoginMsg" font={{size: '1rem'}}></i-label>
+          </i-hstack>
+          <i-vstack id="pnlInputEmailAddress" padding={{ left: '1rem', right: '1rem', bottom: '2rem' }} lineHeight={1.5}>
+            <i-label caption='Email'></i-label>
+            <i-input width="100%" id='inputEmailAddress' margin={{ bottom: '1rem' }}></i-input>
+            <i-button caption='Send verification code' onClick={this.handleSendAuthCode} width='100%'/>
+          </i-vstack>
+          <i-vstack id="pnlInputAuthCode" padding={{ left: '1rem', right: '1rem', bottom: '2rem' }} lineHeight={1.5} visible={false}>
+            <i-label caption='Verification code'></i-label>
+            <i-input width="100%" id='inputAuthCode' margin={{ bottom: '1rem' }}></i-input>
+            <i-button caption='Verify code' onClick={this.handleEmailLogin} width='100%'/>
           </i-vstack>
         </i-modal>
         <main-alert id="mdMainAlert"></main-alert>
