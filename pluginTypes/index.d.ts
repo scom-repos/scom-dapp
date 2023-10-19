@@ -1,4 +1,3 @@
-/// <reference path="@ijstech/eth-wallet/index.d.ts" />
 /// <amd-module name="@scom/dapp/pathToRegexp.ts" />
 declare module "@scom/dapp/pathToRegexp.ts" {
     export interface ParseOptions {
@@ -172,6 +171,10 @@ declare module "@scom/dapp/interface.ts" {
     }
     export interface IFooter extends IHeaderFooter {
     }
+    export interface IOAuthProvider {
+        enabled: boolean;
+        clientId: string;
+    }
 }
 /// <amd-module name="@scom/dapp/assets.ts" />
 declare module "@scom/dapp/assets.ts" {
@@ -214,37 +217,14 @@ declare module "@scom/dapp/index.css.ts" {
     const _default_1: string;
     export default _default_1;
 }
-/// <amd-module name="@scom/dapp/network.ts" />
-declare module "@scom/dapp/network.ts" {
-    import { Erc20, ISendTxEventsOptions } from '@ijstech/eth-wallet';
-    import { IExtendedNetwork } from "@scom/dapp/interface.ts";
-    export interface ITokenObject {
-        address?: string;
-        name: string;
-        decimals: number;
-        symbol: string;
-        status?: boolean | null;
-        logoURI?: string;
-        isCommon?: boolean | null;
-        balance?: string | number;
-        isNative?: boolean | null;
-    }
-    export const updateNetworks: (options: any) => void;
-    export function registerSendTxEvents(sendTxEventHandlers: ISendTxEventsOptions): void;
-    export function getChainId(): number;
-    export function getWallet(): import("@ijstech/eth-wallet").IWallet;
-    export function getWalletProvider(): string;
-    export function getErc20(address: string): Erc20;
-    export const getNetworkInfo: (chainId: number) => IExtendedNetwork | undefined;
-    export const viewOnExplorerByTxHash: (chainId: number, txHash: string) => void;
-    export const viewOnExplorerByAddress: (chainId: number, address: string) => void;
-    export const getNetworkType: (chainId: number) => string;
-    export const getDefaultChainId: () => number;
-    export const getSiteSupportedNetworks: () => IExtendedNetwork[];
+/// <amd-module name="@scom/dapp/site.ts" />
+declare module "@scom/dapp/site.ts" {
+    import { IOAuthProvider } from "@scom/dapp/interface.ts";
+    export const updateConfig: (options: any) => void;
+    export const getOAuthProvider: (provider: string) => IOAuthProvider;
+    export const hasThemeButton: () => boolean;
     export const isValidEnv: (env: string) => boolean;
-    export const getInfuraId: () => string;
     export const getEnv: () => string;
-    export const isDefaultNetworkFromWallet: () => boolean;
     export const getRequireLogin: () => boolean;
     export const getIsLoggedIn: (address: string) => boolean;
     export const getLoggedInAccount: () => string;
@@ -267,6 +247,7 @@ declare module "@scom/dapp/constants.ts" {
 declare module "@scom/dapp/wallet.ts" {
     import { IClientSideProvider, IConnectWalletEventPayload } from '@ijstech/eth-wallet';
     import { IWallet } from '@ijstech/eth-wallet';
+    import { IExtendedNetwork } from "@scom/dapp/interface.ts";
     export interface IWalletConnectMetadata {
         name: string;
         description: string;
@@ -291,31 +272,36 @@ declare module "@scom/dapp/wallet.ts" {
     export function connectWallet(walletPluginName: string, eventPayload?: IConnectWalletEventPayload): Promise<IWallet>;
     export function logoutWallet(): Promise<void>;
     export const getSupportedWalletProviders: () => IClientSideProvider[];
+    export const getSiteSupportedNetworks: () => IExtendedNetwork[];
+    export function getWalletProvider(): string;
     export function isWalletConnected(): boolean;
     export const hasWallet: () => boolean;
     export const hasMetaMask: () => boolean;
     export function switchNetwork(chainId: number): Promise<void>;
     export const updateWalletConfig: (options: any) => void;
-    export const toggleThemeButton: (options: any) => void;
-    export const hasThemeButton: () => boolean;
+    export const isDefaultNetworkFromWallet: () => boolean;
+    export const getNetworkInfo: (chainId: number) => IExtendedNetwork | undefined;
+    export const getDefaultChainId: () => number;
+    export const getInfuraId: () => string;
     export const setWalletPluginProvider: (name: string, wallet: IWalletPlugin) => void;
     export const getWalletPluginMap: () => Record<string, IWalletPlugin>;
     export const getWalletPluginProvider: (name: string) => IClientSideProvider;
     export const setWalletConnectConfig: (data: IWalletConnectConfig) => void;
     export const getWalletConnectConfig: () => IWalletConnectConfig;
+    export const viewOnExplorerByAddress: (chainId: number, address: string) => void;
 }
 /// <amd-module name="@scom/dapp/header.css.ts" />
 declare module "@scom/dapp/header.css.ts" {
     const _default_2: string;
     export default _default_2;
 }
-/// <amd-module name="@scom/dapp/utils.ts" />
-declare module "@scom/dapp/utils.ts" {
+/// <amd-module name="@scom/dapp/API.ts" />
+declare module "@scom/dapp/API.ts" {
     function checkLoginSession(walletAddress: string): Promise<any>;
     function apiLogin(): Promise<any>;
     function apiLogout(): Promise<any>;
     function sendAuthCode(email: string): Promise<any>;
-    function verifyAuthCode(email: string, authCode: string): Promise<any>;
+    function verifyAuthCode(email: string, authCode: string, provider?: string): Promise<any>;
     export { checkLoginSession, apiLogin, apiLogout, sendAuthCode, verifyAuthCode };
 }
 /// <amd-module name="@scom/dapp/alert.css.ts" />
@@ -423,6 +409,7 @@ declare module "@scom/dapp/header.tsx" {
         private pnlInputAuthCode;
         private inputEmailAddress;
         private inputAuthCode;
+        private pnlSignInWithGoogle;
         private walletInfo;
         constructor(parent?: Container, options?: any);
         get symbol(): string;
@@ -450,6 +437,7 @@ declare module "@scom/dapp/header.tsx" {
         viewOnExplorerByAddress(): void;
         switchNetwork(chainId: number): Promise<void>;
         openLink(link: any): Window;
+        handleSignInWithGoogle(response: any): Promise<void>;
         connectToProviderFunc: (walletPlugin: string) => Promise<void>;
         copyWalletAddress: () => void;
         isWalletActive(walletPlugin: any): boolean;
