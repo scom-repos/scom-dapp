@@ -535,6 +535,22 @@ define("@scom/dapp/index.css.ts", ["require", "exports", "@ijstech/components", 
                         width: 'calc(100% - 32px)'
                     }
                 }
+            },
+            '::-webkit-scrollbar-track': {
+                borderRadius: '0.75rem',
+                border: '1px solid transparent',
+                background: 'unset'
+            },
+            '::-webkit-scrollbar': {
+                width: '0.5rem',
+                background: 'unset'
+            },
+            '::-webkit-scrollbar-thumb': {
+                borderRadius: '0.75rem',
+                background: 'var(--divider) 0% 0% no-repeat padding-box'
+            },
+            '::-webkit-scrollbar-thumb:hover': {
+                background: 'var(--divider) 0% 0% no-repeat padding-box'
             }
         }
     });
@@ -973,19 +989,19 @@ define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"]
     exports.default = components_5.Styles.style({
         zIndex: 2,
         $nest: {
-            '::-webkit-scrollbar-track': {
-                borderRadius: '12px',
-                border: '1px solid transparent',
-                backgroundColor: 'unset'
-            },
-            '::-webkit-scrollbar': {
-                width: '8px',
-                backgroundColor: 'unset'
-            },
-            '::-webkit-scrollbar-thumb': {
-                borderRadius: '12px',
-                background: 'rgba(255, 255, 255, 0.2) 0% 0% no-repeat padding-box'
-            },
+            // '::-webkit-scrollbar-track': {
+            //   borderRadius: '12px',
+            //   border: '1px solid transparent',
+            //   backgroundColor: 'unset'
+            // },
+            // '::-webkit-scrollbar': {
+            //   width: '8px',
+            //   backgroundColor: 'unset'
+            // },
+            // '::-webkit-scrollbar-thumb': {
+            //   borderRadius: '12px',
+            //   background: 'rgba(255, 255, 255, 0.2) 0% 0% no-repeat padding-box'
+            // },
             '.os-modal': {
                 boxSizing: 'border-box',
                 $nest: {
@@ -2101,14 +2117,14 @@ define("@scom/dapp/theme/dark.theme.ts", ["require", "exports", "@ijstech/compon
     Theme.combobox.background = '#232B5A';
     Theme.combobox.fontColor = '#fff';
     // Action
-    Theme.action.hover = '#FF6600DD';
-    // Theme.action.hoverOpacity = 1;
+    Theme.action.hover = 'rgba(255,255,255,0.08)';
+    Theme.action.hoverOpacity = 0.08;
     Theme.action.active = 'rgba(0, 0, 0, 0.54)';
-    // Theme.action.activeOpacity = 1;
+    Theme.action.activeOpacity = 0.12;
     Theme.action.disabled = '#404040';
     Theme.action.disabledBackground = 'transparent linear-gradient(270deg,#351f52,#552a42) 0% 0% no-repeat padding-box';
-    // Theme.action.disabledOpacity = 1;
-    // Theme.action.focus = '';
+    Theme.action.disabledOpacity = 0.38;
+    Theme.action.focus = 'rgba(255,255,255, 0.12)';
     // Theme.action.focusOpacity = 1;
     // Theme.action.selected = '';
     // Theme.action.selectedOpacity = 1;
