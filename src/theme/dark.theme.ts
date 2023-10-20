@@ -77,14 +77,14 @@ Theme.combobox.background = '#232B5A';
 Theme.combobox.fontColor = '#fff';
 
 // Action
-Theme.action.hover = '#FF6600DD';
-// Theme.action.hoverOpacity = 1;
+Theme.action.hover = 'rgba(255,255,255,0.08)';
+Theme.action.hoverOpacity = 0.08;
 Theme.action.active = 'rgba(0, 0, 0, 0.54)';
-// Theme.action.activeOpacity = 1;
+Theme.action.activeOpacity = 0.12;
 Theme.action.disabled = '#404040';
 Theme.action.disabledBackground = 'transparent linear-gradient(270deg,#351f52,#552a42) 0% 0% no-repeat padding-box';
-// Theme.action.disabledOpacity = 1;
-// Theme.action.focus = '';
+Theme.action.disabledOpacity = 0.38;
+Theme.action.focus = 'rgba(255,255,255, 0.12)';
 // Theme.action.focusOpacity = 1;
 // Theme.action.selected = '';
 // Theme.action.selectedOpacity = 1;

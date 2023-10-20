@@ -4,19 +4,19 @@ const Theme = Styles.Theme.ThemeVars;
 export default Styles.style({
   zIndex: 2,
   $nest: {
-    '::-webkit-scrollbar-track': {
-      borderRadius: '12px',
-      border: '1px solid transparent',
-      backgroundColor: 'unset'
-    },
-    '::-webkit-scrollbar': {
-      width: '8px',
-      backgroundColor: 'unset'
-    },
-    '::-webkit-scrollbar-thumb': {
-      borderRadius: '12px',
-      background: 'rgba(255, 255, 255, 0.2) 0% 0% no-repeat padding-box'
-    },
+    // '::-webkit-scrollbar-track': {
+    //   borderRadius: '12px',
+    //   border: '1px solid transparent',
+    //   backgroundColor: 'unset'
+    // },
+    // '::-webkit-scrollbar': {
+    //   width: '8px',
+    //   backgroundColor: 'unset'
+    // },
+    // '::-webkit-scrollbar-thumb': {
+    //   borderRadius: '12px',
+    //   background: 'rgba(255, 255, 255, 0.2) 0% 0% no-repeat padding-box'
+    // },
     '.os-modal': {
       boxSizing: 'border-box',
       $nest: {

@@ -38,6 +38,22 @@ export default Styles.style({
                     width: 'calc(100% - 32px)'
                 }
             }
+        },
+        '::-webkit-scrollbar-track': {
+            borderRadius: '0.75rem',
+            border: '1px solid transparent',
+            background: 'unset'
+        },
+        '::-webkit-scrollbar': {
+            width: '0.5rem',
+            background: 'unset'
+        },
+        '::-webkit-scrollbar-thumb': {
+            borderRadius: '0.75rem',
+            background: 'var(--divider) 0% 0% no-repeat padding-box'
+        },
+        '::-webkit-scrollbar-thumb:hover': {
+            background: 'var(--divider) 0% 0% no-repeat padding-box'
         }
     }
 });
