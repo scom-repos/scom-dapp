@@ -81,7 +81,6 @@ export class Header extends Module {
   private mdConnectWallet: Modal;
   private mdAccount: Modal;
   private mdEmailLogin: Modal;
-  private lblNetworkDesc: Label;
   private lblWalletAddress: Label;
   private hsViewAccount: HStack;
   private gridWalletList: GridLayout;
@@ -314,11 +313,6 @@ export class Header extends Module {
   }
 
   updateList(isConnected: boolean) {
-    if (isConnected && getWalletProvider() !== WalletPlugin.MetaMask) {
-      this.lblNetworkDesc.caption = "We support the following networks, please switch network in the connected wallet.";
-    } else {
-      this.lblNetworkDesc.caption = "We support the following networks, please click to connect.";
-    }
     this.updateDot(isConnected, 'wallet');
     this.updateDot(isConnected, 'network');
   }
@@ -410,35 +404,19 @@ export class Header extends Module {
     await connectWallet(WalletPlugin.Email, {
       userTriggeredConnect: true,
       verifyAuthCode: verifyAuthCode,
-      email: email,
-      authCode: idToken,
-      provider: 'google'
+      verifyAuthCodeArgs: {
+        email: email,
+        authCode: idToken,
+        provider: 'google'
+      }
     });
-    this.mdEmailLogin.visible = false;
+    this.mdConnectWallet.visible = false;
     console.log(email);
   }
 
   connectToProviderFunc = async (walletPlugin: string) => {
     const provider = getWalletPluginProvider(walletPlugin);
     if (walletPlugin === WalletPlugin.Email) {
-      google.accounts.id.initialize({
-        client_id: getOAuthProvider('google').clientId,
-        context: 'signin',
-        ux_mode: 'popup',
-        callback: this.handleSignInWithGoogle.bind(this)
-      });
-      // google.accounts.id.prompt();
-      google.accounts.id.renderButton(
-        this.pnlSignInWithGoogle,
-        {
-          type: 'standard',
-          shape: 'rectangular',
-          theme: 'outline',
-          size: 'large',
-          text: 'signin_with',
-          logo_alignment: 'left',
-        }
-      )
       this.mdEmailLogin.visible = true;
       this.mdEmailLogin.title = 'Enter your email';
       this.lbEmailLoginMsg.caption = 'A verification code will be sent to the email address you provide.';
@@ -551,31 +529,55 @@ export class Header extends Module {
     this.walletMapper = new Map();
     const walletList  = getSupportedWalletProviders();
     walletList.forEach((wallet) => {
-      const isActive = this.isWalletActive(wallet.name);
-      if (isActive) this.currActiveWallet = wallet.name;
-      const imageUrl = wallet.image;
-      const hsWallet = (
-        <i-hstack
-          class={isActive ? 'is-actived list-item' : 'list-item'}
-          verticalAlignment='center'
-          gap={12}
-          background={{ color: Theme.colors.secondary.light }}
-          border={{ radius: 10 }} position="relative"
-          padding={{ top: '0.5rem', bottom: '0.5rem', left: '0.5rem', right: '0.5rem' }}
-          horizontalAlignment="space-between"
-          onClick={() => this.connectToProviderFunc(wallet.name)}
-        >
-          <i-label
-            caption={wallet.displayName}
-            margin={{ left: '1rem' }}
-            wordBreak="break-word"
-            font={{ size: '.875rem', bold: true, color: Theme.colors.primary.dark }}
-          />
-          <i-image width={34} height={34} url={imageUrl} />
-        </i-hstack>
-      );
-      this.walletMapper.set(wallet.name, hsWallet);
-      this.gridWalletList.append(hsWallet);
+      if (wallet.name === 'google') {
+        const googleContainer = new HStack();
+        this.gridWalletList.append(googleContainer);
+        google.accounts.id.initialize({
+          client_id: getOAuthProvider('google').clientId,
+          context: 'signin',
+          ux_mode: 'popup',
+          callback: this.handleSignInWithGoogle.bind(this)
+        });
+        // google.accounts.id.prompt();
+        google.accounts.id.renderButton(
+          googleContainer,
+          {
+            type: 'icon',
+            shape: 'rectangular',
+            theme: 'outline',
+            size: 'large',
+            text: 'signin_with',
+            logo_alignment: 'left',
+          }
+        )
+      }
+      else {
+        const isActive = this.isWalletActive(wallet.name);
+        if (isActive) this.currActiveWallet = wallet.name;
+        const imageUrl = wallet.image;
+        const hsWallet = (
+          <i-hstack
+            class={isActive ? 'is-actived list-item' : 'list-item'}
+            verticalAlignment='center'
+            gap={12}
+            background={{ color: Theme.colors.secondary.light }}
+            border={{ radius: 10 }} position="relative"
+            padding={{ top: '0.5rem', bottom: '0.5rem', left: '0.5rem', right: '0.5rem' }}
+            horizontalAlignment="space-between"
+            onClick={() => this.connectToProviderFunc(wallet.name)}
+          >
+            <i-label
+              caption={wallet.displayName}
+              margin={{ left: '1rem' }}
+              wordBreak="break-word"
+              font={{ size: '.875rem', bold: true, color: Theme.colors.primary.dark }}
+            />
+            <i-image width={34} height={34} url={imageUrl} />
+          </i-hstack>
+        );
+        this.walletMapper.set(wallet.name, hsWallet);
+        this.gridWalletList.append(hsWallet);
+      }
     })
   }
 
@@ -686,8 +688,10 @@ export class Header extends Module {
     await connectWallet(WalletPlugin.Email, {
       userTriggeredConnect: true,
       verifyAuthCode: verifyAuthCode,
-      email: this.inputEmailAddress.value,
-      authCode: this.inputAuthCode.value
+      verifyAuthCodeArgs: {
+        email: this.inputEmailAddress.value,
+        authCode: this.inputAuthCode.value
+      }
     });
     this.mdEmailLogin.visible = false;
   }
@@ -813,7 +817,7 @@ export class Header extends Module {
                       padding={{ top: '0.5rem', bottom: '0.5rem' }}
                       onClick={this.openAccountModal}
                     ></i-button>
-                    <i-button
+                    {/* <i-button
                       caption="Switch wallet"
                       width="100%"
                       height="auto"
@@ -822,7 +826,7 @@ export class Header extends Module {
                       background={{ color: Theme.colors.error.light }}
                       padding={{ top: '0.5rem', bottom: '0.5rem' }}
                       onClick={this.openSwitchModal}
-                    ></i-button>
+                    ></i-button> */}
                     <i-button
                       caption="Logout"
                       width="100%"
@@ -850,7 +854,7 @@ export class Header extends Module {
           </i-grid-layout>
         <i-modal
           id='mdNetwork'
-          title='Supported Network'
+          title='Select a Network'
           class='os-modal'
           width={440}
           closeIcon={{ name: 'times' }}
@@ -860,13 +864,6 @@ export class Header extends Module {
             height='100%' lineHeight={1.5}
             padding={{ left: '1rem', right: '1rem', bottom: '2rem' }}
           >
-            <i-label
-              id='lblNetworkDesc'
-              margin={{ top: '1rem' }}
-              font={{ size: '.875rem' }}
-              wordBreak="break-word"
-              caption='We support the following networks, please click to connect.'
-            ></i-label>
             <i-hstack
               margin={{ left: '-1.25rem', right: '-1.25rem' }}
               height='100%'
