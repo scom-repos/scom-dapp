@@ -657,12 +657,13 @@ define("@scom/dapp/constants.ts", ["require", "exports"], function (require, exp
 define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-multicall", "@scom/scom-network-list", "@scom/dapp/site.ts"], function (require, exports, components_4, eth_wallet_1, scom_multicall_1, scom_network_list_1, site_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.viewOnExplorerByAddress = exports.getWalletConnectConfig = exports.setWalletConnectConfig = exports.getWalletPluginProvider = exports.getWalletPluginMap = exports.setWalletPluginProvider = exports.getInfuraId = exports.getDefaultChainId = exports.getNetworkInfo = exports.isDefaultNetworkFromWallet = exports.updateWalletConfig = exports.switchNetwork = exports.hasMetaMask = exports.hasWallet = exports.isWalletConnected = exports.getWalletProvider = exports.getSiteSupportedNetworks = exports.getSupportedWalletProviders = exports.logoutWallet = exports.connectWallet = exports.initWalletPlugins = exports.WalletPlugin = void 0;
+    exports.viewOnExplorerByAddress = exports.getWalletConnectConfig = exports.setWalletConnectConfig = exports.getWalletPluginProvider = exports.setWalletPluginProvider = exports.getInfuraId = exports.getDefaultChainId = exports.getNetworkInfo = exports.isDefaultNetworkFromWallet = exports.updateWalletConfig = exports.switchNetwork = exports.hasMetaMask = exports.hasWallet = exports.isWalletConnected = exports.getWalletProvider = exports.getSiteSupportedNetworks = exports.getSupportedWalletProviders = exports.logoutWallet = exports.connectWallet = exports.initWalletPlugins = exports.WalletPlugin = void 0;
     var WalletPlugin;
     (function (WalletPlugin) {
         WalletPlugin["MetaMask"] = "metamask";
         WalletPlugin["WalletConnect"] = "walletconnect";
         WalletPlugin["Email"] = "email";
+        WalletPlugin["Google"] = "google";
     })(WalletPlugin = exports.WalletPlugin || (exports.WalletPlugin = {}));
     const state = {
         infuraId: "",
@@ -763,7 +764,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
     }
     exports.logoutWallet = logoutWallet;
     const getSupportedWalletProviders = () => {
-        const walletPluginMap = (0, exports.getWalletPluginMap)();
+        const walletPluginMap = getWalletPluginMap();
         return state.wallets.map(v => walletPluginMap[v.name].provider);
     };
     exports.getSupportedWalletProviders = getSupportedWalletProviders;
@@ -785,7 +786,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
     exports.isWalletConnected = isWalletConnected;
     const hasWallet = function () {
         let hasWallet = false;
-        const walletPluginMap = (0, exports.getWalletPluginMap)();
+        const walletPluginMap = getWalletPluginMap();
         for (let pluginName in walletPluginMap) {
             const provider = walletPluginMap[pluginName].provider;
             if (provider.installed()) {
@@ -917,7 +918,6 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
     const getWalletPluginMap = () => {
         return state.walletPluginMap;
     };
-    exports.getWalletPluginMap = getWalletPluginMap;
     const getWalletPluginProvider = (name) => {
         var _a;
         return ((_a = state.walletPluginMap[name]) === null || _a === void 0 ? void 0 : _a.provider) || null;
@@ -1162,7 +1162,7 @@ define("@scom/dapp/API.ts", ["require", "exports", "@ijstech/eth-wallet"], funct
         return result;
     }
     exports.sendAuthCode = sendAuthCode;
-    async function verifyAuthCode(email, authCode, provider) {
+    async function verifyAuthCode(verifyAuthCodeArgs) {
         let response = await fetch(API_BASE_URL + '/verifyAuthCode', {
             method: 'POST',
             credentials: 'include',
@@ -1170,11 +1170,7 @@ define("@scom/dapp/API.ts", ["require", "exports", "@ijstech/eth-wallet"], funct
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                email,
-                authCode,
-                provider
-            })
+            body: JSON.stringify(verifyAuthCodeArgs)
         });
         let result = await response.json();
         return result;
@@ -1398,21 +1394,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             this.connectToProviderFunc = async (walletPlugin) => {
                 const provider = (0, wallet_1.getWalletPluginProvider)(walletPlugin);
                 if (walletPlugin === wallet_1.WalletPlugin.Email) {
-                    google.accounts.id.initialize({
-                        client_id: (0, site_2.getOAuthProvider)('google').clientId,
-                        context: 'signin',
-                        ux_mode: 'popup',
-                        callback: this.handleSignInWithGoogle.bind(this)
-                    });
-                    // google.accounts.id.prompt();
-                    google.accounts.id.renderButton(this.pnlSignInWithGoogle, {
-                        type: 'standard',
-                        shape: 'rectangular',
-                        theme: 'outline',
-                        size: 'large',
-                        text: 'signin_with',
-                        logo_alignment: 'left',
-                    });
                     this.mdEmailLogin.visible = true;
                     this.mdEmailLogin.title = 'Enter your email';
                     this.lbEmailLoginMsg.caption = 'A verification code will be sent to the email address you provide.';
@@ -1499,15 +1480,36 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                 this.walletMapper = new Map();
                 const walletList = (0, wallet_1.getSupportedWalletProviders)();
                 walletList.forEach((wallet) => {
-                    const isActive = this.isWalletActive(wallet.name);
-                    if (isActive)
-                        this.currActiveWallet = wallet.name;
-                    const imageUrl = wallet.image;
-                    const hsWallet = (this.$render("i-hstack", { class: isActive ? 'is-actived list-item' : 'list-item', verticalAlignment: 'center', gap: 12, background: { color: Theme.colors.secondary.light }, border: { radius: 10 }, position: "relative", padding: { top: '0.5rem', bottom: '0.5rem', left: '0.5rem', right: '0.5rem' }, horizontalAlignment: "space-between", onClick: () => this.connectToProviderFunc(wallet.name) },
-                        this.$render("i-label", { caption: wallet.displayName, margin: { left: '1rem' }, wordBreak: "break-word", font: { size: '.875rem', bold: true, color: Theme.colors.primary.dark } }),
-                        this.$render("i-image", { width: 34, height: 34, url: imageUrl })));
-                    this.walletMapper.set(wallet.name, hsWallet);
-                    this.gridWalletList.append(hsWallet);
+                    if (wallet.name === 'google') {
+                        const googleContainer = new components_8.HStack();
+                        this.gridWalletList.append(googleContainer);
+                        google.accounts.id.initialize({
+                            client_id: (0, site_2.getOAuthProvider)('google').clientId,
+                            context: 'signin',
+                            ux_mode: 'popup',
+                            callback: this.handleSignInWithGoogle.bind(this)
+                        });
+                        // google.accounts.id.prompt();
+                        google.accounts.id.renderButton(googleContainer, {
+                            type: 'icon',
+                            shape: 'rectangular',
+                            theme: 'outline',
+                            size: 'large',
+                            text: 'signin_with',
+                            logo_alignment: 'left',
+                        });
+                    }
+                    else {
+                        const isActive = this.isWalletActive(wallet.name);
+                        if (isActive)
+                            this.currActiveWallet = wallet.name;
+                        const imageUrl = wallet.image;
+                        const hsWallet = (this.$render("i-hstack", { class: isActive ? 'is-actived list-item' : 'list-item', verticalAlignment: 'center', gap: 12, background: { color: Theme.colors.secondary.light }, border: { radius: 10 }, position: "relative", padding: { top: '0.5rem', bottom: '0.5rem', left: '0.5rem', right: '0.5rem' }, horizontalAlignment: "space-between", onClick: () => this.connectToProviderFunc(wallet.name) },
+                            this.$render("i-label", { caption: wallet.displayName, margin: { left: '1rem' }, wordBreak: "break-word", font: { size: '.875rem', bold: true, color: Theme.colors.primary.dark } }),
+                            this.$render("i-image", { width: 34, height: 34, url: imageUrl })));
+                        this.walletMapper.set(wallet.name, hsWallet);
+                        this.gridWalletList.append(hsWallet);
+                    }
                 });
             };
             this.$eventBus = components_8.application.EventBus;
@@ -1657,12 +1659,6 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             }
         }
         updateList(isConnected) {
-            if (isConnected && (0, wallet_1.getWalletProvider)() !== wallet_1.WalletPlugin.MetaMask) {
-                this.lblNetworkDesc.caption = "We support the following networks, please switch network in the connected wallet.";
-            }
-            else {
-                this.lblNetworkDesc.caption = "We support the following networks, please click to connect.";
-            }
             this.updateDot(isConnected, 'wallet');
             this.updateDot(isConnected, 'network');
         }
@@ -1686,11 +1682,13 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             await (0, wallet_1.connectWallet)(wallet_1.WalletPlugin.Email, {
                 userTriggeredConnect: true,
                 verifyAuthCode: API_1.verifyAuthCode,
-                email: email,
-                authCode: idToken,
-                provider: 'google'
+                verifyAuthCodeArgs: {
+                    email: email,
+                    authCode: idToken,
+                    provider: 'google'
+                }
             });
-            this.mdEmailLogin.visible = false;
+            this.mdConnectWallet.visible = false;
             console.log(email);
         }
         isWalletActive(walletPlugin) {
@@ -1802,8 +1800,10 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
             await (0, wallet_1.connectWallet)(wallet_1.WalletPlugin.Email, {
                 userTriggeredConnect: true,
                 verifyAuthCode: API_1.verifyAuthCode,
-                email: this.inputEmailAddress.value,
-                authCode: this.inputAuthCode.value
+                verifyAuthCodeArgs: {
+                    email: this.inputEmailAddress.value,
+                    authCode: this.inputAuthCode.value
+                }
             });
             this.mdEmailLogin.visible = false;
         }
@@ -1830,12 +1830,10 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
                             this.$render("i-modal", { id: "mdWalletDetail", class: "wallet-modal", height: "auto", maxWidth: 200, showBackdrop: false, popupPlacement: "bottomRight" },
                                 this.$render("i-vstack", { gap: 15, padding: { top: 10, left: 10, right: 10, bottom: 10 } },
                                     this.$render("i-button", { caption: "Account", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openAccountModal }),
-                                    this.$render("i-button", { caption: "Switch wallet", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.openSwitchModal }),
                                     this.$render("i-button", { caption: "Logout", width: "100%", height: "auto", border: { radius: 5 }, font: { color: Theme.colors.primary.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem' }, onClick: this.handleLogoutClick })))),
                         this.$render("i-button", { id: "btnConnectWallet", height: 38, caption: "Connect Wallet", border: { radius: 5 }, font: { color: Theme.colors.error.contrastText }, background: { color: Theme.colors.error.light }, padding: { top: '0.5rem', bottom: '0.5rem', left: '0.75rem', right: '0.75rem' }, onClick: this.openConnectModal }))),
-                this.$render("i-modal", { id: 'mdNetwork', title: 'Supported Network', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
+                this.$render("i-modal", { id: 'mdNetwork', title: 'Select a Network', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },
                     this.$render("i-vstack", { height: '100%', lineHeight: 1.5, padding: { left: '1rem', right: '1rem', bottom: '2rem' } },
-                        this.$render("i-label", { id: 'lblNetworkDesc', margin: { top: '1rem' }, font: { size: '.875rem' }, wordBreak: "break-word", caption: 'We support the following networks, please click to connect.' }),
                         this.$render("i-hstack", { margin: { left: '-1.25rem', right: '-1.25rem' }, height: '100%' },
                             this.$render("i-grid-layout", { id: 'gridNetworkGroup', font: { color: '#f05e61' }, height: "calc(100% - 160px)", width: "100%", overflow: { y: 'auto' }, margin: { top: '1.5rem' }, padding: { left: '1.25rem', right: '1.25rem' }, columnsPerRow: 1, templateRows: ['max-content'], class: 'list-view', gap: { row: '0.5rem' } })))),
                 this.$render("i-modal", { id: 'mdConnectWallet', title: 'Connect Wallet', class: 'os-modal', width: 440, closeIcon: { name: 'times' }, border: { radius: 10 } },

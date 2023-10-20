@@ -261,10 +261,13 @@ declare module "@scom/dapp/wallet.ts" {
     export enum WalletPlugin {
         MetaMask = "metamask",
         WalletConnect = "walletconnect",
-        Email = "email"
+        Email = "email",
+        Google = "google"
     }
     export interface IWalletPlugin {
         name: string;
+        displayName?: string;
+        image?: string;
         packageName?: string;
         provider: IClientSideProvider;
     }
@@ -284,7 +287,6 @@ declare module "@scom/dapp/wallet.ts" {
     export const getDefaultChainId: () => number;
     export const getInfuraId: () => string;
     export const setWalletPluginProvider: (name: string, wallet: IWalletPlugin) => void;
-    export const getWalletPluginMap: () => Record<string, IWalletPlugin>;
     export const getWalletPluginProvider: (name: string) => IClientSideProvider;
     export const setWalletConnectConfig: (data: IWalletConnectConfig) => void;
     export const getWalletConnectConfig: () => IWalletConnectConfig;
@@ -301,7 +303,7 @@ declare module "@scom/dapp/API.ts" {
     function apiLogin(): Promise<any>;
     function apiLogout(): Promise<any>;
     function sendAuthCode(email: string): Promise<any>;
-    function verifyAuthCode(email: string, authCode: string, provider?: string): Promise<any>;
+    function verifyAuthCode(verifyAuthCodeArgs: any): Promise<any>;
     export { checkLoginSession, apiLogin, apiLogout, sendAuthCode, verifyAuthCode };
 }
 /// <amd-module name="@scom/dapp/alert.css.ts" />
@@ -382,7 +384,6 @@ declare module "@scom/dapp/header.tsx" {
         private mdConnectWallet;
         private mdAccount;
         private mdEmailLogin;
-        private lblNetworkDesc;
         private lblWalletAddress;
         private hsViewAccount;
         private gridWalletList;

@@ -95,7 +95,7 @@ async function sendAuthCode(email: string) {
   let result = await response.json();
   return result;
 }
-async function verifyAuthCode(email: string, authCode: string, provider?: string) {
+async function verifyAuthCode(verifyAuthCodeArgs: any) {
   let response = await fetch(API_BASE_URL + '/verifyAuthCode', {
     method: 'POST',
     credentials: 'include',
@@ -103,11 +103,7 @@ async function verifyAuthCode(email: string, authCode: string, provider?: string
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      email,
-      authCode,
-      provider
-    })
+    body: JSON.stringify(verifyAuthCodeArgs)
   });
   let result = await response.json();
   return result;

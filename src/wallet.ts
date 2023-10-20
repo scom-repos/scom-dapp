@@ -26,10 +26,13 @@ export enum WalletPlugin {
   MetaMask = 'metamask',
   WalletConnect = 'walletconnect',
   Email = 'email',
+  Google = 'google',
 }
 
 export interface IWalletPlugin {
   name: string;
+  displayName?: string;
+  image?: string;
   packageName?: string;
   provider: IClientSideProvider;
 }
@@ -318,7 +321,7 @@ export const setWalletPluginProvider = (name: string, wallet: IWalletPlugin) => 
   state.walletPluginMap[name] = wallet;
 }
 
-export const getWalletPluginMap = () => {
+const getWalletPluginMap = () => {
   return state.walletPluginMap;
 }
 
