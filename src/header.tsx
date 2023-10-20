@@ -27,19 +27,15 @@ import styleClass from './header.css';
 import Assets, { assets } from './assets';
 import {
   isValidEnv, 
-  isDefaultNetworkFromWallet, 
   getRequireLogin,
-  getNetworkInfo,
-  getSiteSupportedNetworks,
-  getWalletProvider,
-  getDefaultChainId,
-  viewOnExplorerByAddress,
   getIsLoggedIn,
-  getLoggedInAccount
-} from './network';
-import { getSupportedWalletProviders, switchNetwork, isWalletConnected, hasMetaMask, hasThemeButton, initWalletPlugins, WalletPlugin, getWalletPluginProvider, logoutWallet, connectWallet } from './wallet';
+  getLoggedInAccount,
+  hasThemeButton,
+  getOAuthProvider
+} from './site';
+import { getSupportedWalletProviders, switchNetwork, isWalletConnected, hasMetaMask, initWalletPlugins, WalletPlugin, getWalletPluginProvider, logoutWallet, connectWallet, getWalletProvider, getNetworkInfo, getDefaultChainId, getSiteSupportedNetworks, isDefaultNetworkFromWallet, viewOnExplorerByAddress } from './wallet';
 import { compile } from './pathToRegexp'
-import { checkLoginSession, apiLogin, apiLogout, sendAuthCode, verifyAuthCode } from './utils';
+import { checkLoginSession, apiLogin, apiLogout, sendAuthCode, verifyAuthCode } from './API';
 import { Alert } from './alert';
 import { EventId } from './constants';
 import { IMenu, IExtendedNetwork } from './interface';
@@ -56,6 +52,8 @@ export interface HeaderElement extends ControlElement {
   menuItems?: IMenu[];
   customStyles?: any;
 }
+
+declare const google: any;
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -111,6 +109,7 @@ export class Header extends Module {
   private pnlInputAuthCode: VStack;
   private inputEmailAddress: Input;
   private inputAuthCode: Input;
+  private pnlSignInWithGoogle: VStack;
 
   @observable()
   private walletInfo = {
@@ -404,9 +403,42 @@ export class Header extends Module {
     return window.open(link, '_blank');
   };
 
+  async handleSignInWithGoogle(response: any) {
+    let idToken = response.credential;
+    let payload = JSON.parse(atob(idToken.split('.')[1]));
+    let email = payload.email;
+    await connectWallet(WalletPlugin.Email, {
+      userTriggeredConnect: true,
+      verifyAuthCode: verifyAuthCode,
+      email: email,
+      authCode: idToken,
+      provider: 'google'
+    });
+    this.mdEmailLogin.visible = false;
+    console.log(email);
+  }
+
   connectToProviderFunc = async (walletPlugin: string) => {
     const provider = getWalletPluginProvider(walletPlugin);
     if (walletPlugin === WalletPlugin.Email) {
+      google.accounts.id.initialize({
+        client_id: getOAuthProvider('google').clientId,
+        context: 'signin',
+        ux_mode: 'popup',
+        callback: this.handleSignInWithGoogle.bind(this)
+      });
+      // google.accounts.id.prompt();
+      google.accounts.id.renderButton(
+        this.pnlSignInWithGoogle,
+        {
+          type: 'standard',
+          shape: 'rectangular',
+          theme: 'outline',
+          size: 'large',
+          text: 'signin_with',
+          logo_alignment: 'left',
+        }
+      )
       this.mdEmailLogin.visible = true;
       this.mdEmailLogin.title = 'Enter your email';
       this.lbEmailLoginMsg.caption = 'A verification code will be sent to the email address you provide.';
@@ -539,7 +571,7 @@ export class Header extends Module {
             wordBreak="break-word"
             font={{ size: '.875rem', bold: true, color: Theme.colors.primary.dark }}
           />
-          <i-image width={34} height="auto" url={imageUrl} />
+          <i-image width={34} height={34} url={imageUrl} />
         </i-hstack>
       );
       this.walletMapper.set(wallet.name, hsWallet);
@@ -941,6 +973,7 @@ export class Header extends Module {
             <i-label caption='Email'></i-label>
             <i-input width="100%" id='inputEmailAddress' margin={{ bottom: '1rem' }}></i-input>
             <i-button caption='Send verification code' onClick={this.handleSendAuthCode} width='100%'/>
+            <i-vstack id='pnlSignInWithGoogle'></i-vstack>
           </i-vstack>
           <i-vstack id="pnlInputAuthCode" padding={{ left: '1rem', right: '1rem', bottom: '2rem' }} lineHeight={1.5} visible={false}>
             <i-label caption='Verification code'></i-label>

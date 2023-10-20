@@ -45,3 +45,8 @@ export interface IHeader extends IHeaderFooter {
 
 export interface IFooter extends IHeaderFooter {
 }
+
+export interface IOAuthProvider {
+	enabled: boolean;
+	clientId: string;
+}

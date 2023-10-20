@@ -3,9 +3,12 @@ import {
 } from '@ijstech/components';
 import {IClientProviderOptions, IClientSideProvider,  IConnectWalletEventPayload,  MetaMaskProvider, Wallet, Web3ModalProvider } from '@ijstech/eth-wallet';
 import { EventId } from './constants';
-import { getDefaultChainId, getInfuraId, getSiteSupportedNetworks } from './network';
-import { IWallet } from '@ijstech/eth-wallet';
+import { IWallet, IClientWalletConfig, IRpcWalletConfig, INetwork } from '@ijstech/eth-wallet';
 import { IExtendedNetwork } from './interface';
+import {getMulticallInfoList, IMulticallInfo} from '@scom/scom-multicall';
+import getNetworkList from '@scom/scom-network-list';
+import { isValidEnv } from './site';
+
 
 export interface IWalletConnectMetadata {
   name: string;
@@ -32,8 +35,13 @@ export interface IWalletPlugin {
 }
 
 const state = {
+  infuraId: "",
+  defaultChainId: 0,
+  multicalls: [] as IMulticallInfo[],
+  networkMap: {} as { [key: number]: IExtendedNetwork },
+  instanceId: "",
+  defaultNetworkFromWallet: false,
   wallets: [] as IWalletPlugin[],
-  showThemeButton: false,
   walletPluginMap: {} as Record<string, IWalletPlugin>,
   walletConnectConfig: null as IWalletConnectConfig
 }
@@ -144,6 +152,18 @@ export const getSupportedWalletProviders = (): IClientSideProvider[] => {
   return state.wallets.map(v => walletPluginMap[v.name].provider);
 }
 
+export const getSiteSupportedNetworks = () => {
+  let networkFullList = Object.values(state.networkMap);
+  let list = networkFullList.filter(network =>
+    !network.isDisabled && isValidEnv(network.env)
+  );
+  return list
+}
+
+export function getWalletProvider() {
+  return localStorage.getItem('walletProvider') || '';
+};
+
 export function isWalletConnected() {
   const wallet = Wallet.getClientInstance();
   return wallet.isConnected;
@@ -176,20 +196,122 @@ export async function switchNetwork(chainId: number) {
 }
 
 export const updateWalletConfig = (options: any) => {
+  if (options.infuraId) {
+    setInfuraId(options.infuraId);
+  }
+  if (options.networks) {
+    setNetworkList(options.networks, options.infuraId);
+  }
+  if (options.defaultChainId) {
+    setDefaultChainId(options.defaultChainId);
+  }
   if (options.wallets) {
     state.wallets = options.wallets
   }
   if (options.walletConnect) {
     state.walletConnectConfig = options.walletConnect
   }
+  const networks = Object.values(state.networkMap);
+  const multicalls = getMulticallInfoList();
+  state.multicalls = multicalls;
+  const clientWalletConfig: IClientWalletConfig = {
+    defaultChainId: state.defaultChainId,
+    networks,
+    infuraId: state.infuraId,
+    multicalls
+  }
+  const clientWallet = Wallet.getClientInstance();
+  clientWallet.initClientWallet(clientWalletConfig);
+
+  const rpcWalletConfig: IRpcWalletConfig = {
+    networks,
+    defaultChainId: clientWallet.chainId,
+    infuraId: state.infuraId,
+    multicalls
+  }
+  const instanceId = clientWallet.initRpcWallet(rpcWalletConfig);
+  state.instanceId = instanceId;
+  application.store = {
+    ...application.store,
+    ...state
+  }
 }
 
-export const toggleThemeButton = (options: any) => {
-  state.showThemeButton = options?.showThemeButton ?? false
+export const isDefaultNetworkFromWallet = () => {
+  return state.defaultNetworkFromWallet;
 }
 
-export const hasThemeButton = () => {
-  return state.showThemeButton
+const setNetworkList = (networkOptionsList: IExtendedNetwork[] | "*", infuraId?: string) => {
+  state.networkMap = {};
+  const defaultNetworkList: INetwork[] = getNetworkList();
+  const defaultNetworkMap: Record<number, INetwork> = defaultNetworkList.reduce((acc, cur) => {
+    acc[cur.chainId] = cur;
+    return acc;
+  }, {});
+  state.defaultNetworkFromWallet = networkOptionsList === "*";
+  if (state.defaultNetworkFromWallet) {
+    const networksMap = defaultNetworkMap;
+    for (const chainId in networksMap) {
+      const networkInfo = networksMap[chainId];
+      const explorerUrl = networkInfo.blockExplorerUrls && networkInfo.blockExplorerUrls.length ? networkInfo.blockExplorerUrls[0] : "";
+      if (state.infuraId && networkInfo.rpcUrls && networkInfo.rpcUrls.length > 0) {
+        for (let i = 0; i < networkInfo.rpcUrls.length; i++) {
+          networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{INFURA_ID}/g, infuraId);
+        }
+      }
+      state.networkMap[networkInfo.chainId] =  {
+        ...networkInfo,
+        symbol: networkInfo.nativeCurrency?.symbol || "",
+        explorerTxUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}tx/` : "",
+        explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : ""
+      }
+    }
+  }
+  else if (Array.isArray(networkOptionsList)) {
+    const networksMap = defaultNetworkMap;
+    let networkOptionsMap = networkOptionsList.reduce((acc, cur) => {
+      acc[cur.chainId] = cur;
+      return acc;
+    }, {} as Record<number, IExtendedNetwork>);
+    for (let chainId in networksMap) {
+      const networkOptions = networkOptionsMap[chainId];
+      const networkInfo = networksMap[chainId];
+      const explorerUrl = networkInfo.blockExplorerUrls && networkInfo.blockExplorerUrls.length ? networkInfo.blockExplorerUrls[0] : "";
+      if (infuraId && networkInfo.rpcUrls && networkInfo.rpcUrls.length > 0) {
+        for (let i = 0; i < networkInfo.rpcUrls.length; i++) {
+          networkInfo.rpcUrls[i] = networkInfo.rpcUrls[i].replace(/{INFURA_ID}/g, infuraId);
+        }
+      }
+      state.networkMap[networkInfo.chainId] = {
+        ...networkInfo,
+        ...networkOptions,
+        symbol: networkInfo.nativeCurrency?.symbol || "",
+        explorerTxUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}tx/` : "",
+        explorerAddressUrl: explorerUrl ? `${explorerUrl}${explorerUrl.endsWith("/") ? "" : "/"}address/` : "",
+        isDisabled: !!networkOptions ? false : true
+      }
+    }
+  }
+}
+
+export const getNetworkInfo = (chainId: number): IExtendedNetwork | undefined => {
+  return state.networkMap[chainId];
+}
+
+const setDefaultChainId = (chainId: number) => {
+  state.defaultChainId = chainId;
+}
+
+export const getDefaultChainId = () => {
+  return state.defaultChainId;
+}
+
+const setInfuraId = (infuraId: string) => {
+  state.infuraId = infuraId;
+}
+
+export const getInfuraId = () => {
+  return state.infuraId;
 }
 
 export const setWalletPluginProvider = (name: string, wallet: IWalletPlugin) => {
@@ -210,4 +332,12 @@ export const setWalletConnectConfig = (data: IWalletConnectConfig) => {
 
 export const getWalletConnectConfig = () => {
   return state.walletConnectConfig;
+}
+
+export const viewOnExplorerByAddress = (chainId: number, address: string) => {
+  let network = getNetworkInfo(chainId);
+  if (network && network.explorerAddressUrl) {
+    let url = `${network.explorerAddressUrl}${address}`;
+    window.open(url);
+  }
 }

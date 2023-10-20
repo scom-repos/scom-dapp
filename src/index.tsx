@@ -1,8 +1,8 @@
 import { Module, Styles, Container, customModule, application, Panel, IEventBus } from '@ijstech/components';
 import {} from '@ijstech/eth-contract';
 import styleClass from './index.css';
-import { updateNetworks } from './network';
-import { toggleThemeButton, updateWalletConfig } from './wallet';
+import { updateConfig } from './site';
+import { updateWalletConfig } from './wallet';
 export { Header } from './header';
 export { Footer } from './footer';
 export { Alert } from './alert';
@@ -75,9 +75,8 @@ export default class MainLauncher extends Module {
 		window.onhashchange = this.handleHashChange.bind(this);
 		this.menuItems = this.options.menus || [];
 		assets.breakpoints = this.options.breakpoints;
-		updateNetworks(this.options);
+		updateConfig(this.options);
 		updateWalletConfig(this.options);
-		toggleThemeButton(this.options)
 		this.updateThemes(this.options.themes)
 		this.customHeaderStyles = this._options?.header?.customStyles ?? {};
 		this.customFooterStyles = this._options?.footer?.customStyles ?? {};
