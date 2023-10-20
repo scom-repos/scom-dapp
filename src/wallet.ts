@@ -231,7 +231,10 @@ export const updateWalletConfig = (options: any) => {
   }
   const instanceId = clientWallet.initRpcWallet(rpcWalletConfig);
   state.instanceId = instanceId;
-  application.store = state;
+  application.store = {
+    ...application.store,
+    ...state
+  }
 }
 
 export const isDefaultNetworkFromWallet = () => {

@@ -1,3 +1,4 @@
+import { application } from "@ijstech/components";
 import { IOAuthProvider } from "./interface";
 
 export const updateConfig = (options: any) => {
@@ -11,6 +12,10 @@ export const updateConfig = (options: any) => {
     setRequireLogin(options.requireLogin);
   }
   state.showThemeButton = options?.showThemeButton ?? false
+  application.store = {
+    ...application.store,
+    ...state
+  }
 };
 
 const state = {
