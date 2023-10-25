@@ -346,6 +346,59 @@ declare module "@scom/dapp/alert.tsx" {
         render(): any;
     }
 }
+/// <amd-module name="@scom/dapp/selectNetwork.tsx" />
+declare module "@scom/dapp/selectNetwork.tsx" {
+    import { Module } from '@ijstech/components';
+    export class SelectNetwork extends Module {
+        private gridNetworkGroup;
+        private networkMapper;
+        private networkActiveIndicatorMap;
+        private currActiveNetworkId;
+        onNetworkSelected(): Promise<void>;
+        switchNetwork(chainId: number): Promise<void>;
+        isNetworkActive(chainId: number): boolean;
+        renderNetworks(): void;
+        setActiveNetworkIndicator(connected: boolean): void;
+        init(): Promise<void>;
+        render(): any;
+    }
+}
+/// <amd-module name="@scom/dapp/connectWallet.tsx" />
+declare module "@scom/dapp/connectWallet.tsx" {
+    import { Module } from '@ijstech/components';
+    export class ConnectWallet extends Module {
+        private pnlWalletPlugins;
+        private pnlOAuthPlugins;
+        private walletMapper;
+        private currActiveWallet;
+        private inputEmailAddress;
+        private btnSubmitEmail;
+        private lbConfirmEmailRecipient;
+        private pnlAuthCodeDigits;
+        private pnlLogin;
+        private pnlConfirmEmail;
+        private pnlEmail;
+        private digitInputs;
+        onWalletSelected(): Promise<void>;
+        isWalletActive(walletPlugin: any): boolean;
+        openLink(link: any): Window;
+        handleSignInWithGoogle(response: any): Promise<void>;
+        connectToProviderFunc: (walletPlugin: string) => Promise<void>;
+        private onDigitInputKeyUp;
+        private renderAuthCodeDigits;
+        onSubmitEmail(): Promise<void>;
+        handleEmailLogin(): Promise<void>;
+        initWallet: () => Promise<void>;
+        setActiveWalletIndicator(connected: boolean): void;
+        private onTogglePanel;
+        private onEmailInputChanged;
+        private onInputFocused;
+        private onInputBlured;
+        show(): void;
+        init(): Promise<void>;
+        render(): any;
+    }
+}
 /// <amd-module name="@scom/dapp/header.tsx" />
 declare module "@scom/dapp/header.tsx" {
     import { Module, Control, ControlElement, Container, IMenuItem } from '@ijstech/components';
@@ -380,14 +433,9 @@ declare module "@scom/dapp/header.tsx" {
         private btnWalletDetail;
         private mdWalletDetail;
         private btnConnectWallet;
-        private mdNetwork;
-        private mdConnectWallet;
         private mdAccount;
-        private mdEmailLogin;
         private lblWalletAddress;
         private hsViewAccount;
-        private gridWalletList;
-        private gridNetworkGroup;
         private mdMainAlert;
         private switchTheme;
         private _hideNetworkButton;
@@ -395,22 +443,13 @@ declare module "@scom/dapp/header.tsx" {
         private $eventBus;
         private selectedNetwork;
         private _menuItems;
-        private networkMapper;
-        private walletMapper;
-        private currActiveNetworkId;
-        private currActiveWallet;
         private imgDesktopLogo;
         private imgMobileLogo;
-        private supportedNetworks;
         private isLoginRequestSent;
         private wallet;
         private keepAliveInterval;
-        private lbEmailLoginMsg;
-        private pnlInputEmailAddress;
-        private pnlInputAuthCode;
-        private inputEmailAddress;
-        private inputAuthCode;
-        private pnlSignInWithGoogle;
+        private selectNetworkModule;
+        private connectWalletModule;
         private walletInfo;
         constructor(parent?: Container, options?: any);
         get symbol(): string;
@@ -426,26 +465,20 @@ declare module "@scom/dapp/header.tsx" {
         controlMenuDisplay(): void;
         handleChainChanged: (chainId: number) => Promise<void>;
         updateConnectedStatus: (isConnected: boolean) => void;
-        updateDot(connected: boolean, type: 'network' | 'wallet'): void;
         updateList(isConnected: boolean): void;
         openConnectModal: () => void;
-        openNetworkModal: () => void;
+        openNetworkModal: () => Promise<void>;
         openWalletDetailModal: () => void;
         openAccountModal: (target: Control, event: Event) => void;
-        openSwitchModal: (target: Control, event: Event) => void;
         login: () => Promise<ILoginResult>;
         handleLogoutClick: (target: Control, event: Event) => Promise<void>;
         viewOnExplorerByAddress(): void;
-        switchNetwork(chainId: number): Promise<void>;
         openLink(link: any): Window;
-        handleSignInWithGoogle(response: any): Promise<void>;
-        connectToProviderFunc: (walletPlugin: string) => Promise<void>;
         copyWalletAddress: () => void;
         isWalletActive(walletPlugin: any): boolean;
         isNetworkActive(chainId: number): boolean;
         keepSessionAlive(account: string, expireAt: number): void;
         initWallet: () => Promise<void>;
-        renderNetworks(): void;
         getMenuPath(url: string, params: any): string;
         _getMenuData(list: IMenu[], mode: string, validMenuItemsFn: (item: IMenu) => boolean): IMenuItem[];
         getMenuData(list: IMenu[], mode: string): any;
@@ -453,8 +486,6 @@ declare module "@scom/dapp/header.tsx" {
         renderDesktopMenu(): void;
         toggleMenu(): void;
         onThemeChanged(): void;
-        handleSendAuthCode(): Promise<void>;
-        handleEmailLogin(): Promise<void>;
         render(): any;
     }
 }
