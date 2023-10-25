@@ -13,32 +13,30 @@ import {
   IEventBus,
   Panel,
   HStack,
-  GridLayout,
   Container,
   IMenuItem,
   Image,
   Switch,
   FormatUtils,
-  Input,
-  VStack
 } from '@ijstech/components';
 import { Constants, Wallet, IClientWallet} from "@ijstech/eth-wallet";
 import styleClass from './header.css';
-import Assets, { assets } from './assets';
+import { assets } from './assets';
 import {
   isValidEnv, 
   getRequireLogin,
   getIsLoggedIn,
   getLoggedInAccount,
-  hasThemeButton,
-  getOAuthProvider
+  hasThemeButton
 } from './site';
-import { getSupportedWalletProviders, switchNetwork, isWalletConnected, hasMetaMask, initWalletPlugins, WalletPlugin, getWalletPluginProvider, logoutWallet, connectWallet, getWalletProvider, getNetworkInfo, getDefaultChainId, getSiteSupportedNetworks, isDefaultNetworkFromWallet, viewOnExplorerByAddress } from './wallet';
+import { isWalletConnected, hasMetaMask, WalletPlugin, getWalletPluginProvider, logoutWallet, connectWallet, getNetworkInfo, getDefaultChainId, getSiteSupportedNetworks, isDefaultNetworkFromWallet, viewOnExplorerByAddress } from './wallet';
 import { compile } from './pathToRegexp'
-import { checkLoginSession, apiLogin, apiLogout, sendAuthCode, verifyAuthCode } from './API';
+import { checkLoginSession, apiLogin, apiLogout } from './API';
 import { Alert } from './alert';
 import { EventId } from './constants';
 import { IMenu, IExtendedNetwork } from './interface';
+import { SelectNetwork } from './selectNetwork';
+import { ConnectWallet } from './connectWallet';
 
 const Theme = Styles.Theme.ThemeVars;
 
@@ -53,7 +51,6 @@ export interface HeaderElement extends ControlElement {
   customStyles?: any;
 }
 
-declare const google: any;
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -77,14 +74,9 @@ export class Header extends Module {
   private btnWalletDetail: Button;
   private mdWalletDetail: Modal;
   private btnConnectWallet: Button;
-  private mdNetwork: Modal;
-  private mdConnectWallet: Modal;
   private mdAccount: Modal;
-  private mdEmailLogin: Modal;
   private lblWalletAddress: Label;
   private hsViewAccount: HStack;
-  private gridWalletList: GridLayout;
-  private gridNetworkGroup: GridLayout;
   private mdMainAlert: Alert;
   private switchTheme: Switch;
   private _hideNetworkButton: boolean;
@@ -93,22 +85,13 @@ export class Header extends Module {
   private $eventBus: IEventBus;
   private selectedNetwork: IExtendedNetwork | undefined;
   private _menuItems: IMenu[];
-  private networkMapper: Map<number, HStack>;
-  private walletMapper: Map<string, HStack>;
-  private currActiveNetworkId: number;
-  private currActiveWallet: string;
   private imgDesktopLogo: Image;
   private imgMobileLogo: Image;
-  private supportedNetworks: IExtendedNetwork[] = [];
   private isLoginRequestSent: Boolean;
   private wallet: IClientWallet;
   private keepAliveInterval: any;
-  private lbEmailLoginMsg: Label;
-  private pnlInputEmailAddress: VStack;
-  private pnlInputAuthCode: VStack;
-  private inputEmailAddress: Input;
-  private inputAuthCode: Input;
-  private pnlSignInWithGoogle: VStack;
+  private selectNetworkModule: SelectNetwork;
+  private connectWalletModule: ConnectWallet;
 
   @observable()
   private walletInfo = {
@@ -191,7 +174,6 @@ export class Header extends Module {
     this.renderMobileMenu();
     this.renderDesktopMenu();
     this.controlMenuDisplay();
-    this.renderNetworks();
     this.registerEvent();
 
     let selectedProvider = localStorage.getItem('walletProvider');
@@ -276,7 +258,8 @@ export class Header extends Module {
     } else {
       this.hsViewAccount.visible = false;
     }
-    const isSupportedNetwork = this.selectedNetwork && this.supportedNetworks.findIndex(network => network === this.selectedNetwork) !== -1;
+    const supportedNetworks = getSiteSupportedNetworks();
+    const isSupportedNetwork = this.selectedNetwork && supportedNetworks.findIndex(network => network === this.selectedNetwork) !== -1;
     if (isSupportedNetwork) {
       const img = this.selectedNetwork?.image ? this.selectedNetwork.image : undefined;
       this.btnNetwork.icon = img ? <i-icon width={26} height={26} image={{ url: img }} ></i-icon> : undefined;
@@ -291,41 +274,38 @@ export class Header extends Module {
     this.pnlWalletDetail.visible = isConnected;
   }
 
-  updateDot(connected: boolean, type: 'network' | 'wallet') {
-    const wallet = Wallet.getClientInstance();
-    if (type === 'network') {
-      if (this.currActiveNetworkId !== undefined && this.currActiveNetworkId !== null && this.networkMapper.has(this.currActiveNetworkId)) {
-        this.networkMapper.get(this.currActiveNetworkId).classList.remove('is-actived');
-      }
-      if (connected && this.networkMapper.has(wallet.chainId)) {
-        this.networkMapper.get(wallet.chainId).classList.add('is-actived');
-      }
-      this.currActiveNetworkId = wallet.chainId;
-    } else {
-      if (this.currActiveWallet && this.walletMapper.has(this.currActiveWallet)) {
-        this.walletMapper.get(this.currActiveWallet).classList.remove('is-actived');
-      }
-      if (connected && this.walletMapper.has(wallet.clientSideProvider?.name)) {
-        this.walletMapper.get(wallet.clientSideProvider?.name).classList.add('is-actived');
-      }
-      this.currActiveWallet = wallet.clientSideProvider?.name;
-    }
-  }
-
   updateList(isConnected: boolean) {
-    this.updateDot(isConnected, 'wallet');
-    this.updateDot(isConnected, 'network');
+    this.connectWalletModule?.setActiveWalletIndicator(isConnected);
+    this.selectNetworkModule?.setActiveNetworkIndicator(isConnected);
   }
 
   openConnectModal = () => {
     this.initWallet();
-    this.mdConnectWallet.title = "Connect wallet"
-    this.mdConnectWallet.visible = true;
+    if (!this.connectWalletModule) {
+      this.connectWalletModule = new ConnectWallet();
+      this.connectWalletModule.onWalletSelected = async () => {
+        this.connectWalletModule.closeModal();
+      }
+    }
+    let modal = this.connectWalletModule.openModal({
+      // title: 'Connect wallet',
+      width: '28rem'
+    });
+    this.connectWalletModule.show();
   }
 
-  openNetworkModal = () => {
+  openNetworkModal = async () => {
     if (isDefaultNetworkFromWallet()) return;
-    this.mdNetwork.visible = true;
+    if (!this.selectNetworkModule) {
+      this.selectNetworkModule = new SelectNetwork();
+      this.selectNetworkModule.onNetworkSelected = async () => {
+        this.selectNetworkModule.closeModal();
+      }
+    }
+    let modal = this.selectNetworkModule.openModal({
+      title: 'Select a Network',
+      width: '28rem'
+    });
   }
 
   openWalletDetailModal = () => {
@@ -336,13 +316,6 @@ export class Header extends Module {
     event.stopPropagation();
     this.mdWalletDetail.visible = false;
     this.mdAccount.visible = true;
-  }
-
-  openSwitchModal = (target: Control, event: Event) => {
-    event.stopPropagation();
-    this.mdWalletDetail.visible = false;
-    this.mdConnectWallet.title = "Switch wallet";
-    this.mdConnectWallet.visible = true;
   }
 
   login = async (): Promise<ILoginResult> => {
@@ -387,53 +360,9 @@ export class Header extends Module {
     viewOnExplorerByAddress(Wallet.getInstance().chainId, this.walletInfo.address)
   }
 
-  async switchNetwork(chainId: number) {
-    if (!chainId || isDefaultNetworkFromWallet()) return;
-    await switchNetwork(chainId);
-    this.mdNetwork.visible = false;
-  }
-
   openLink(link: any) {
     return window.open(link, '_blank');
   };
-
-  async handleSignInWithGoogle(response: any) {
-    let idToken = response.credential;
-    let payload = JSON.parse(atob(idToken.split('.')[1]));
-    let email = payload.email;
-    await connectWallet(WalletPlugin.Email, {
-      userTriggeredConnect: true,
-      verifyAuthCode: verifyAuthCode,
-      verifyAuthCodeArgs: {
-        email: email,
-        authCode: idToken,
-        provider: 'google'
-      }
-    });
-    this.mdConnectWallet.visible = false;
-    console.log(email);
-  }
-
-  connectToProviderFunc = async (walletPlugin: string) => {
-    const provider = getWalletPluginProvider(walletPlugin);
-    if (walletPlugin === WalletPlugin.Email) {
-      this.mdEmailLogin.visible = true;
-      this.mdEmailLogin.title = 'Enter your email';
-      this.lbEmailLoginMsg.caption = 'A verification code will be sent to the email address you provide.';
-      this.pnlInputEmailAddress.visible = true;
-      this.pnlInputAuthCode.visible = false;
-    }
-    else if (provider?.installed()) {
-      await connectWallet(walletPlugin, {
-        userTriggeredConnect: true
-      });
-    }
-    else {
-      let homepage = provider.homepage;
-      this.openLink(homepage);
-    }
-    this.mdConnectWallet.visible = false;
-  }
 
   copyWalletAddress = () => {
     application.copyToClipboard(this.walletInfo.address || "");
@@ -522,91 +451,6 @@ export class Header extends Module {
       const chainId = Number(chainIdHex);
       await this.handleChainChanged(chainId);
     });
-
-
-    await initWalletPlugins();
-    this.gridWalletList.clearInnerHTML();
-    this.walletMapper = new Map();
-    const walletList  = getSupportedWalletProviders();
-    walletList.forEach((wallet) => {
-      if (wallet.name === 'google') {
-        const googleContainer = new HStack();
-        this.gridWalletList.append(googleContainer);
-        google.accounts.id.initialize({
-          client_id: getOAuthProvider('google').clientId,
-          context: 'signin',
-          ux_mode: 'popup',
-          callback: this.handleSignInWithGoogle.bind(this)
-        });
-        // google.accounts.id.prompt();
-        google.accounts.id.renderButton(
-          googleContainer,
-          {
-            type: 'icon',
-            shape: 'rectangular',
-            theme: 'outline',
-            size: 'large',
-            text: 'signin_with',
-            logo_alignment: 'left',
-          }
-        )
-      }
-      else {
-        const isActive = this.isWalletActive(wallet.name);
-        if (isActive) this.currActiveWallet = wallet.name;
-        const imageUrl = wallet.image;
-        const hsWallet = (
-          <i-hstack
-            class={isActive ? 'is-actived list-item' : 'list-item'}
-            verticalAlignment='center'
-            gap={12}
-            background={{ color: Theme.colors.secondary.light }}
-            border={{ radius: 10 }} position="relative"
-            padding={{ top: '0.5rem', bottom: '0.5rem', left: '0.5rem', right: '0.5rem' }}
-            horizontalAlignment="space-between"
-            onClick={() => this.connectToProviderFunc(wallet.name)}
-          >
-            <i-label
-              caption={wallet.displayName}
-              margin={{ left: '1rem' }}
-              wordBreak="break-word"
-              font={{ size: '.875rem', bold: true, color: Theme.colors.primary.dark }}
-            />
-            <i-image width={34} height={34} url={imageUrl} />
-          </i-hstack>
-        );
-        this.walletMapper.set(wallet.name, hsWallet);
-        this.gridWalletList.append(hsWallet);
-      }
-    })
-  }
-
-  renderNetworks() {
-    this.gridNetworkGroup.clearInnerHTML();
-    this.networkMapper = new Map();
-    this.supportedNetworks = getSiteSupportedNetworks();
-    this.gridNetworkGroup.append(...this.supportedNetworks.map((network) => {
-      const img = network.image ? <i-image url={network.image} width={34} height={34} /> : [];
-      const isActive = this.isNetworkActive(network.chainId);
-      if (isActive) this.currActiveNetworkId = network.chainId;
-      const hsNetwork = (
-        <i-hstack
-          onClick={() => this.switchNetwork(network.chainId)}
-          background={{ color: Theme.colors.secondary.light }}
-          border={{ radius: 10 }}
-          position="relative"
-          class={isActive ? 'is-actived list-item' : 'list-item'}
-          padding={{ top: '0.65rem', bottom: '0.65rem', left: '0.5rem', right: '0.5rem' }}
-        >
-          <i-hstack margin={{ left: '1rem' }} verticalAlignment="center" gap={12}>
-            {img}
-            <i-label caption={network.chainName} wordBreak="break-word" font={{ size: '.875rem', bold: true, color: Theme.colors.primary.dark }} />
-          </i-hstack>
-        </i-hstack>
-      );
-      this.networkMapper.set(network.chainId, hsNetwork);
-      return hsNetwork;
-    }));
   }
 
   getMenuPath(url: string, params: any) {
@@ -674,26 +518,6 @@ export class Header extends Module {
     document.body.style.setProperty('--theme', themeType)
     application.EventBus.dispatch(EventId.themeChanged, themeType);
     this.controlMenuDisplay();
-  }
-
-  async handleSendAuthCode() {
-    await sendAuthCode(this.inputEmailAddress.value);
-    this.mdEmailLogin.title = 'Check your email';
-    this.lbEmailLoginMsg.caption = 'Please enter the 6-digit verification code that was sent. The code is valid for 5 minutes.';
-    this.pnlInputEmailAddress.visible = false;
-    this.pnlInputAuthCode.visible = true;
-  }
-
-  async handleEmailLogin() {
-    await connectWallet(WalletPlugin.Email, {
-      userTriggeredConnect: true,
-      verifyAuthCode: verifyAuthCode,
-      verifyAuthCodeArgs: {
-        email: this.inputEmailAddress.value,
-        authCode: this.inputAuthCode.value
-      }
-    });
-    this.mdEmailLogin.visible = false;
   }
 
   render() {
@@ -817,16 +641,6 @@ export class Header extends Module {
                       padding={{ top: '0.5rem', bottom: '0.5rem' }}
                       onClick={this.openAccountModal}
                     ></i-button>
-                    {/* <i-button
-                      caption="Switch wallet"
-                      width="100%"
-                      height="auto"
-                      border={{ radius: 5 }}
-                      font={{ color: Theme.colors.primary.contrastText }}
-                      background={{ color: Theme.colors.error.light }}
-                      padding={{ top: '0.5rem', bottom: '0.5rem' }}
-                      onClick={this.openSwitchModal}
-                    ></i-button> */}
                     <i-button
                       caption="Logout"
                       width="100%"
@@ -852,66 +666,6 @@ export class Header extends Module {
               ></i-button>
             </i-hstack>
           </i-grid-layout>
-        <i-modal
-          id='mdNetwork'
-          title='Select a Network'
-          class='os-modal'
-          width={440}
-          closeIcon={{ name: 'times' }}
-          border={{ radius: 10 }}
-        >
-          <i-vstack
-            height='100%' lineHeight={1.5}
-            padding={{ left: '1rem', right: '1rem', bottom: '2rem' }}
-          >
-            <i-hstack
-              margin={{ left: '-1.25rem', right: '-1.25rem' }}
-              height='100%'
-            >
-              <i-grid-layout
-                id='gridNetworkGroup'
-                font={{ color: '#f05e61' }}
-                height="calc(100% - 160px)"
-                width="100%"
-                overflow={{ y: 'auto' }}
-                margin={{ top: '1.5rem' }}
-                padding={{ left: '1.25rem', right: '1.25rem' }}
-                columnsPerRow={1}
-                templateRows={['max-content']}
-                class='list-view'
-                gap={{ row: '0.5rem' }}
-              ></i-grid-layout>
-            </i-hstack>
-          </i-vstack>
-        </i-modal>
-        <i-modal
-          id='mdConnectWallet'
-          title='Connect Wallet'
-          class='os-modal'
-          width={440}
-          closeIcon={{ name: 'times' }}
-          border={{ radius: 10 }}
-        >
-          <i-vstack padding={{ left: '1rem', right: '1rem', bottom: '2rem' }} lineHeight={1.5}>
-            <i-label
-              font={{ size: '.875rem' }}
-              caption='Recommended wallet for Chrome'
-              margin={{ top: '1rem' }}
-              wordBreak="break-word"
-            ></i-label>
-            <i-panel>
-              <i-grid-layout
-                id='gridWalletList'
-                class='list-view'
-                margin={{ top: '0.5rem' }}
-                columnsPerRow={1}
-                templateRows={['max-content']}
-                gap={{ row: 8 }}
-              >
-              </i-grid-layout>
-            </i-panel>
-          </i-vstack>
-        </i-modal>
         <i-modal
           id='mdAccount'
           title='Account'
@@ -955,27 +709,6 @@ export class Header extends Module {
                 <i-label caption="View on Explorer" margin={{ left: "0.5rem" }} font={{ size: "0.875rem", bold: true }} />
               </i-hstack>
             </i-hstack>
-          </i-vstack>
-        </i-modal>
-        <i-modal
-          id='mdEmailLogin'
-          width={600}
-          closeIcon={{ name: 'times' }}
-          border={{ radius: 10 }}
-        >
-          <i-hstack margin={{ bottom: '2rem' }}>
-            <i-label id="lbEmailLoginMsg" font={{size: '1rem'}}></i-label>
-          </i-hstack>
-          <i-vstack id="pnlInputEmailAddress" padding={{ left: '1rem', right: '1rem', bottom: '2rem' }} lineHeight={1.5}>
-            <i-label caption='Email'></i-label>
-            <i-input width="100%" id='inputEmailAddress' margin={{ bottom: '1rem' }}></i-input>
-            <i-button caption='Send verification code' onClick={this.handleSendAuthCode} width='100%'/>
-            <i-vstack id='pnlSignInWithGoogle'></i-vstack>
-          </i-vstack>
-          <i-vstack id="pnlInputAuthCode" padding={{ left: '1rem', right: '1rem', bottom: '2rem' }} lineHeight={1.5} visible={false}>
-            <i-label caption='Verification code'></i-label>
-            <i-input width="100%" id='inputAuthCode' margin={{ bottom: '1rem' }}></i-input>
-            <i-button caption='Verify code' onClick={this.handleEmailLogin} width='100%'/>
           </i-vstack>
         </i-modal>
         <main-alert id="mdMainAlert"></main-alert>
