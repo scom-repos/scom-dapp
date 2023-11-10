@@ -554,7 +554,7 @@ export class Header extends Module {
                 popupPlacement="bottomLeft"
                 background={{ color: Theme.background.modal }}
               >
-                <i-menu id="menuMobile" mode="inline"></i-menu>
+                <i-menu id="menuMobile" mode="inline" font={{ color: Theme.text.primary }}></i-menu>
               </i-modal>
               <i-image
                 id="imgMobileLogo"
@@ -571,7 +571,12 @@ export class Header extends Module {
                 height={40}
                 margin={{ right: '1.25rem' }}
               />
-              <i-menu id="menuDesktop" width="100%" border={{ left: { color: Theme.divider, width: '1px', style: 'solid' } }}></i-menu>
+              <i-menu
+                id="menuDesktop"
+                width="100%"
+                border={{ left: { color: Theme.divider, width: '1px', style: 'solid' } }}
+                font={{ color: Theme.text.primary }}
+              ></i-menu>
             </i-hstack>
             <i-hstack verticalAlignment='center' horizontalAlignment='end'>
               <i-panel margin={{right: '0.5rem'}}>
