@@ -1,5 +1,5 @@
-/// <amd-module name="@scom/dapp/pathToRegexp.ts" />
-declare module "@scom/dapp/pathToRegexp.ts" {
+/// <amd-module name="@scom/scom-dapp/pathToRegexp.ts" />
+declare module "@scom/scom-dapp/pathToRegexp.ts" {
     export interface ParseOptions {
         /**
          * Set the default delimiter for repeat parameters. (default: `'/'`)
@@ -128,9 +128,9 @@ declare module "@scom/dapp/pathToRegexp.ts" {
      */
     export function pathToRegexp(path: Path, keys?: Key[], options?: TokensToRegexpOptions & ParseOptions): RegExp;
 }
-/// <amd-module name="@scom/dapp/interface.ts" />
-declare module "@scom/dapp/interface.ts" {
-    import { MatchFunction } from "@scom/dapp/pathToRegexp.ts";
+/// <amd-module name="@scom/scom-dapp/interface.ts" />
+declare module "@scom/scom-dapp/interface.ts" {
+    import { MatchFunction } from "@scom/scom-dapp/pathToRegexp.ts";
     import { INetwork } from '@ijstech/eth-wallet';
     export interface IBreakpoints {
         mobile: number;
@@ -176,9 +176,9 @@ declare module "@scom/dapp/interface.ts" {
         clientId: string;
     }
 }
-/// <amd-module name="@scom/dapp/assets.ts" />
-declare module "@scom/dapp/assets.ts" {
-    import { IBreakpoints } from "@scom/dapp/interface.ts";
+/// <amd-module name="@scom/scom-dapp/assets.ts" />
+declare module "@scom/scom-dapp/assets.ts" {
+    import { IBreakpoints } from "@scom/scom-dapp/interface.ts";
     type viewportType = "desktop" | "tablet" | "mobile";
     interface ILogo {
         header: string;
@@ -212,14 +212,14 @@ declare module "@scom/dapp/assets.ts" {
     };
     export default _default;
 }
-/// <amd-module name="@scom/dapp/index.css.ts" />
-declare module "@scom/dapp/index.css.ts" {
+/// <amd-module name="@scom/scom-dapp/index.css.ts" />
+declare module "@scom/scom-dapp/index.css.ts" {
     const _default_1: string;
     export default _default_1;
 }
-/// <amd-module name="@scom/dapp/site.ts" />
-declare module "@scom/dapp/site.ts" {
-    import { IOAuthProvider } from "@scom/dapp/interface.ts";
+/// <amd-module name="@scom/scom-dapp/site.ts" />
+declare module "@scom/scom-dapp/site.ts" {
+    import { IOAuthProvider } from "@scom/scom-dapp/interface.ts";
     export const updateConfig: (options: any) => void;
     export const getOAuthProvider: (provider: string) => IOAuthProvider;
     export const hasThemeButton: () => boolean;
@@ -229,8 +229,8 @@ declare module "@scom/dapp/site.ts" {
     export const getIsLoggedIn: (address: string) => boolean;
     export const getLoggedInAccount: () => string;
 }
-/// <amd-module name="@scom/dapp/constants.ts" />
-declare module "@scom/dapp/constants.ts" {
+/// <amd-module name="@scom/scom-dapp/constants.ts" />
+declare module "@scom/scom-dapp/constants.ts" {
     export const enum EventId {
         ConnectWallet = "connectWallet",
         IsWalletConnected = "isWalletConnected",
@@ -243,11 +243,11 @@ declare module "@scom/dapp/constants.ts" {
         scrollToTop = "scrollToTop"
     }
 }
-/// <amd-module name="@scom/dapp/wallet.ts" />
-declare module "@scom/dapp/wallet.ts" {
+/// <amd-module name="@scom/scom-dapp/wallet.ts" />
+declare module "@scom/scom-dapp/wallet.ts" {
     import { IClientSideProvider, IConnectWalletEventPayload } from '@ijstech/eth-wallet';
     import { IWallet } from '@ijstech/eth-wallet';
-    import { IExtendedNetwork } from "@scom/dapp/interface.ts";
+    import { IExtendedNetwork } from "@scom/scom-dapp/interface.ts";
     export interface IWalletConnectMetadata {
         name: string;
         description: string;
@@ -292,13 +292,13 @@ declare module "@scom/dapp/wallet.ts" {
     export const getWalletConnectConfig: () => IWalletConnectConfig;
     export const viewOnExplorerByAddress: (chainId: number, address: string) => void;
 }
-/// <amd-module name="@scom/dapp/header.css.ts" />
-declare module "@scom/dapp/header.css.ts" {
+/// <amd-module name="@scom/scom-dapp/header.css.ts" />
+declare module "@scom/scom-dapp/header.css.ts" {
     const _default_2: string;
     export default _default_2;
 }
-/// <amd-module name="@scom/dapp/API.ts" />
-declare module "@scom/dapp/API.ts" {
+/// <amd-module name="@scom/scom-dapp/API.ts" />
+declare module "@scom/scom-dapp/API.ts" {
     function checkLoginSession(walletAddress: string): Promise<any>;
     function apiLogin(): Promise<any>;
     function apiLogout(): Promise<any>;
@@ -306,12 +306,12 @@ declare module "@scom/dapp/API.ts" {
     function verifyAuthCode(verifyAuthCodeArgs: any): Promise<any>;
     export { checkLoginSession, apiLogin, apiLogout, sendAuthCode, verifyAuthCode };
 }
-/// <amd-module name="@scom/dapp/alert.css.ts" />
-declare module "@scom/dapp/alert.css.ts" {
+/// <amd-module name="@scom/scom-dapp/alert.css.ts" />
+declare module "@scom/scom-dapp/alert.css.ts" {
     export const modalStyle: string;
 }
-/// <amd-module name="@scom/dapp/alert.tsx" />
-declare module "@scom/dapp/alert.tsx" {
+/// <amd-module name="@scom/scom-dapp/alert.tsx" />
+declare module "@scom/scom-dapp/alert.tsx" {
     import { Module, ControlElement } from '@ijstech/components';
     global {
         namespace JSX {
@@ -346,8 +346,8 @@ declare module "@scom/dapp/alert.tsx" {
         render(): any;
     }
 }
-/// <amd-module name="@scom/dapp/selectNetwork.tsx" />
-declare module "@scom/dapp/selectNetwork.tsx" {
+/// <amd-module name="@scom/scom-dapp/selectNetwork.tsx" />
+declare module "@scom/scom-dapp/selectNetwork.tsx" {
     import { Module } from '@ijstech/components';
     export class SelectNetwork extends Module {
         private gridNetworkGroup;
@@ -363,8 +363,8 @@ declare module "@scom/dapp/selectNetwork.tsx" {
         render(): any;
     }
 }
-/// <amd-module name="@scom/dapp/connectWallet.tsx" />
-declare module "@scom/dapp/connectWallet.tsx" {
+/// <amd-module name="@scom/scom-dapp/connectWallet.tsx" />
+declare module "@scom/scom-dapp/connectWallet.tsx" {
     import { Module } from '@ijstech/components';
     export class ConnectWallet extends Module {
         private pnlWalletPlugins;
@@ -399,10 +399,10 @@ declare module "@scom/dapp/connectWallet.tsx" {
         render(): any;
     }
 }
-/// <amd-module name="@scom/dapp/header.tsx" />
-declare module "@scom/dapp/header.tsx" {
+/// <amd-module name="@scom/scom-dapp/header.tsx" />
+declare module "@scom/scom-dapp/header.tsx" {
     import { Module, Control, ControlElement, Container, IMenuItem } from '@ijstech/components';
-    import { IMenu } from "@scom/dapp/interface.ts";
+    import { IMenu } from "@scom/scom-dapp/interface.ts";
     interface ILoginResult {
         success: boolean;
         error?: string;
@@ -489,12 +489,12 @@ declare module "@scom/dapp/header.tsx" {
         render(): any;
     }
 }
-/// <amd-module name="@scom/dapp/footer.css.ts" />
-declare module "@scom/dapp/footer.css.ts" {
+/// <amd-module name="@scom/scom-dapp/footer.css.ts" />
+declare module "@scom/scom-dapp/footer.css.ts" {
     export const logoStyle: string;
 }
-/// <amd-module name="@scom/dapp/footer.tsx" />
-declare module "@scom/dapp/footer.tsx" {
+/// <amd-module name="@scom/scom-dapp/footer.tsx" />
+declare module "@scom/scom-dapp/footer.tsx" {
     import { Module, ControlElement } from '@ijstech/components';
     export interface FooterElement extends ControlElement {
         logo?: string;
@@ -521,30 +521,30 @@ declare module "@scom/dapp/footer.tsx" {
         render(): any;
     }
 }
-/// <amd-module name="@scom/dapp/theme/light.theme.ts" />
-declare module "@scom/dapp/theme/light.theme.ts" {
+/// <amd-module name="@scom/scom-dapp/theme/light.theme.ts" />
+declare module "@scom/scom-dapp/theme/light.theme.ts" {
     import { Styles } from '@ijstech/components';
     const Theme: Styles.Theme.ITheme;
     export default Theme;
 }
-/// <amd-module name="@scom/dapp/theme/dark.theme.ts" />
-declare module "@scom/dapp/theme/dark.theme.ts" {
+/// <amd-module name="@scom/scom-dapp/theme/dark.theme.ts" />
+declare module "@scom/scom-dapp/theme/dark.theme.ts" {
     import { Styles } from '@ijstech/components';
     const Theme: Styles.Theme.ITheme;
     export default Theme;
 }
-/// <amd-module name="@scom/dapp/theme/index.ts" />
-declare module "@scom/dapp/theme/index.ts" {
-    import LightTheme from "@scom/dapp/theme/light.theme.ts";
-    import DarkTheme from "@scom/dapp/theme/dark.theme.ts";
+/// <amd-module name="@scom/scom-dapp/theme/index.ts" />
+declare module "@scom/scom-dapp/theme/index.ts" {
+    import LightTheme from "@scom/scom-dapp/theme/light.theme.ts";
+    import DarkTheme from "@scom/scom-dapp/theme/dark.theme.ts";
     export { LightTheme, DarkTheme };
 }
-/// <amd-module name="@scom/dapp" />
-declare module "@scom/dapp" {
+/// <amd-module name="@scom/scom-dapp" />
+declare module "@scom/scom-dapp" {
     import { Module, Styles, Container } from '@ijstech/components';
-    export { Header } from "@scom/dapp/header.tsx";
-    export { Footer } from "@scom/dapp/footer.tsx";
-    export { Alert } from "@scom/dapp/alert.tsx";
+    export { Header } from "@scom/scom-dapp/header.tsx";
+    export { Footer } from "@scom/scom-dapp/footer.tsx";
+    export { Alert } from "@scom/scom-dapp/alert.tsx";
     interface ITheme {
         default: string;
         dark?: Styles.Theme.ITheme;

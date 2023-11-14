@@ -4,13 +4,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-///<amd-module name='@scom/dapp/pathToRegexp.ts'/> 
+///<amd-module name='@scom/scom-dapp/pathToRegexp.ts'/> 
 /*---------------------------------------------------------------------------------------------
   *  Copyright (c) 2014 Blake Embrey (hello@blakeembrey.com)
   *  Licensed under the MIT License.
   *  https://github.com/pillarjs/path-to-regexp/blob/1cbb9f3d9c3bff97298ec45b1bb2b0beb879babf/LICENSE
   *--------------------------------------------------------------------------------------------*/
-define("@scom/dapp/pathToRegexp.ts", ["require", "exports"], function (require, exports) {
+define("@scom/scom-dapp/pathToRegexp.ts", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.pathToRegexp = exports.tokensToRegexp = exports.regexpToFunction = exports.match = exports.tokensToFunction = exports.compile = exports.parse = void 0;
@@ -413,13 +413,13 @@ define("@scom/dapp/pathToRegexp.ts", ["require", "exports"], function (require, 
     }
     exports.pathToRegexp = pathToRegexp;
 });
-define("@scom/dapp/interface.ts", ["require", "exports"], function (require, exports) {
+define("@scom/scom-dapp/interface.ts", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     ;
     ;
 });
-define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_1) {
+define("@scom/scom-dapp/assets.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.assets = void 0;
@@ -495,7 +495,7 @@ define("@scom/dapp/assets.ts", ["require", "exports", "@ijstech/components"], fu
         fullPath
     };
 });
-define("@scom/dapp/index.css.ts", ["require", "exports", "@ijstech/components", "@scom/dapp/assets.ts"], function (require, exports, components_2, assets_1) {
+define("@scom/scom-dapp/index.css.ts", ["require", "exports", "@ijstech/components", "@scom/scom-dapp/assets.ts"], function (require, exports, components_2, assets_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // Styles.Theme.darkTheme.background.default = '#192F51';
@@ -584,7 +584,7 @@ define("@scom/dapp/index.css.ts", ["require", "exports", "@ijstech/components", 
         fontStyle: 'normal'
     });
 });
-define("@scom/dapp/site.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_3) {
+define("@scom/scom-dapp/site.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getLoggedInAccount = exports.getIsLoggedIn = exports.getRequireLogin = exports.getEnv = exports.isValidEnv = exports.hasThemeButton = exports.getOAuthProvider = exports.updateConfig = void 0;
@@ -650,12 +650,12 @@ define("@scom/dapp/site.ts", ["require", "exports", "@ijstech/components"], func
     };
     exports.getLoggedInAccount = getLoggedInAccount;
 });
-define("@scom/dapp/constants.ts", ["require", "exports"], function (require, exports) {
+define("@scom/scom-dapp/constants.ts", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     ;
 });
-define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-multicall", "@scom/scom-network-list", "@scom/dapp/site.ts"], function (require, exports, components_4, eth_wallet_1, scom_multicall_1, scom_network_list_1, site_1) {
+define("@scom/scom-dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-multicall", "@scom/scom-network-list", "@scom/scom-dapp/site.ts"], function (require, exports, components_4, eth_wallet_1, scom_multicall_1, scom_network_list_1, site_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.viewOnExplorerByAddress = exports.getWalletConnectConfig = exports.setWalletConnectConfig = exports.getWalletPluginProvider = exports.setWalletPluginProvider = exports.getInfuraId = exports.getDefaultChainId = exports.getNetworkInfo = exports.isDefaultNetworkFromWallet = exports.updateWalletConfig = exports.switchNetwork = exports.hasMetaMask = exports.hasWallet = exports.isWalletConnected = exports.getWalletProvider = exports.getSiteSupportedNetworks = exports.getSupportedWalletProviders = exports.logoutWallet = exports.connectWallet = exports.initWalletPlugins = exports.WalletPlugin = void 0;
@@ -962,7 +962,7 @@ define("@scom/dapp/wallet.ts", ["require", "exports", "@ijstech/components", "@i
     };
     exports.viewOnExplorerByAddress = viewOnExplorerByAddress;
 });
-define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_5) {
+define("@scom/scom-dapp/header.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = components_5.Styles.Theme.ThemeVars;
@@ -1033,7 +1033,7 @@ define("@scom/dapp/header.css.ts", ["require", "exports", "@ijstech/components"]
         }
     });
 });
-define("@scom/dapp/API.ts", ["require", "exports", "@ijstech/eth-wallet"], function (require, exports, eth_wallet_2) {
+define("@scom/scom-dapp/API.ts", ["require", "exports", "@ijstech/eth-wallet"], function (require, exports, eth_wallet_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.verifyAuthCode = exports.sendAuthCode = exports.apiLogout = exports.apiLogin = exports.checkLoginSession = void 0;
@@ -1152,7 +1152,7 @@ define("@scom/dapp/API.ts", ["require", "exports", "@ijstech/eth-wallet"], funct
     }
     exports.verifyAuthCode = verifyAuthCode;
 });
-define("@scom/dapp/alert.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_6) {
+define("@scom/scom-dapp/alert.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_6) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.modalStyle = void 0;
@@ -1165,7 +1165,7 @@ define("@scom/dapp/alert.css.ts", ["require", "exports", "@ijstech/components"],
         }
     });
 });
-define("@scom/dapp/alert.tsx", ["require", "exports", "@ijstech/components", "@scom/dapp/alert.css.ts"], function (require, exports, components_7, alert_css_1) {
+define("@scom/scom-dapp/alert.tsx", ["require", "exports", "@ijstech/components", "@scom/scom-dapp/alert.css.ts"], function (require, exports, components_7, alert_css_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Alert = void 0;
@@ -1246,7 +1246,7 @@ define("@scom/dapp/alert.tsx", ["require", "exports", "@ijstech/components", "@s
     exports.Alert = Alert;
     ;
 });
-define("@scom/dapp/selectNetwork.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/dapp/wallet.ts"], function (require, exports, components_8, eth_wallet_3, wallet_1) {
+define("@scom/scom-dapp/selectNetwork.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-dapp/wallet.ts"], function (require, exports, components_8, eth_wallet_3, wallet_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.SelectNetwork = void 0;
@@ -1313,7 +1313,7 @@ define("@scom/dapp/selectNetwork.tsx", ["require", "exports", "@ijstech/componen
     ], SelectNetwork);
     exports.SelectNetwork = SelectNetwork;
 });
-define("@scom/dapp/connectWallet.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/dapp/API.ts", "@scom/dapp/assets.ts", "@scom/dapp/site.ts", "@scom/dapp/wallet.ts"], function (require, exports, components_9, eth_wallet_4, API_1, assets_2, site_2, wallet_2) {
+define("@scom/scom-dapp/connectWallet.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-dapp/API.ts", "@scom/scom-dapp/assets.ts", "@scom/scom-dapp/site.ts", "@scom/scom-dapp/wallet.ts"], function (require, exports, components_9, eth_wallet_4, API_1, assets_2, site_2, wallet_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.ConnectWallet = void 0;
@@ -1545,7 +1545,7 @@ define("@scom/dapp/connectWallet.tsx", ["require", "exports", "@ijstech/componen
     ], ConnectWallet);
     exports.ConnectWallet = ConnectWallet;
 });
-define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/dapp/header.css.ts", "@scom/dapp/assets.ts", "@scom/dapp/site.ts", "@scom/dapp/wallet.ts", "@scom/dapp/pathToRegexp.ts", "@scom/dapp/API.ts", "@scom/dapp/selectNetwork.tsx", "@scom/dapp/connectWallet.tsx"], function (require, exports, components_10, eth_wallet_5, header_css_1, assets_3, site_3, wallet_3, pathToRegexp_1, API_2, selectNetwork_1, connectWallet_1) {
+define("@scom/scom-dapp/header.tsx", ["require", "exports", "@ijstech/components", "@ijstech/eth-wallet", "@scom/scom-dapp/header.css.ts", "@scom/scom-dapp/assets.ts", "@scom/scom-dapp/site.ts", "@scom/scom-dapp/wallet.ts", "@scom/scom-dapp/pathToRegexp.ts", "@scom/scom-dapp/API.ts", "@scom/scom-dapp/selectNetwork.tsx", "@scom/scom-dapp/connectWallet.tsx"], function (require, exports, components_10, eth_wallet_5, header_css_1, assets_3, site_3, wallet_3, pathToRegexp_1, API_2, selectNetwork_1, connectWallet_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Header = void 0;
@@ -2001,7 +2001,7 @@ define("@scom/dapp/header.tsx", ["require", "exports", "@ijstech/components", "@
     ], Header);
     exports.Header = Header;
 });
-define("@scom/dapp/footer.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_11) {
+define("@scom/scom-dapp/footer.css.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_11) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.logoStyle = void 0;
@@ -2014,7 +2014,7 @@ define("@scom/dapp/footer.css.ts", ["require", "exports", "@ijstech/components"]
         }
     });
 });
-define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@scom/dapp/footer.css.ts", "@scom/dapp/assets.ts"], function (require, exports, components_12, footer_css_1, assets_4) {
+define("@scom/scom-dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@scom/scom-dapp/footer.css.ts", "@scom/scom-dapp/assets.ts"], function (require, exports, components_12, footer_css_1, assets_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Footer = void 0;
@@ -2073,7 +2073,7 @@ define("@scom/dapp/footer.tsx", ["require", "exports", "@ijstech/components", "@
     ], Footer);
     exports.Footer = Footer;
 });
-define("@scom/dapp/theme/light.theme.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_13) {
+define("@scom/scom-dapp/theme/light.theme.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_13) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = JSON.parse(JSON.stringify(components_13.Styles.Theme.defaultTheme));
@@ -2158,7 +2158,7 @@ define("@scom/dapp/theme/light.theme.ts", ["require", "exports", "@ijstech/compo
     // Layout
     exports.default = Theme;
 });
-define("@scom/dapp/theme/dark.theme.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_14) {
+define("@scom/scom-dapp/theme/dark.theme.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_14) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const Theme = JSON.parse(JSON.stringify(components_14.Styles.Theme.darkTheme));
@@ -2242,14 +2242,14 @@ define("@scom/dapp/theme/dark.theme.ts", ["require", "exports", "@ijstech/compon
     Theme.layout.container.width = '1400px';
     exports.default = Theme;
 });
-define("@scom/dapp/theme/index.ts", ["require", "exports", "@scom/dapp/theme/light.theme.ts", "@scom/dapp/theme/dark.theme.ts"], function (require, exports, light_theme_1, dark_theme_1) {
+define("@scom/scom-dapp/theme/index.ts", ["require", "exports", "@scom/scom-dapp/theme/light.theme.ts", "@scom/scom-dapp/theme/dark.theme.ts"], function (require, exports, light_theme_1, dark_theme_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DarkTheme = exports.LightTheme = void 0;
     exports.LightTheme = light_theme_1.default;
     exports.DarkTheme = dark_theme_1.default;
 });
-define("@scom/dapp", ["require", "exports", "@ijstech/components", "@scom/dapp/index.css.ts", "@scom/dapp/site.ts", "@scom/dapp/wallet.ts", "@scom/dapp/header.tsx", "@scom/dapp/footer.tsx", "@scom/dapp/alert.tsx", "@scom/dapp/pathToRegexp.ts", "@scom/dapp/assets.ts", "@scom/dapp/theme/index.ts"], function (require, exports, components_15, index_css_1, site_4, wallet_4, header_1, footer_1, alert_1, pathToRegexp_2, assets_5, theme_1) {
+define("@scom/scom-dapp", ["require", "exports", "@ijstech/components", "@scom/scom-dapp/index.css.ts", "@scom/scom-dapp/site.ts", "@scom/scom-dapp/wallet.ts", "@scom/scom-dapp/header.tsx", "@scom/scom-dapp/footer.tsx", "@scom/scom-dapp/alert.tsx", "@scom/scom-dapp/pathToRegexp.ts", "@scom/scom-dapp/assets.ts", "@scom/scom-dapp/theme/index.ts"], function (require, exports, components_15, index_css_1, site_4, wallet_4, header_1, footer_1, alert_1, pathToRegexp_2, assets_5, theme_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Alert = exports.Footer = exports.Header = void 0;
