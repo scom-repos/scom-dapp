@@ -307,6 +307,7 @@ export class ConnectWallet extends Module {
                                     <i-hstack
                                         verticalAlignment="center" gap={'1.25rem'} width='100%'
                                         stack={{ grow: '1' }} padding={{ left: '0.5rem' }}
+                                        background={{color: Theme.input.background}}
                                         border={{ radius: '0.375rem 0 0 0.375rem', width: '1px', style: 'solid', color: 'transparent' }}
                                     >
                                         <i-icon name="envelope" fill={Theme.text.secondary} width={'1.25rem'} height={'1.25rem'}></i-icon>
@@ -314,6 +315,7 @@ export class ConnectWallet extends Module {
                                             id="inputEmailAddress"
                                             border={{ radius: '0.375rem 0 0.375rem 0' }}
                                             height={'100%'}
+                                            width={'100%'}
                                             placeholder='your@email.com'
                                             onChanged={this.onEmailInputChanged}
                                             onFocus={(target: Input) => this.onInputFocused(target.parent, true)}
