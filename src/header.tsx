@@ -318,19 +318,17 @@ export class Header extends Module {
     this.mdAccount.visible = true;
   }
 
-  login = async (): Promise<ILoginResult> => {
+  login = async (sessionNonce: string): Promise<ILoginResult> => {
     let errMsg = '';
     let isLoggedIn = false;
-    let expireAt = 0;
     if (!this.isLoginRequestSent) {
       try {
         this.isLoginRequestSent = true;
-        const loginAPIResult = await apiLogin();
+        const loginAPIResult = await apiLogin(sessionNonce);
         if (loginAPIResult.error || !loginAPIResult.success) {
           errMsg = loginAPIResult.error?.message || 'Login failed';
         } else {
           isLoggedIn = true;
-          expireAt = loginAPIResult.expireAt;
         }
       } catch (err) {
         errMsg = 'Login failed';
@@ -339,8 +337,7 @@ export class Header extends Module {
     }
     return { 
       success: isLoggedIn,
-      error: errMsg,
-      expireAt
+      error: errMsg
     }
   }
 
@@ -377,14 +374,14 @@ export class Header extends Module {
     return Wallet.getInstance().chainId === chainId;
   }
 
-  keepSessionAlive(account: string, expireAt: number) {
+  keepSessionAlive(expireAt: number) {
     if (this.keepAliveInterval) {
       clearInterval(this.keepAliveInterval);
     }
     if (expireAt) {
       const interval = Math.floor((expireAt - Date.now()) / 2);
       this.keepAliveInterval = setInterval(async () => {
-        await checkLoginSession(account);
+        await checkLoginSession();
       }, interval);
     }
   }
@@ -393,16 +390,16 @@ export class Header extends Module {
     if (this.wallet)
       return;
     const onAccountChanged = async (payload: Record<string, any>) => {
-      const { userTriggeredConnect, account } = payload;
+      const { userTriggeredConnect, account, sessionNonce, sessionExpireAt } = payload;
       let requireLogin = getRequireLogin();
       let connected = !!account;
 
       if (connected) {
         if (requireLogin) {
           if (userTriggeredConnect) {
-            let loginResult = await this.login();
+            let loginResult = await this.login(sessionNonce);
             if (loginResult.success) {
-              this.keepSessionAlive(account, loginResult.expireAt);
+              this.keepSessionAlive(sessionExpireAt);
               localStorage.setItem('loggedInAccount', account);  
             }
             else {
@@ -415,9 +412,9 @@ export class Header extends Module {
             application.EventBus.dispatch(EventId.IsAccountLoggedIn, loginResult.success);
           }
           else {
-            const { success, error, expireAt } = await checkLoginSession(account);
+            const { success, error, expireAt } = await checkLoginSession();
             if (success) {
-              this.keepSessionAlive(account, expireAt);
+              this.keepSessionAlive(expireAt);
               localStorage.setItem('loggedInAccount', account);
               application.EventBus.dispatch(EventId.IsAccountLoggedIn, true);
             }
@@ -445,6 +442,7 @@ export class Header extends Module {
     }
     
     let wallet = Wallet.getClientInstance();
+    await wallet.init();
     this.wallet = wallet;
     wallet.registerWalletEvent(this, Constants.ClientWalletEvent.AccountsChanged, onAccountChanged);
     wallet.registerWalletEvent(this, Constants.ClientWalletEvent.ChainChanged, async (chainIdHex: string) => {

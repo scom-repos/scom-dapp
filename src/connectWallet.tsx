@@ -10,8 +10,9 @@ import {
     Button,
 } from '@ijstech/components';
 import { Wallet } from '@ijstech/eth-wallet';
-import { sendAuthCode, verifyAuthCode } from './API';
+import { requestLoginSession, sendAuthCode, verifyAuthCode } from './API';
 import assets from './assets';
+import { LoginSessionType } from './constants';
 import { getOAuthProvider } from './site';
 import { connectWallet, getSupportedWalletProviders, getWalletPluginProvider, initWalletPlugins, WalletPlugin } from './wallet';
 
@@ -32,6 +33,8 @@ export class ConnectWallet extends Module {
     private pnlConfirmEmail: VStack;
     private pnlEmail: VStack;
     private digitInputs: Input[];
+    private loginSessionNonce: string;
+    private loginSessionExpireAt: number;
 
     async onWalletSelected() { }
     isWalletActive(walletPlugin) {
@@ -46,7 +49,15 @@ export class ConnectWallet extends Module {
         let idToken = response.credential;
         let payload = JSON.parse(atob(idToken.split('.')[1]));
         let email = payload.email;
+        let loginSessionResult = await requestLoginSession(LoginSessionType.Email);
+        if (!loginSessionResult.success) {
+            return;
+        }
+        this.loginSessionNonce = loginSessionResult.data.nonce;
+        this.loginSessionExpireAt = loginSessionResult.data.expireAt;
         await connectWallet(WalletPlugin.Email, {
+            sessionNonce: this.loginSessionNonce,
+            sessionExpireAt: this.loginSessionExpireAt,
             userTriggeredConnect: true,
             verifyAuthCode: verifyAuthCode,
             verifyAuthCodeArgs: {
@@ -62,8 +73,16 @@ export class ConnectWallet extends Module {
     connectToProviderFunc = async (walletPlugin: string) => {
         const provider = getWalletPluginProvider(walletPlugin);
         if (provider?.installed()) {
+            let loginSessionResult = await requestLoginSession(LoginSessionType.Email);
+            if (!loginSessionResult.success) {
+                return;
+            }
+            this.loginSessionNonce = loginSessionResult.data.nonce;
+            this.loginSessionExpireAt = loginSessionResult.data.expireAt;
             await connectWallet(walletPlugin, {
-                userTriggeredConnect: true
+                userTriggeredConnect: true,
+                sessionNonce: this.loginSessionNonce,
+                sessionExpireAt: this.loginSessionExpireAt,
             });
         }
         else {
@@ -111,6 +130,12 @@ export class ConnectWallet extends Module {
     }
 
     async onSubmitEmail() {
+        let loginSessionResult = await requestLoginSession(LoginSessionType.Email);
+        if (!loginSessionResult.success) {
+            return;
+        }
+        this.loginSessionNonce = loginSessionResult.data.nonce;
+        this.loginSessionExpireAt = loginSessionResult.data.expireAt;
         await sendAuthCode(this.inputEmailAddress.value);
         this.lbConfirmEmailRecipient.caption = this.inputEmailAddress.value;
         this.renderAuthCodeDigits();
@@ -125,6 +150,8 @@ export class ConnectWallet extends Module {
         })
         if (authCode.length !== 6) return;
         await connectWallet(WalletPlugin.Email, {
+            sessionNonce: this.loginSessionNonce,
+            sessionExpireAt: this.loginSessionExpireAt,
             userTriggeredConnect: true,
             verifyAuthCode: verifyAuthCode,
             verifyAuthCodeArgs: {

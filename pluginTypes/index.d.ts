@@ -242,6 +242,11 @@ declare module "@scom/scom-dapp/constants.ts" {
         setFooterVisibility = "setFooterVisibility",
         scrollToTop = "scrollToTop"
     }
+    export const enum LoginSessionType {
+        Wallet = 1,
+        Email = 2,
+        Nostr = 3
+    }
 }
 /// <amd-module name="@scom/scom-dapp/wallet.ts" />
 declare module "@scom/scom-dapp/wallet.ts" {
@@ -299,12 +304,14 @@ declare module "@scom/scom-dapp/header.css.ts" {
 }
 /// <amd-module name="@scom/scom-dapp/API.ts" />
 declare module "@scom/scom-dapp/API.ts" {
-    function checkLoginSession(walletAddress: string): Promise<any>;
-    function apiLogin(): Promise<any>;
+    import { LoginSessionType } from "@scom/scom-dapp/constants.ts";
+    function checkLoginSession(): Promise<any>;
+    function requestLoginSession(sessionType: LoginSessionType): Promise<any>;
+    function apiLogin(sessionNonce: string): Promise<any>;
     function apiLogout(): Promise<any>;
     function sendAuthCode(email: string): Promise<any>;
     function verifyAuthCode(verifyAuthCodeArgs: any): Promise<any>;
-    export { checkLoginSession, apiLogin, apiLogout, sendAuthCode, verifyAuthCode };
+    export { requestLoginSession, checkLoginSession, apiLogin, apiLogout, sendAuthCode, verifyAuthCode };
 }
 /// <amd-module name="@scom/scom-dapp/alert.css.ts" />
 declare module "@scom/scom-dapp/alert.css.ts" {
@@ -379,6 +386,8 @@ declare module "@scom/scom-dapp/connectWallet.tsx" {
         private pnlConfirmEmail;
         private pnlEmail;
         private digitInputs;
+        private loginSessionNonce;
+        private loginSessionExpireAt;
         onWalletSelected(): Promise<void>;
         isWalletActive(walletPlugin: any): boolean;
         openLink(link: any): Window;
@@ -470,14 +479,14 @@ declare module "@scom/scom-dapp/header.tsx" {
         openNetworkModal: () => Promise<void>;
         openWalletDetailModal: () => void;
         openAccountModal: (target: Control, event: Event) => void;
-        login: () => Promise<ILoginResult>;
+        login: (sessionNonce: string) => Promise<ILoginResult>;
         handleLogoutClick: (target: Control, event: Event) => Promise<void>;
         viewOnExplorerByAddress(): void;
         openLink(link: any): Window;
         copyWalletAddress: () => void;
         isWalletActive(walletPlugin: any): boolean;
         isNetworkActive(chainId: number): boolean;
-        keepSessionAlive(account: string, expireAt: number): void;
+        keepSessionAlive(expireAt: number): void;
         initWallet: () => Promise<void>;
         getMenuPath(url: string, params: any): string;
         _getMenuData(list: IMenu[], mode: string, validMenuItemsFn: (item: IMenu) => boolean): IMenuItem[];
