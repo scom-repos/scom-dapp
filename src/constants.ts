@@ -9,3 +9,9 @@ export const enum EventId {
   setFooterVisibility = 'setFooterVisibility',
   scrollToTop = 'scrollToTop'
 };
+
+export const enum LoginSessionType {
+  Wallet = 1,
+  Email = 2,
+  Nostr = 3
+}

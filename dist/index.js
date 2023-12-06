@@ -1036,7 +1036,7 @@ define("@scom/scom-dapp/header.css.ts", ["require", "exports", "@ijstech/compone
 define("@scom/scom-dapp/API.ts", ["require", "exports", "@ijstech/eth-wallet"], function (require, exports, eth_wallet_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.verifyAuthCode = exports.sendAuthCode = exports.apiLogout = exports.apiLogin = exports.checkLoginSession = void 0;
+    exports.verifyAuthCode = exports.sendAuthCode = exports.apiLogout = exports.apiLogin = exports.checkLoginSession = exports.requestLoginSession = void 0;
     const API_BASE_URL = '/api/account/v0';
     function constructPersonalSignMessage(walletAddress, uuid) {
         let messageChunks = [
@@ -1048,9 +1048,9 @@ define("@scom/scom-dapp/API.ts", ["require", "exports", "@ijstech/eth-wallet"], 
         ];
         return messageChunks.join('\n\n');
     }
-    async function checkLoginSession(walletAddress) {
-        let body = JSON.stringify({ walletAddress: walletAddress });
-        let response = await fetch(API_BASE_URL + '/checkLoginSession', {
+    async function checkLoginSession() {
+        let body = JSON.stringify({});
+        let response = await fetch(API_BASE_URL + '/check-login-session', {
             body: body,
             method: 'POST',
             credentials: 'include',
@@ -1064,9 +1064,9 @@ define("@scom/scom-dapp/API.ts", ["require", "exports", "@ijstech/eth-wallet"], 
     }
     exports.checkLoginSession = checkLoginSession;
     ;
-    async function requestLoginSession(walletAddress) {
-        let body = JSON.stringify({ walletAddress: walletAddress });
-        let response = await fetch(API_BASE_URL + '/requestLoginSession', {
+    async function requestLoginSession(sessionType) {
+        let body = JSON.stringify({ type: sessionType });
+        let response = await fetch(API_BASE_URL + '/request-login-session', {
             body: body,
             method: 'POST',
             credentials: 'include',
@@ -1078,19 +1078,17 @@ define("@scom/scom-dapp/API.ts", ["require", "exports", "@ijstech/eth-wallet"], 
         let result = await response.json();
         return result;
     }
+    exports.requestLoginSession = requestLoginSession;
     ;
-    async function apiLogin() {
+    async function apiLogin(sessionNonce) {
         const wallet = eth_wallet_2.Wallet.getClientInstance();
-        let session = await requestLoginSession(wallet.address);
-        if (session.success && session.data?.account)
-            return { success: true };
-        let msg = constructPersonalSignMessage(wallet.address, session.data.nonce);
+        let msg = constructPersonalSignMessage(wallet.address, sessionNonce);
         await eth_wallet_2.Wallet.initWeb3();
         let signature = await wallet.signMessage(msg);
         let chainId = await wallet.getChainId();
         let body = JSON.stringify({
             chainId: chainId,
-            uuid: session.data.nonce,
+            uuid: sessionNonce,
             signature: signature,
             walletAddress: wallet.address
         });
@@ -1122,7 +1120,7 @@ define("@scom/scom-dapp/API.ts", ["require", "exports", "@ijstech/eth-wallet"], 
     }
     exports.apiLogout = apiLogout;
     async function sendAuthCode(email) {
-        let response = await fetch(API_BASE_URL + '/sendAuthCode', {
+        let response = await fetch(API_BASE_URL + '/send-auth-code', {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -1138,7 +1136,7 @@ define("@scom/scom-dapp/API.ts", ["require", "exports", "@ijstech/eth-wallet"], 
     }
     exports.sendAuthCode = sendAuthCode;
     async function verifyAuthCode(verifyAuthCodeArgs) {
-        let response = await fetch(API_BASE_URL + '/verifyAuthCode', {
+        let response = await fetch(API_BASE_URL + '/verify-auth-code', {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -1324,8 +1322,16 @@ define("@scom/scom-dapp/connectWallet.tsx", ["require", "exports", "@ijstech/com
             this.connectToProviderFunc = async (walletPlugin) => {
                 const provider = (0, wallet_2.getWalletPluginProvider)(walletPlugin);
                 if (provider?.installed()) {
+                    let loginSessionResult = await (0, API_1.requestLoginSession)(2 /* LoginSessionType.Email */);
+                    if (!loginSessionResult.success) {
+                        return;
+                    }
+                    this.loginSessionNonce = loginSessionResult.data.nonce;
+                    this.loginSessionExpireAt = loginSessionResult.data.expireAt;
                     await (0, wallet_2.connectWallet)(walletPlugin, {
-                        userTriggeredConnect: true
+                        userTriggeredConnect: true,
+                        sessionNonce: this.loginSessionNonce,
+                        sessionExpireAt: this.loginSessionExpireAt,
                     });
                 }
                 else {
@@ -1399,7 +1405,15 @@ define("@scom/scom-dapp/connectWallet.tsx", ["require", "exports", "@ijstech/com
             let idToken = response.credential;
             let payload = JSON.parse(atob(idToken.split('.')[1]));
             let email = payload.email;
+            let loginSessionResult = await (0, API_1.requestLoginSession)(2 /* LoginSessionType.Email */);
+            if (!loginSessionResult.success) {
+                return;
+            }
+            this.loginSessionNonce = loginSessionResult.data.nonce;
+            this.loginSessionExpireAt = loginSessionResult.data.expireAt;
             await (0, wallet_2.connectWallet)(wallet_2.WalletPlugin.Email, {
+                sessionNonce: this.loginSessionNonce,
+                sessionExpireAt: this.loginSessionExpireAt,
                 userTriggeredConnect: true,
                 verifyAuthCode: API_1.verifyAuthCode,
                 verifyAuthCodeArgs: {
@@ -1434,6 +1448,12 @@ define("@scom/scom-dapp/connectWallet.tsx", ["require", "exports", "@ijstech/com
             }
         }
         async onSubmitEmail() {
+            let loginSessionResult = await (0, API_1.requestLoginSession)(2 /* LoginSessionType.Email */);
+            if (!loginSessionResult.success) {
+                return;
+            }
+            this.loginSessionNonce = loginSessionResult.data.nonce;
+            this.loginSessionExpireAt = loginSessionResult.data.expireAt;
             await (0, API_1.sendAuthCode)(this.inputEmailAddress.value);
             this.lbConfirmEmailRecipient.caption = this.inputEmailAddress.value;
             this.renderAuthCodeDigits();
@@ -1448,6 +1468,8 @@ define("@scom/scom-dapp/connectWallet.tsx", ["require", "exports", "@ijstech/com
             if (authCode.length !== 6)
                 return;
             await (0, wallet_2.connectWallet)(wallet_2.WalletPlugin.Email, {
+                sessionNonce: this.loginSessionNonce,
+                sessionExpireAt: this.loginSessionExpireAt,
                 userTriggeredConnect: true,
                 verifyAuthCode: API_1.verifyAuthCode,
                 verifyAuthCodeArgs: {
@@ -1636,20 +1658,18 @@ define("@scom/scom-dapp/header.tsx", ["require", "exports", "@ijstech/components
                 this.mdWalletDetail.visible = false;
                 this.mdAccount.visible = true;
             };
-            this.login = async () => {
+            this.login = async (sessionNonce) => {
                 let errMsg = '';
                 let isLoggedIn = false;
-                let expireAt = 0;
                 if (!this.isLoginRequestSent) {
                     try {
                         this.isLoginRequestSent = true;
-                        const loginAPIResult = await (0, API_2.apiLogin)();
+                        const loginAPIResult = await (0, API_2.apiLogin)(sessionNonce);
                         if (loginAPIResult.error || !loginAPIResult.success) {
                             errMsg = loginAPIResult.error?.message || 'Login failed';
                         }
                         else {
                             isLoggedIn = true;
-                            expireAt = loginAPIResult.expireAt;
                         }
                     }
                     catch (err) {
@@ -1659,8 +1679,7 @@ define("@scom/scom-dapp/header.tsx", ["require", "exports", "@ijstech/components
                 }
                 return {
                     success: isLoggedIn,
-                    error: errMsg,
-                    expireAt
+                    error: errMsg
                 };
             };
             this.handleLogoutClick = async (target, event) => {
@@ -1682,15 +1701,15 @@ define("@scom/scom-dapp/header.tsx", ["require", "exports", "@ijstech/components
                 if (this.wallet)
                     return;
                 const onAccountChanged = async (payload) => {
-                    const { userTriggeredConnect, account } = payload;
+                    const { userTriggeredConnect, account, sessionNonce, sessionExpireAt } = payload;
                     let requireLogin = (0, site_3.getRequireLogin)();
                     let connected = !!account;
                     if (connected) {
                         if (requireLogin) {
                             if (userTriggeredConnect) {
-                                let loginResult = await this.login();
+                                let loginResult = await this.login(sessionNonce);
                                 if (loginResult.success) {
-                                    this.keepSessionAlive(account, loginResult.expireAt);
+                                    this.keepSessionAlive(sessionExpireAt);
                                     localStorage.setItem('loggedInAccount', account);
                                 }
                                 else {
@@ -1703,9 +1722,9 @@ define("@scom/scom-dapp/header.tsx", ["require", "exports", "@ijstech/components
                                 components_10.application.EventBus.dispatch("isAccountLoggedIn" /* EventId.IsAccountLoggedIn */, loginResult.success);
                             }
                             else {
-                                const { success, error, expireAt } = await (0, API_2.checkLoginSession)(account);
+                                const { success, error, expireAt } = await (0, API_2.checkLoginSession)();
                                 if (success) {
-                                    this.keepSessionAlive(account, expireAt);
+                                    this.keepSessionAlive(expireAt);
                                     localStorage.setItem('loggedInAccount', account);
                                     components_10.application.EventBus.dispatch("isAccountLoggedIn" /* EventId.IsAccountLoggedIn */, true);
                                 }
@@ -1732,6 +1751,7 @@ define("@scom/scom-dapp/header.tsx", ["require", "exports", "@ijstech/components
                     }
                 };
                 let wallet = eth_wallet_5.Wallet.getClientInstance();
+                await wallet.init();
                 this.wallet = wallet;
                 wallet.registerWalletEvent(this, eth_wallet_5.Constants.ClientWalletEvent.AccountsChanged, onAccountChanged);
                 wallet.registerWalletEvent(this, eth_wallet_5.Constants.ClientWalletEvent.ChainChanged, async (chainIdHex) => {
@@ -1879,14 +1899,14 @@ define("@scom/scom-dapp/header.tsx", ["require", "exports", "@ijstech/components
         isNetworkActive(chainId) {
             return eth_wallet_5.Wallet.getInstance().chainId === chainId;
         }
-        keepSessionAlive(account, expireAt) {
+        keepSessionAlive(expireAt) {
             if (this.keepAliveInterval) {
                 clearInterval(this.keepAliveInterval);
             }
             if (expireAt) {
                 const interval = Math.floor((expireAt - Date.now()) / 2);
                 this.keepAliveInterval = setInterval(async () => {
-                    await (0, API_2.checkLoginSession)(account);
+                    await (0, API_2.checkLoginSession)();
                 }, interval);
             }
         }

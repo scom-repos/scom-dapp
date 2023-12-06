@@ -1,4 +1,5 @@
 import { Wallet, Utils, Types } from "@ijstech/eth-wallet";
+import { LoginSessionType } from "./constants";
 
 const API_BASE_URL = '/api/account/v0';
 
@@ -12,9 +13,9 @@ function constructPersonalSignMessage(walletAddress: string, uuid: string) {
   ]
   return messageChunks.join('\n\n');
 }
-async function checkLoginSession(walletAddress: string) {
-  let body = JSON.stringify({ walletAddress: walletAddress });
-  let response = await fetch(API_BASE_URL + '/checkLoginSession', {
+async function checkLoginSession() {
+  let body = JSON.stringify({});
+  let response = await fetch(API_BASE_URL + '/check-login-session', {
     body: body,
     method: 'POST',
     credentials: 'include',
@@ -26,9 +27,9 @@ async function checkLoginSession(walletAddress: string) {
   let result = await response.json();
   return result;
 };
-async function requestLoginSession(walletAddress: string) {
-  let body = JSON.stringify({ walletAddress: walletAddress });
-  let response = await fetch(API_BASE_URL + '/requestLoginSession', {
+async function requestLoginSession(sessionType: LoginSessionType) {
+  let body = JSON.stringify({ type: sessionType });
+  let response = await fetch(API_BASE_URL + '/request-login-session', {
     body: body,
     method: 'POST',
     credentials: 'include',
@@ -40,19 +41,15 @@ async function requestLoginSession(walletAddress: string) {
   let result = await response.json();
   return result;
 };
-async function apiLogin() {
+async function apiLogin(sessionNonce: string) {
   const wallet = Wallet.getClientInstance();
-  let session = await requestLoginSession(wallet.address);
-  if (session.success && session.data?.account)
-    return {success: true};
-
-  let msg = constructPersonalSignMessage(wallet.address, session.data.nonce);
+  let msg = constructPersonalSignMessage(wallet.address, sessionNonce);
   await Wallet.initWeb3();
   let signature = await wallet.signMessage(msg);
   let chainId = await wallet.getChainId();
   let body = JSON.stringify({
     chainId: chainId,
-    uuid: session.data.nonce,
+    uuid: sessionNonce,
     signature: signature,
     walletAddress: wallet.address
   });
@@ -81,7 +78,7 @@ async function apiLogout() {
   return result;
 }
 async function sendAuthCode(email: string) {
-  let response = await fetch(API_BASE_URL + '/sendAuthCode', {
+  let response = await fetch(API_BASE_URL + '/send-auth-code', {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -96,7 +93,7 @@ async function sendAuthCode(email: string) {
   return result;
 }
 async function verifyAuthCode(verifyAuthCodeArgs: any) {
-  let response = await fetch(API_BASE_URL + '/verifyAuthCode', {
+  let response = await fetch(API_BASE_URL + '/verify-auth-code', {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -110,6 +107,7 @@ async function verifyAuthCode(verifyAuthCodeArgs: any) {
 }
 
 export {
+  requestLoginSession,
   checkLoginSession,
   apiLogin,
   apiLogout,
