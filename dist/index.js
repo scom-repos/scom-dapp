@@ -2093,192 +2093,15 @@ define("@scom/scom-dapp/footer.tsx", ["require", "exports", "@ijstech/components
     ], Footer);
     exports.Footer = Footer;
 });
-define("@scom/scom-dapp/theme/light.theme.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_13) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    const Theme = JSON.parse(JSON.stringify(components_13.Styles.Theme.defaultTheme));
-    // Background
-    Theme.background.main = '#FFFFFF';
-    Theme.background.paper = '#FAFAFA';
-    Theme.background.modal = '#FFFFFF';
-    Theme.background.default = '#EEEEEE';
-    // Theme.background.gradient = '';
-    // Colors
-    Theme.colors.primary.main = '#FF6600';
-    Theme.colors.primary.light = '#FF8533';
-    Theme.colors.primary.dark = '#FF8533';
-    Theme.colors.primary.contrastText = '#FFFFFF';
-    Theme.colors.secondary.main = '#AAAAAA';
-    Theme.colors.secondary.light = '#f5f5f5';
-    // Theme.colors.secondary.dark = '';
-    // Theme.colors.secondary.contrastText = '';
-    Theme.colors.success.main = '#77B24D';
-    // Theme.colors.success.light = '';
-    // Theme.colors.success.dark = '';
-    Theme.colors.success.contrastText = '#FFFFFF';
-    Theme.colors.error.main = '#B2554D';
-    // Theme.colors.error.light = '';
-    // Theme.colors.error.dark = '';
-    Theme.colors.error.contrastText = '#FFFFFF';
-    // Theme.colors.info.main = '';
-    // Theme.colors.info.light = '';
-    // Theme.colors.info.dark = '';
-    // Theme.colors.info.contrastText = '';
-    // Theme.colors.warning.main = '';
-    // Theme.colors.warning.light = '';
-    // Theme.colors.warning.dark = '';
-    // Theme.colors.warning.contrastText = '';
-    // Text
-    Theme.text.primary = '#5f6368';
-    // Theme.text.secondary = '';
-    // Theme.text.third = '';
-    // Theme.text.hint = '';
-    // Theme.text.disabled = '';
-    // Typography
-    // Theme.typography.fontSize = '';
-    // Theme.typography.fontFamily = '';
-    // Shadows
-    // Theme.shadows["0"] = '';
-    // Theme.shadows["1"] = '';
-    // Theme.shadows["2"] = '';
-    // Theme.shadows["3"] = '';
-    // Theme.shadows["4"] = '';
-    // Breakpoints
-    // Theme.breakboints.xs = 0;
-    // Theme.breakboints.sm = 0;
-    // Theme.breakboints.md = 0;
-    // Theme.breakboints.lg = 0;
-    // Theme.breakboints.xl = 0;
-    // Divider
-    Theme.divider = 'rgba(217,225,232,.6)';
-    // Docs
-    // Theme.docs.background = '';
-    // Theme.docs.text0 = '';
-    // Theme.docs.text1 = '';
-    // Input
-    Theme.input.background = '#FAFAFA';
-    // Theme.input.fontColor = '';
-    // Combobox
-    Theme.combobox.background = '#FAFAFA';
-    // Theme.combobox.fontColor = '';
-    // Action
-    Theme.action.hover = 'rgba(0, 0, 0, 0.04)';
-    // Theme.action.hoverOpacity = 1;
-    // Theme.action.active = '';
-    // Theme.action.activeOpacity = 1;
-    // Theme.action.disabled = '';
-    // Theme.action.disabledBackground = '';
-    // Theme.action.disabledOpacity = 1;
-    // Theme.action.focus = '';
-    // Theme.action.focusOpacity = 1;
-    // Theme.action.selected = '';
-    // Theme.action.selectedOpacity = 1;
-    // Layout
-    Theme.layout.container.width = '1400px';
-    // Layout
-    exports.default = Theme;
-});
-define("@scom/scom-dapp/theme/dark.theme.ts", ["require", "exports", "@ijstech/components"], function (require, exports, components_14) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    const Theme = JSON.parse(JSON.stringify(components_14.Styles.Theme.darkTheme));
-    // Background
-    Theme.background.main = '#0C1234';
-    Theme.background.paper = '#192046';
-    Theme.background.modal = '#192046';
-    Theme.background.default = '#1E1E1E';
-    Theme.background.gradient = 'transparent linear-gradient(90deg, #AC1D78 0%, #E04862 100%) 0% 0% no-repeat padding-box';
-    // Colors
-    Theme.colors.primary.main = '#ff9800';
-    Theme.colors.primary.light = '#2B2B2B';
-    Theme.colors.primary.dark = '#F05E61';
-    Theme.colors.primary.contrastText = '#FFFFFF';
-    Theme.colors.secondary.main = '#222237';
-    Theme.colors.secondary.light = '#2B2B2B';
-    Theme.colors.secondary.dark = '#3B3B3B';
-    Theme.colors.secondary.contrastText = '#FFFFFF';
-    // Theme.colors.success.main = '';
-    // Theme.colors.success.light = '';
-    // Theme.colors.success.dark = '';
-    // Theme.colors.success.contrastText = '';
-    Theme.colors.error.main = '#B2554D';
-    // Theme.colors.error.light = '';
-    // Theme.colors.error.dark = '';
-    // Theme.colors.error.contrastText = '';
-    // Theme.colors.info.main = '';
-    // Theme.colors.info.light = '';
-    // Theme.colors.info.dark = '';
-    // Theme.colors.info.contrastText = '';
-    Theme.colors.warning.main = '#ffa726';
-    Theme.colors.warning.light = '#F6C958';
-    Theme.colors.warning.dark = '#f57c00';
-    Theme.colors.warning.contrastText = '#FFFFFF';
-    // Text
-    Theme.text.primary = '#FFFFFF';
-    Theme.text.secondary = 'hsla(0, 0%, 100%, 0.55)';
-    Theme.text.third = '#f7d064';
-    // Theme.text.hint = '';
-    // Theme.text.disabled = '';
-    // Typography
-    // Theme.typography.fontSize = '';
-    // Theme.typography.fontFamily = '';
-    // Shadows
-    // Theme.shadows["0"] = '';
-    // Theme.shadows["1"] = '';
-    // Theme.shadows["2"] = '';
-    // Theme.shadows["3"] = '';
-    // Theme.shadows["4"] = '';
-    // Breakpoints
-    // Theme.breakboints.xs = 0;
-    // Theme.breakboints.sm = 0;
-    // Theme.breakboints.md = 0;
-    // Theme.breakboints.lg = 0;
-    // Theme.breakboints.xl = 0;
-    // Divider
-    Theme.divider = '#D9D9D9';
-    // Docs
-    Theme.docs.background = '#181C1F';
-    Theme.docs.text0 = '#fff';
-    Theme.docs.text1 = '#fff';
-    // Input
-    Theme.input.background = '#232B5A';
-    Theme.input.fontColor = '#fff';
-    // Combobox
-    Theme.combobox.background = '#232B5A';
-    Theme.combobox.fontColor = '#fff';
-    // Action
-    Theme.action.hover = 'rgba(255,255,255,0.08)';
-    Theme.action.hoverOpacity = 0.08;
-    Theme.action.active = 'rgba(0, 0, 0, 0.54)';
-    Theme.action.activeOpacity = 0.12;
-    Theme.action.disabled = '#404040';
-    Theme.action.disabledBackground = 'transparent linear-gradient(270deg,#351f52,#552a42) 0% 0% no-repeat padding-box';
-    Theme.action.disabledOpacity = 0.38;
-    Theme.action.focus = 'rgba(255,255,255, 0.12)';
-    // Theme.action.focusOpacity = 1;
-    // Theme.action.selected = '';
-    // Theme.action.selectedOpacity = 1;
-    // Layout
-    Theme.layout.container.width = '1400px';
-    exports.default = Theme;
-});
-define("@scom/scom-dapp/theme/index.ts", ["require", "exports", "@scom/scom-dapp/theme/light.theme.ts", "@scom/scom-dapp/theme/dark.theme.ts"], function (require, exports, light_theme_1, dark_theme_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.DarkTheme = exports.LightTheme = void 0;
-    exports.LightTheme = light_theme_1.default;
-    exports.DarkTheme = dark_theme_1.default;
-});
-define("@scom/scom-dapp", ["require", "exports", "@ijstech/components", "@scom/scom-dapp/index.css.ts", "@scom/scom-dapp/site.ts", "@scom/scom-dapp/wallet.ts", "@scom/scom-dapp/header.tsx", "@scom/scom-dapp/footer.tsx", "@scom/scom-dapp/alert.tsx", "@scom/scom-dapp/pathToRegexp.ts", "@scom/scom-dapp/assets.ts", "@scom/scom-dapp/theme/index.ts"], function (require, exports, components_15, index_css_1, site_4, wallet_4, header_1, footer_1, alert_1, pathToRegexp_2, assets_5, theme_1) {
+define("@scom/scom-dapp", ["require", "exports", "@ijstech/components", "@scom/scom-dapp/index.css.ts", "@scom/scom-dapp/site.ts", "@scom/scom-dapp/wallet.ts", "@scom/scom-dapp/header.tsx", "@scom/scom-dapp/footer.tsx", "@scom/scom-dapp/alert.tsx", "@scom/scom-dapp/pathToRegexp.ts", "@scom/scom-dapp/assets.ts"], function (require, exports, components_13, index_css_1, site_4, wallet_4, header_1, footer_1, alert_1, pathToRegexp_2, assets_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Alert = exports.Footer = exports.Header = void 0;
     Object.defineProperty(exports, "Header", { enumerable: true, get: function () { return header_1.Header; } });
     Object.defineProperty(exports, "Footer", { enumerable: true, get: function () { return footer_1.Footer; } });
     Object.defineProperty(exports, "Alert", { enumerable: true, get: function () { return alert_1.Alert; } });
-    components_15.Styles.Theme.applyTheme(theme_1.DarkTheme);
     ;
-    let MainLauncher = class MainLauncher extends components_15.Module {
+    let MainLauncher = class MainLauncher extends components_13.Module {
         constructor(parent, options) {
             super(parent, options);
             this.mergeTheme = (target, theme) => {
@@ -2300,17 +2123,20 @@ define("@scom/scom-dapp", ["require", "exports", "@ijstech/components", "@scom/s
             else {
                 this.handleHashChange();
             }
-            this.$eventBus = components_15.application.EventBus;
+            this.$eventBus = components_13.application.EventBus;
             this.registerEvent();
         }
         ;
         async init() {
-            window.onhashchange = this.handleHashChange.bind(this);
+            if (this.options?.type !== 'widget') {
+                window.onhashchange = this.handleHashChange.bind(this);
+            }
             this.menuItems = this.options.menus || [];
             assets_5.assets.breakpoints = this.options.breakpoints;
             (0, site_4.updateConfig)(this.options);
             (0, wallet_4.updateWalletConfig)(this.options);
-            this.updateThemes(this.options.themes);
+            if (this.options.themes)
+                this.updateThemes(this.options.themes);
             this.customHeaderStyles = this._options?.header?.customStyles ?? {};
             this.customFooterStyles = this._options?.footer?.customStyles ?? {};
             this.hasFooterLogo = this._options?.footer?.hasLogo ?? true;
@@ -2362,7 +2188,7 @@ define("@scom/scom-dapp", ["require", "exports", "@ijstech/components", "@scom/s
             if (menu) {
                 let menuObj = menu;
                 if (!menuObj.moduleObject) {
-                    menuObj.moduleObject = await components_15.application.loadModule(menu.module, this._options);
+                    menuObj.moduleObject = await components_13.application.loadModule(menu.module, this._options);
                     if (menuObj.moduleObject)
                         menuObj.moduleObject.onLoad();
                 }
@@ -2397,13 +2223,13 @@ define("@scom/scom-dapp", ["require", "exports", "@ijstech/components", "@scom/s
             if (!themes)
                 return;
             if (themes.dark) {
-                this.mergeTheme(components_15.Styles.Theme.darkTheme, themes.dark);
+                this.mergeTheme(components_13.Styles.Theme.darkTheme, themes.dark);
             }
             if (themes.light) {
-                this.mergeTheme(components_15.Styles.Theme.defaultTheme, themes.light);
+                this.mergeTheme(components_13.Styles.Theme.defaultTheme, themes.light);
             }
-            const theme = themes.default === 'light' ? components_15.Styles.Theme.defaultTheme : components_15.Styles.Theme.darkTheme;
-            components_15.Styles.Theme.applyTheme(theme);
+            const theme = themes.default === 'light' ? components_13.Styles.Theme.defaultTheme : components_13.Styles.Theme.darkTheme;
+            components_13.Styles.Theme.applyTheme(theme);
             document.body.style.setProperty('--theme', themes.default);
         }
         updateLayout() {
@@ -2444,7 +2270,7 @@ define("@scom/scom-dapp", ["require", "exports", "@ijstech/components", "@scom/s
         ;
     };
     MainLauncher = __decorate([
-        components_15.customModule
+        components_13.customModule
     ], MainLauncher);
     exports.default = MainLauncher;
     ;
