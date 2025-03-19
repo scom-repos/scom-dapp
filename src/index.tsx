@@ -12,8 +12,8 @@ import { Header } from './header';
 import { Footer } from './footer';
 import { IBreakpoints, IFooter, IHeader, IMenu, IExtendedNetwork } from './interface';
 import { EventId } from './constants';
-import { DarkTheme } from './theme';
-Styles.Theme.applyTheme(DarkTheme);
+// import { DarkTheme } from './theme';
+// Styles.Theme.applyTheme(DarkTheme);
 
 interface ISCConfig {
 	env: string;
@@ -72,12 +72,15 @@ export default class MainLauncher extends Module {
 		this.registerEvent();
 	};
 	async init() {
-		window.onhashchange = this.handleHashChange.bind(this);
+		if (this.options?.type !== 'widget') {
+			window.onhashchange = this.handleHashChange.bind(this);
+		}
+
 		this.menuItems = this.options.menus || [];
 		assets.breakpoints = this.options.breakpoints;
 		updateConfig(this.options);
 		updateWalletConfig(this.options);
-		this.updateThemes(this.options.themes)
+		if (this.options.themes) this.updateThemes(this.options.themes)
 		this.customHeaderStyles = this._options?.header?.customStyles ?? {};
 		this.customFooterStyles = this._options?.footer?.customStyles ?? {};
 		this.hasFooterLogo = this._options?.footer?.hasLogo ?? true;
@@ -203,6 +206,7 @@ export default class MainLauncher extends Module {
 	  document.documentElement.scrollTop = 0;
 	  this.pnlScrollable.scrollTop = 0;
 	}
+
 	async render() {
 		return (
 			<i-vstack height="inherit">
