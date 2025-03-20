@@ -2093,7 +2093,7 @@ define("@scom/scom-dapp/footer.tsx", ["require", "exports", "@ijstech/components
     ], Footer);
     exports.Footer = Footer;
 });
-define("@scom/scom-dapp", ["require", "exports", "@ijstech/components", "@scom/scom-dapp/index.css.ts", "@scom/scom-dapp/site.ts", "@scom/scom-dapp/wallet.ts", "@scom/scom-dapp/header.tsx", "@scom/scom-dapp/footer.tsx", "@scom/scom-dapp/alert.tsx", "@scom/scom-dapp/pathToRegexp.ts", "@scom/scom-dapp/assets.ts"], function (require, exports, components_13, index_css_1, site_4, wallet_4, header_1, footer_1, alert_1, pathToRegexp_2, assets_5) {
+define("@scom/scom-dapp", ["require", "exports", "@ijstech/components", "@scom/scom-dapp/index.css.ts", "@scom/scom-dapp/site.ts", "@scom/scom-dapp/wallet.ts", "@scom/scom-dapp/header.tsx", "@scom/scom-dapp/footer.tsx", "@scom/scom-dapp/alert.tsx", "@scom/scom-dapp/pathToRegexp.ts", "@scom/scom-dapp/assets.ts", "@scom/scom-ton-connect"], function (require, exports, components_13, index_css_1, site_4, wallet_4, header_1, footer_1, alert_1, pathToRegexp_2, assets_5, scom_ton_connect_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Alert = exports.Footer = exports.Header = void 0;
@@ -2128,13 +2128,12 @@ define("@scom/scom-dapp", ["require", "exports", "@ijstech/components", "@scom/s
         }
         ;
         async init() {
-            if (this.options?.type !== 'widget') {
-                window.onhashchange = this.handleHashChange.bind(this);
-            }
+            window.onhashchange = this.handleHashChange.bind(this);
             this.menuItems = this.options.menus || [];
             assets_5.assets.breakpoints = this.options.breakpoints;
             (0, site_4.updateConfig)(this.options);
             (0, wallet_4.updateWalletConfig)(this.options);
+            (0, scom_ton_connect_1.initTonConnectUI)();
             if (this.options.themes)
                 this.updateThemes(this.options.themes);
             this.customHeaderStyles = this._options?.header?.customStyles ?? {};

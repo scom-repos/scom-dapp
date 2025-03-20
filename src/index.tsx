@@ -12,6 +12,7 @@ import { Header } from './header';
 import { Footer } from './footer';
 import { IBreakpoints, IFooter, IHeader, IMenu, IExtendedNetwork } from './interface';
 import { EventId } from './constants';
+import { initTonConnectUI } from "@scom/scom-ton-connect";
 // import { DarkTheme } from './theme';
 // Styles.Theme.applyTheme(DarkTheme);
 
@@ -72,14 +73,12 @@ export default class MainLauncher extends Module {
 		this.registerEvent();
 	};
 	async init() {
-		if (this.options?.type !== 'widget') {
-			window.onhashchange = this.handleHashChange.bind(this);
-		}
-
+		window.onhashchange = this.handleHashChange.bind(this);
 		this.menuItems = this.options.menus || [];
 		assets.breakpoints = this.options.breakpoints;
 		updateConfig(this.options);
 		updateWalletConfig(this.options);
+		initTonConnectUI();
 		if (this.options.themes) this.updateThemes(this.options.themes)
 		this.customHeaderStyles = this._options?.header?.customStyles ?? {};
 		this.customFooterStyles = this._options?.footer?.customStyles ?? {};
