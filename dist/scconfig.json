@@ -1,7 +1,7 @@
 {
     "name": "@scom/scom-dapp",
     "type": "widget",
-    "version": "0.1.42",
+    "version": "0.1.43",
     "dependencies": [
         "@ijstech/components",
         "@ijstech/eth-contract",
